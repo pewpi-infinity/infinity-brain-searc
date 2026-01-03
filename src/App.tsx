@@ -10,6 +10,7 @@ import { HelpLegend } from '@/components/HelpLegend'
 import { ModuleBrowser } from '@/components/ModuleBrowser'
 import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
+import { TokenAuction } from '@/components/TokenAuction'
 import { UserDashboard } from '@/components/UserDashboard'
 import { MarketOverview } from '@/components/MarketOverview'
 import { PageExporter } from '@/components/PageExporter'
@@ -25,7 +26,7 @@ import { EmojiFeatureHub } from '@/components/EmojiFeatureHub'
 import { MarioScene } from '@/components/MarioScene'
 import { SpriteBuilder } from '@/components/SpriteBuilder'
 import { SocialSecurityDistributor } from '@/components/SocialSecurityDistributor'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -86,7 +87,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-18 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-19 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -122,6 +123,10 @@ function App() {
               <TabsTrigger value="marketplace" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Storefront size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Trade</span>
+              </TabsTrigger>
+              <TabsTrigger value="auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Gavel size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Auction</span>
               </TabsTrigger>
               <TabsTrigger value="search" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <MagnifyingGlass size={20} weight="duotone" />
@@ -209,6 +214,10 @@ function App() {
 
             <TabsContent value="marketplace">
               <TokenMarketplace />
+            </TabsContent>
+
+            <TabsContent value="auction">
+              <TokenAuction />
             </TabsContent>
 
             <TabsContent value="search">
