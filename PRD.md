@@ -117,6 +117,27 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User explores hub → Visual cards show each page → Click to navigate → Seamless transitions
 - Success criteria: All pages accessible, clear descriptions, smooth navigation
 
+**Multi-Platform Social Posting System**
+- Functionality: Post to multiple social media platforms simultaneously with AI enhancement, emoji shortcuts, and conversation context integration
+- Purpose: Enable seamless cross-platform posting from within Infinity Brain without switching between platforms - truly unified social presence
+- Trigger: Navigate to Social tab or use emoji shortcuts (🤑 for auto-post, 🧲🪐 for context inclusion)
+- Progression: User connects platforms (Twitter, Facebook, LinkedIn, Instagram, TikTok) → Types post content → Optionally includes recent conversation context → Uses emoji shortcut or clicks post button → AI enhances content for engagement → Posts simultaneously to all connected platforms → Real-time progress indicators → Success confirmation for each platform → Post saved to history with platform badges
+- Success criteria: Platform connections persist between sessions, emoji shortcuts trigger instant posting, conversation context properly included when requested, AI enhancement maintains authentic voice while improving engagement, posts successfully reach all connected platforms, post history shows all previous posts with timestamps and platform tags, character count warnings for Twitter compatibility, schedule posts for future times
+
+**Azure Static Web Apps Deployment**
+- Functionality: One-click deployment to Azure Static Web Apps with full configuration management and deployment tracking
+- Purpose: Enable professional-grade hosting on Microsoft Azure cloud infrastructure with global CDN and HTTPS
+- Trigger: Navigate to Azure tab → Configure Azure settings
+- Progression: User enters Azure subscription ID → Provides resource group name → Sets static web app name → Chooses Azure region → Views deployment URL preview → Clicks "Deploy to Azure" → Progress bar shows build/upload stages → Deployment completes with live HTTPS URL → Deployment added to history with visit link → Subsequent deployments use saved configuration
+- Success criteria: Azure configuration persists between sessions, subscription ID and resource group validation works, deployment completes in under 30 seconds, deployed sites are live with HTTPS and CDN, deployment history tracks all Azure deployments with timestamps and URLs, clear setup instructions guide new users, deployment failures show helpful error messages
+
+**GitHub Actions CI/CD Workflow Generator**
+- Functionality: AI-powered generation of production-ready GitHub Actions workflow files for automated continuous integration and deployment
+- Purpose: Enable automated build, test, and deployment pipelines without manual YAML configuration - democratizing DevOps
+- Trigger: Navigate to Azure tab → GitHub Actions section → Click "Generate GitHub Actions Workflow"
+- Progression: User clicks generate button → AI creates complete workflow YAML with build steps, environment variables, branch-specific deployments, artifact caching, and Azure deployment configuration → Generated workflow displays in code viewer → User downloads YAML file → Workflow file saved as .github/workflows/azure-deploy.yml in repository → Commits trigger automatic build and deployment → Deployment history tracks CI/CD workflow executions
+- Success criteria: Generated workflows are valid YAML with no syntax errors, workflows include comprehensive build steps (install, build, test, deploy), environment variable management properly configured, branch-specific deployment logic included, artifact caching optimizes build times, workflows successfully deploy to Azure on commit/push, clear instructions guide users through setup process, downloaded files are immediately usable without modification
+
 **Legend & Help System**
 - Functionality: Always-accessible visual guide explaining features and controls
 - Purpose: Ensure users understand how to use the platform without confusion
@@ -137,6 +158,11 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - **Login Failure**: Clear error messaging, retry mechanism, fallback to guest mode for non-authenticated features
 - **Insufficient Balance**: Prevent transactions with insufficient tokens, display clear balance information
 - **Module Not Found**: Handle missing module references, suggest similar modules, allow creation request
+- **Platform Connection Failure**: Show clear error when social platform connection fails, provide reconnection option, maintain partial connectivity
+- **Deployment Timeout**: Handle long-running deployments with timeout warnings, allow cancellation, preserve deployment state
+- **Invalid Azure Credentials**: Validate Azure configuration before deployment, show specific credential errors, guide users to correct setup
+- **Workflow Generation Failure**: Gracefully handle AI service errors during workflow generation, offer retry with different parameters, provide manual workflow templates as fallback
+- **Emoji Detection Edge Cases**: Handle multiple emojis in single post, prevent double-posting, clear emoji after processing
 
 ## Design Direction
 

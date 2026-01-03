@@ -14,7 +14,9 @@ import { UserDashboard } from '@/components/UserDashboard'
 import { MarketOverview } from '@/components/MarketOverview'
 import { PageExporter } from '@/components/PageExporter'
 import { DeploymentHub } from '@/components/DeploymentHub'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket } from '@phosphor-icons/react'
+import { SocialPoster } from '@/components/SocialPoster'
+import { AzureGitHubDeployer } from '@/components/AzureGitHubDeployer'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -75,7 +77,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-5 md:grid-cols-10 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-12 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -108,6 +110,10 @@ function App() {
                 <Robot size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">AI Chat</span>
               </TabsTrigger>
+              <TabsTrigger value="social" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <ShareNetwork size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Social</span>
+              </TabsTrigger>
               <TabsTrigger value="export" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <FileHtml size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Export</span>
@@ -115,6 +121,10 @@ function App() {
               <TabsTrigger value="deploy" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Rocket size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Deploy</span>
+              </TabsTrigger>
+              <TabsTrigger value="azure" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Cloud size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Azure</span>
               </TabsTrigger>
             </TabsList>
 
@@ -185,6 +195,12 @@ function App() {
               </div>
             </TabsContent>
 
+            <TabsContent value="social">
+              <div className="max-w-5xl mx-auto">
+                <SocialPoster />
+              </div>
+            </TabsContent>
+
             <TabsContent value="export">
               <div className="max-w-4xl mx-auto">
                 <PageExporter />
@@ -194,6 +210,12 @@ function App() {
             <TabsContent value="deploy">
               <div className="max-w-6xl mx-auto">
                 <DeploymentHub />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="azure">
+              <div className="max-w-5xl mx-auto">
+                <AzureGitHubDeployer />
               </div>
             </TabsContent>
           </Tabs>
