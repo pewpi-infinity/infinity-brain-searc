@@ -57,45 +57,13 @@ const SUMMER_2026_GIVEAWAY = 'Summer 2026 - Major token distribution event'
 
 const TOKEN_PACKAGES: TokenPackage[] = [
   {
-    id: 'starter',
-    name: 'Starter Pack',
-    infAmount: 100,
-    usdPrice: 10,
+    id: 'bundle',
+    name: '10 Token Bundle',
+    infAmount: 10,
+    usdPrice: 1,
     bonusPercent: 0,
-    description: 'Perfect for testing the ecosystem'
-  },
-  {
-    id: 'growth',
-    name: 'Growth Pack',
-    infAmount: 500,
-    usdPrice: 45,
-    bonusPercent: 10,
-    description: 'Best for active users'
-  },
-  {
-    id: 'pro',
-    name: 'Pro Pack',
-    infAmount: 1000,
-    usdPrice: 85,
-    bonusPercent: 15,
     popular: true,
-    description: 'Most popular choice'
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise Pack',
-    infAmount: 5000,
-    usdPrice: 400,
-    bonusPercent: 25,
-    description: 'For serious builders'
-  },
-  {
-    id: 'whale',
-    name: 'Whale Pack',
-    infAmount: 10000,
-    usdPrice: 750,
-    bonusPercent: 35,
-    description: 'Maximum value and bonus'
+    description: 'Standard 10-token bundle'
   }
 ]
 
@@ -293,23 +261,37 @@ export function InfinityTokenSale() {
         <div className="flex items-center justify-center gap-3">
           <Sparkle size={48} weight="duotone" className="text-accent animate-pulse" />
           <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            Infinity Token Sale
+            Infinity Token Sale - Beta Program
           </h2>
           <Coin size={48} weight="duotone" className="text-primary animate-pulse" />
         </div>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Buy INF tokens with USD or earn them through contributions. Beta program pricing available now!
+          Professional token sale platform. Purchase 10 INF tokens per bundle with USD. New users receive 10 free tokens on signup!
         </p>
         {BETA_PROGRAM_ACTIVE && (
           <Badge variant="default" className="text-sm px-4 py-2 bg-gradient-to-r from-accent to-primary">
             <Lightning size={16} weight="fill" className="mr-2" />
-            Beta Program Active - Special Pricing
+            Beta Program - Controlled Distribution to Prevent Inflation
           </Badge>
         )}
       </div>
 
       <Card className="p-6 bg-gradient-to-br from-accent/5 via-primary/5 to-secondary/5 border-2 border-accent/20">
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-full bg-accent/20">
+              <CurrencyDollar size={32} weight="duotone" className="text-accent" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-1">PayPal Payments</h3>
+              <p className="text-sm text-muted-foreground mb-1">
+                Send to: <strong className="text-foreground">marvaseater@gmail.com</strong>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Kris Watson: 808-342-9975
+              </p>
+            </div>
+          </div>
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-full bg-accent/20">
               <CalendarBlank size={32} weight="duotone" className="text-accent" />
@@ -355,9 +337,9 @@ export function InfinityTokenSale() {
           <div>
             <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
               <Crown size={28} weight="duotone" className="text-accent" />
-              Token Packages
+              10 Token Bundles - Limited Supply
             </h3>
-            <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="max-w-md mx-auto">
               {TOKEN_PACKAGES.map((pkg) => (
                 <Card
                   key={pkg.id}
@@ -475,7 +457,10 @@ export function InfinityTokenSale() {
                             <div className="p-3 rounded-lg bg-accent/10 border border-accent/30">
                               <p className="text-sm font-medium mb-1">💳 Payment Instructions:</p>
                               <p className="text-xs text-muted-foreground">
-                                After submitting, send payment to: <strong className="text-foreground">your-paypal@email.com</strong>
+                                PayPal: <strong className="text-foreground">marvaseater@gmail.com</strong>
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Contact: Kris Watson - 808-342-9975
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
                                 Include your username in the payment note for fast processing
@@ -499,82 +484,24 @@ export function InfinityTokenSale() {
             </div>
           </div>
 
-          <Card className="p-6">
-            <h3 className="text-xl font-bold mb-4">Custom Amount</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="custom-usd">USD Amount</Label>
-                  <Input
-                    id="custom-usd"
-                    type="number"
-                    placeholder="Enter USD amount"
-                    value={customUsdAmount}
-                    onChange={(e) => setCustomUsdAmount(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="payment-method-custom">Payment Method</Label>
-                  <select
-                    id="payment-method-custom"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  >
-                    <option value="">Select payment method</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="Venmo">Venmo</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                    <option value="Zelle">Zelle</option>
-                    <option value="Cash App">Cash App</option>
-                  </select>
-                  <div className="p-3 rounded-lg bg-accent/10 border border-accent/30 text-xs">
-                    <p className="font-medium mb-1">💳 Send payment to:</p>
-                    <p className="text-muted-foreground">
-                      PayPal: <strong className="text-foreground">your-paypal@email.com</strong>
-                    </p>
-                    <p className="text-muted-foreground mt-1">
-                      Include your username in payment note
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => handleBuyWithUsd()}
-                  className="w-full bg-gradient-to-r from-primary to-accent"
-                  disabled={isSubmitting || !isAuthenticated}
-                >
-                  <CurrencyDollar size={20} weight="bold" className="mr-2" />
-                  {isSubmitting ? 'Processing...' : 'Submit Purchase Request'}
-                </Button>
+          <Card className="p-6 bg-muted/30">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+                <Coin size={32} weight="duotone" className="text-accent" />
               </div>
-
-              <div className="p-6 rounded-lg bg-gradient-to-br from-accent/10 to-primary/10">
-                <h4 className="font-bold mb-4">Calculation Preview</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">USD Amount:</span>
-                    <span className="font-mono font-bold">
-                      ${customUsdAmount || '0.00'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Rate:</span>
-                    <span className="font-mono text-sm">
-                      ${INF_USD_RATE} per INF
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span className="font-bold">You receive:</span>
-                    <span className="font-mono font-bold text-accent text-lg">
-                      {customUsdAmount 
-                        ? Math.floor(parseFloat(customUsdAmount) / INF_USD_RATE).toLocaleString() 
-                        : '0'
-                      } INF
-                    </span>
-                  </div>
+              <h3 className="text-xl font-bold">Controlled Token Distribution</h3>
+              <p className="text-muted-foreground">
+                Tokens are sold in 10-token bundles only to prevent inflation and maintain value stability. 
+                This ensures a healthy economy for all participants.
+              </p>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="p-4 rounded-lg bg-accent/10">
+                  <div className="text-2xl font-bold text-accent">10</div>
+                  <div className="text-xs text-muted-foreground">Tokens per bundle</div>
+                </div>
+                <div className="p-4 rounded-lg bg-primary/10">
+                  <div className="text-2xl font-bold text-primary">$1</div>
+                  <div className="text-xs text-muted-foreground">Per bundle</div>
                 </div>
               </div>
             </div>

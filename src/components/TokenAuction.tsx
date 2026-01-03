@@ -284,14 +284,6 @@ export function TokenAuction() {
       return
     }
 
-    if (bidCurrency === 'INF') {
-      const userInfBalance = userProfile.businessTokens['INF'] || 0
-      if (bid > userInfBalance) {
-        toast.error('Insufficient INF balance')
-        return
-      }
-    }
-
     if (auction.creatorId === userProfile.userId) {
       toast.error('Cannot bid on your own auction')
       return
@@ -331,11 +323,17 @@ export function TokenAuction() {
         }
       }))
 
-      toast.success(`Bid placed successfully! Current bid: ${bid} ${bidCurrency}`, {
-        description: bidCurrency === 'USD' 
-          ? 'USD bids require payment confirmation' 
-          : 'You will be notified if you are outbid'
-      })
+      if (bidCurrency === 'USD') {
+        toast.success(`USD bid placed: $${bid}`, {
+          description: `Send payment to: marvaseater@gmail.com (PayPal)\nKris Watson: 808-342-9975\nInclude auction ID: ${auction.id}`,
+          duration: 10000
+        })
+      } else {
+        toast.success(`Bid placed successfully! Current bid: ${bid} ${bidCurrency}`, {
+          description: 'You will be notified if you are outbid'
+        })
+      }
+      
       setBidAmount('')
       setBidCurrency('INF')
     } catch (error) {
@@ -785,7 +783,10 @@ export function TokenAuction() {
                                           <div className="p-3 rounded-lg bg-accent/10 border border-accent/30 space-y-1">
                                             <p className="text-xs font-medium">💳 USD Payment Instructions:</p>
                                             <p className="text-xs text-muted-foreground">
-                                              Send payment to: <strong className="text-foreground">your-paypal@email.com</strong>
+                                              PayPal: <strong className="text-foreground">marvaseater@gmail.com</strong>
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                              Contact: Kris Watson - 808-342-9975
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                               Include auction ID in payment note
