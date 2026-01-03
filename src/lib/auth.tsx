@@ -30,6 +30,7 @@ interface AuthContextType {
   logout: () => void
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>
   addTokens: (tokenSymbol: string, amount: number) => Promise<void>
+  deductTokens: (tokenSymbol: string, amount: number) => Promise<void>
   getTokenBalance: (tokenSymbol: string) => number
 }
 
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [userProfile, setUserProfile] = useKV<UserProfile | null>('user-profile', null)
   const [allSessions, setAllSessions] = useKV<UserSession[]>('user-sessions', [])
+  const [allProfiles, setAllProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
 
   const isAuthenticated = currentUser !== null
 
@@ -79,6 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           preferences: {}
         }
         setUserProfile(newProfile)
+        
+        setAllProfiles((currentProfiles) => ({
+          ...(currentProfiles || {}),
+          [String(user.id)]: newProfile
+        }))
       } else {
         const updatedProfile = {
           ...userProfile,
@@ -87,6 +94,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           avatarUrl: user.avatarUrl
         }
         setUserProfile(updatedProfile)
+        
+        setAllProfiles((currentProfiles) => ({
+          ...(currentProfiles || {}),
+          [String(user.id)]: updatedProfile
+        }))
       }
     } catch (error) {
       console.error('Login failed:', error)
@@ -122,6 +134,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     setUserProfile(updatedProfile)
+    
+    setAllProfiles((currentProfiles) => ({
+      ...(currentProfiles || {}),
+      [userProfile.userId]: updatedProfile
+    }))
+  }
+
+  const deductTokens = async (tokenSymbol: string, amount: number) => {
+    if (!userProfile) return
+
+    const currentBalance = userProfile.businessTokens[tokenSymbol] || 0
+    const updatedProfile = {
+      ...userProfile,
+      businessTokens: {
+        ...userProfile.businessTokens,
+        [tokenSymbol]: Math.max(0, currentBalance - amount)
+      }
+    }
+    setUserProfile(updatedProfile)
+    
+    setAllProfiles((currentProfiles) => ({
+      ...(currentProfiles || {}),
+      [userProfile.userId]: updatedProfile
+    }))
   }
 
   const getTokenBalance = (tokenSymbol: string): number => {
@@ -160,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         updateProfile,
         addTokens,
+        deductTokens,
         getTokenBalance
       }}
     >

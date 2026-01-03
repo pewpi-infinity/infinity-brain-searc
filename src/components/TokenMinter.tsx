@@ -8,6 +8,7 @@ import { CurrencyDollar, Coins, TrendUp, Wallet } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
+import { Transaction } from './TransactionHistory'
 
 interface BusinessToken {
   symbol: string
@@ -23,6 +24,7 @@ interface BusinessToken {
 export function TokenMinter() {
   const { userProfile, isAuthenticated, addTokens } = useAuth()
   const [allTokens, setAllTokens] = useKV<Record<string, BusinessToken>>('business-tokens', {})
+  const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
   const [tokenName, setTokenName] = useState('')
   const [tokenSymbol, setTokenSymbol] = useState('')
   const [initialSupply, setInitialSupply] = useState('')
@@ -67,6 +69,25 @@ export function TokenMinter() {
     setAllTokens(updatedTokens)
 
     await addTokens(symbolUpper, supply)
+
+    const mintTransaction: Transaction = {
+      id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: 'mint',
+      tokenSymbol: symbolUpper,
+      amount: supply,
+      from: userProfile.userId,
+      fromUsername: userProfile.username,
+      to: userProfile.userId,
+      toUsername: userProfile.username,
+      timestamp: Date.now(),
+      status: 'completed',
+      note: `Minted ${tokenName} for ${businessName}`
+    }
+
+    setAllTransactions((currentTransactions) => [
+      ...(currentTransactions || []),
+      mintTransaction
+    ])
 
     toast.success(`Successfully minted ${supply.toLocaleString()} ${symbolUpper} tokens!`)
 

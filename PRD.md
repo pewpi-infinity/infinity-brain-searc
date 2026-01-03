@@ -23,8 +23,22 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Functionality: Create custom business tokens backed by Infinity ecosystem with configurable supply
 - Purpose: Enable businesses to mint their own currency for their logged-in pages within Infinity
 - Trigger: Navigate to Tokens tab and fill in token details
-- Progression: User enters business name → Token details (name/symbol) → Initial supply → Mint button → Token created and added to ecosystem → Balance updated in user profile
-- Success criteria: Tokens persist permanently, display in user wallet, appear in ecosystem registry, backed by INF
+- Progression: User enters business name → Token details (name/symbol) → Initial supply → Mint button → Token created and added to ecosystem → Balance updated in user profile → Transaction recorded in history
+- Success criteria: Tokens persist permanently, display in user wallet, appear in ecosystem registry, backed by INF, mint transaction recorded
+
+**Token Transfer System**
+- Functionality: Transfer tokens between users with optional notes
+- Purpose: Enable peer-to-peer token economy and facilitate business transactions
+- Trigger: Navigate to Account tab → Transfer section
+- Progression: User selects recipient from dropdown → Chooses token type → Enters amount → Adds optional note → Sends transfer → Balances update → Transaction recorded
+- Success criteria: Transfers complete instantly, balances sync across users, transaction history persists, insufficient balance prevented
+
+**Transaction History**
+- Functionality: Comprehensive audit trail of all token transactions (mints, sends, receives)
+- Purpose: Provide transparency and tracking for world currency system
+- Trigger: Navigate to Account tab → History section
+- Progression: View chronological list → Filter by type → See transaction details (amount, timestamp, parties, status, notes) → Track sent/received amounts
+- Success criteria: All transactions permanently recorded, clear visual indicators for transaction type, sortable and filterable
 
 **Module Registry & Browser**
 - Functionality: Comprehensive catalog of all system modules with categories, dependencies, and capabilities
