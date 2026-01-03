@@ -12,7 +12,8 @@ import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
 import { UserDashboard } from '@/components/UserDashboard'
 import { MarketOverview } from '@/components/MarketOverview'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine } from '@phosphor-icons/react'
+import { PageExporter } from '@/components/PageExporter'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -73,7 +74,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4 md:grid-cols-8 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 md:grid-cols-9 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -105,6 +106,10 @@ function App() {
               <TabsTrigger value="chat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Robot size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">AI Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="export" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <FileHtml size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Export</span>
               </TabsTrigger>
             </TabsList>
 
@@ -172,6 +177,12 @@ function App() {
             <TabsContent value="chat">
               <div className="max-w-4xl mx-auto h-[600px]">
                 <AIChat />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="export">
+              <div className="max-w-4xl mx-auto">
+                <PageExporter />
               </div>
             </TabsContent>
           </Tabs>
