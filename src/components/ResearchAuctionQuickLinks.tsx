@@ -294,9 +294,18 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Button
             onClick={() => onNavigate?.('research')}
+            variant="outline"
+            className="flex-col h-auto py-4 gap-2"
+          >
+            <Sparkle size={24} weight="duotone" className="text-green-500" />
+            <span className="text-xs">Quality Score</span>
+          </Button>
+
+          <Button
+            onClick={() => onNavigate?.('quality')}
             variant="outline"
             className="flex-col h-auto py-4 gap-2"
           >
@@ -331,6 +340,27 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
             <ShareNetwork size={24} weight="duotone" className="text-green-500" />
             <span className="text-xs">🤑 Share</span>
           </Button>
+        </div>
+
+        <div className="p-4 bg-gradient-to-r from-green-500/10 to-teal-600/10 rounded-lg border border-green-500/20">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-green-500/20 rounded-lg">
+              <Sparkle size={24} weight="fill" className="text-green-500" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold mb-1 flex items-center gap-2">
+                ✨ AI-Powered Quality Scoring
+              </h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                Use our AI repository quality scorer to analyze code quality, documentation, activity, and community engagement. Get instant predictions for token value before minting!
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">Code Analysis</Badge>
+                <Badge variant="secondary" className="text-xs">Value Prediction</Badge>
+                <Badge variant="secondary" className="text-xs">Quality Metrics</Badge>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-600/10 rounded-lg border border-green-500/20">

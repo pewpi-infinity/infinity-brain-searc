@@ -44,6 +44,7 @@ import { AdminTools } from '@/components/AdminTools'
 import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
+import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -129,7 +130,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-30 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-31 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -137,6 +138,10 @@ function App() {
               <TabsTrigger value="research" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Flask size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Research</span>
+              </TabsTrigger>
+              <TabsTrigger value="quality" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Sparkle size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Quality AI</span>
               </TabsTrigger>
               <TabsTrigger value="charts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ChartLine size={20} weight="duotone" />
@@ -270,6 +275,10 @@ function App() {
             </TabsContent>
 
             <TabsContent value="research">
+              <RepoQualityScorer />
+            </TabsContent>
+
+            <TabsContent value="quality">
               <ResearchTokenMinter />
             </TabsContent>
 
