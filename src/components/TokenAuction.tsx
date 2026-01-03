@@ -18,7 +18,8 @@ import {
   Coins,
   SignIn,
   Crown,
-  Bell
+  Bell,
+  Star
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
@@ -60,6 +61,7 @@ export function TokenAuction() {
   const [allProfiles, setAllProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
   const [userBidTracking, setUserBidTracking] = useKV<Record<string, { auctionId: string, amount: number, auctionName: string }>>('user-bid-tracking', {})
+  const [watchList, setWatchList] = useKV<Record<string, any>>('auction-watchlist', {})
 
   const [selectedToken, setSelectedToken] = useState('')
   const [auctionAmount, setAuctionAmount] = useState('')
@@ -388,6 +390,40 @@ export function TokenAuction() {
     const link = getShareableLink(auctionId)
     navigator.clipboard.writeText(link)
     toast.success('Auction link copied to clipboard!')
+  }
+
+  const addToWatchList = (auctionId: string, auctionName: string) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to add auctions to your watch list')
+      return
+    }
+
+    setWatchList((current) => ({
+      ...(current || {}),
+      [auctionId]: {
+        auctionId,
+        addedAt: Date.now(),
+        notifications: true
+      }
+    }))
+
+    toast.success(`${auctionName} added to watch list`, {
+      icon: <Star size={20} weight="fill" className="text-accent" />
+    })
+  }
+
+  const removeFromWatchList = (auctionId: string) => {
+    setWatchList((current) => {
+      const updated = { ...(current || {}) }
+      delete updated[auctionId]
+      return updated
+    })
+
+    toast.success('Removed from watch list')
+  }
+
+  const isWatched = (auctionId: string) => {
+    return watchList?.[auctionId] !== undefined
   }
 
   const activeAuctions = (auctions || []).filter(a => a.status === 'active').sort((a, b) => a.endTime - b.endTime)
@@ -727,6 +763,27 @@ export function TokenAuction() {
                                 </div>
                               </DialogContent>
                             </Dialog>
+
+                            {isAuthenticated && !isWatched(auction.id) ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => addToWatchList(auction.id, auction.tokenName)}
+                                title="Add to watch list"
+                              >
+                                <Star size={20} weight="duotone" />
+                              </Button>
+                            ) : isAuthenticated && isWatched(auction.id) ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => removeFromWatchList(auction.id)}
+                                title="Remove from watch list"
+                                className="bg-accent/10"
+                              >
+                                <Star size={20} weight="fill" className="text-accent" />
+                              </Button>
+                            ) : null}
 
                             <Button
                               variant="outline"
