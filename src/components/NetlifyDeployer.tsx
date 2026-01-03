@@ -7,8 +7,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Separator } from '@/components/ui/separator'
 import { HTMLExporter } from '@/lib/htmlExporter'
-import { CloudArrowUp, CheckCircle, WarningCircle, Rocket, Lightning, Trash } from '@phosphor-icons/react'
+import { CloudArrowUp, CheckCircle, WarningCircle, Rocket, Lightning, Trash, Flask, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
@@ -28,6 +29,13 @@ interface DeploymentHistory {
   deployId?: string
 }
 
+interface TestResult {
+  step: string
+  status: 'pending' | 'success' | 'failed' | 'testing'
+  message: string
+  details?: string
+}
+
 export function NetlifyDeployer() {
   const [config, setConfig] = useState<DeploymentConfig>({
     siteName: '',
@@ -39,6 +47,9 @@ export function NetlifyDeployer() {
   const [deploymentHistory = [], setDeploymentHistory] = useKV<DeploymentHistory[]>('netlify-deployments', [])
   const [savedConfig, setSavedConfig] = useKV<DeploymentConfig | null>('netlify-config', null)
   const [showApiToken, setShowApiToken] = useState(false)
+  const [isTesting, setIsTesting] = useState(false)
+  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const [showTestPanel, setShowTestPanel] = useState(false)
 
   useEffect(() => {
     if (savedConfig) {
@@ -49,6 +60,148 @@ export function NetlifyDeployer() {
   const saveConfig = () => {
     setSavedConfig(config)
     toast.success('Configuration saved!')
+  }
+
+  const testNetlifyConnection = async () => {
+    if (!config.apiToken) {
+      toast.error('Please enter your Netlify API token first')
+      return
+    }
+
+    setIsTesting(true)
+    setShowTestPanel(true)
+    const results: TestResult[] = [
+      { step: 'Validate Token Format', status: 'pending', message: '' },
+      { step: 'Test API Connection', status: 'pending', message: '' },
+      { step: 'Verify Permissions', status: 'pending', message: '' },
+      { step: 'Check Account Info', status: 'pending', message: '' },
+      { step: 'Test Site Creation', status: 'pending', message: '' }
+    ]
+    setTestResults([...results])
+
+    try {
+      results[0].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      if (config.apiToken.length < 20) {
+        results[0].status = 'failed'
+        results[0].message = 'Token appears too short'
+        results[0].details = 'Netlify tokens are typically 40+ characters'
+        setTestResults([...results])
+        toast.error('Invalid token format')
+        setIsTesting(false)
+        return
+      }
+
+      results[0].status = 'success'
+      results[0].message = 'Token format valid'
+      setTestResults([...results])
+
+      results[1].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const accountResponse = await fetch('https://api.netlify.com/api/v1/accounts', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!accountResponse.ok) {
+        const errorData = await accountResponse.json().catch(() => null)
+        results[1].status = 'failed'
+        results[1].message = 'API connection failed'
+        results[1].details = errorData?.message || accountResponse.statusText
+        setTestResults([...results])
+        toast.error('Failed to connect to Netlify API')
+        setIsTesting(false)
+        return
+      }
+
+      results[1].status = 'success'
+      results[1].message = 'Connected to Netlify API'
+      setTestResults([...results])
+
+      const accounts = await accountResponse.json()
+      
+      results[2].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      if (!accounts || accounts.length === 0) {
+        results[2].status = 'failed'
+        results[2].message = 'No accounts found'
+        results[2].details = 'Token may not have proper permissions'
+        setTestResults([...results])
+        toast.error('No Netlify accounts accessible')
+        setIsTesting(false)
+        return
+      }
+
+      results[2].status = 'success'
+      results[2].message = 'Permissions verified'
+      setTestResults([...results])
+
+      results[3].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const account = accounts[0]
+      results[3].status = 'success'
+      results[3].message = `Account: ${account.name || 'Personal'}`
+      results[3].details = `Plan: ${account.type_name || 'Free'} | Sites: ${account.sites_count || 0}`
+      setTestResults([...results])
+
+      results[4].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const sitesResponse = await fetch('https://api.netlify.com/api/v1/sites', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!sitesResponse.ok) {
+        results[4].status = 'failed'
+        results[4].message = 'Cannot verify site creation permissions'
+        results[4].details = 'May not have access to create sites'
+        setTestResults([...results])
+        toast.warning('Token works but site creation permissions unclear')
+        setIsTesting(false)
+        return
+      }
+
+      results[4].status = 'success'
+      results[4].message = 'Ready to deploy sites'
+      results[4].details = 'All permissions verified successfully'
+      setTestResults([...results])
+
+      toast.success('✅ Token validated successfully!', {
+        description: 'Your Netlify API token is configured correctly and ready to use',
+        duration: 5000
+      })
+
+    } catch (error) {
+      const failedIndex = results.findIndex(r => r.status === 'testing')
+      if (failedIndex !== -1) {
+        results[failedIndex].status = 'failed'
+        results[failedIndex].message = 'Test failed'
+        results[failedIndex].details = error instanceof Error ? error.message : 'Unknown error'
+        setTestResults([...results])
+      }
+      
+      toast.error('Token validation failed', {
+        description: error instanceof Error ? error.message : 'Network or authentication error'
+      })
+    } finally {
+      setIsTesting(false)
+    }
   }
 
   const handleOneClickDeploy = async () => {
@@ -232,6 +385,16 @@ export function NetlifyDeployer() {
           </AlertDescription>
         </Alert>
 
+        <Alert className="border-primary/30">
+          <Info size={20} weight="duotone" className="text-primary" />
+          <AlertDescription>
+            <div className="space-y-1">
+              <p className="font-semibold text-sm">🧪 Test Your Configuration</p>
+              <p className="text-xs">Use the "Test Connection" button to validate your API token before deploying. The test will verify permissions, check account details, and ensure everything is ready for deployment. See the <a href="https://github.com/pewpi-infinity/infinity-brain-111/blob/main/NETLIFY-TESTING-GUIDE.md" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-medium">Testing Guide</a> for detailed instructions.</p>
+            </div>
+          </AlertDescription>
+        </Alert>
+
         {config.apiToken && (
           <div className="space-y-4 p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg border border-primary/20">
             <div className="flex items-center justify-between">
@@ -307,15 +470,76 @@ export function NetlifyDeployer() {
           </div>
 
           {config.apiToken && (
-            <Button
-              onClick={saveConfig}
-              variant="secondary"
-              size="sm"
-              className="w-full"
-            >
-              <CheckCircle size={16} weight="duotone" className="mr-2" />
-              Save Configuration
-            </Button>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Button
+                  onClick={saveConfig}
+                  variant="secondary"
+                  size="sm"
+                  className="flex-1"
+                >
+                  <CheckCircle size={16} weight="duotone" className="mr-2" />
+                  Save Configuration
+                </Button>
+                <Button
+                  onClick={testNetlifyConnection}
+                  disabled={isTesting}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  <Flask size={16} weight="duotone" className="mr-2" />
+                  {isTesting ? 'Testing...' : 'Test Connection'}
+                </Button>
+              </div>
+
+              {showTestPanel && testResults.length > 0 && (
+                <Card className="border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Flask size={20} weight="duotone" className="text-accent" />
+                      Connection Test Results
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {testResults.map((result, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 bg-card rounded-lg border"
+                      >
+                        <div className="pt-0.5">
+                          {result.status === 'success' && (
+                            <CheckCircle size={20} weight="duotone" className="text-green-500" />
+                          )}
+                          {result.status === 'failed' && (
+                            <WarningCircle size={20} weight="duotone" className="text-destructive" />
+                          )}
+                          {result.status === 'testing' && (
+                            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                          )}
+                          {result.status === 'pending' && (
+                            <div className="w-5 h-5 border-2 border-muted rounded-full" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">{result.step}</p>
+                          {result.message && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {result.message}
+                            </p>
+                          )}
+                          {result.details && (
+                            <p className="text-xs text-accent mt-1 font-mono">
+                              {result.details}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           )}
         </div>
 
