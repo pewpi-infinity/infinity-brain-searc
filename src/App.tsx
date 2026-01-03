@@ -17,7 +17,8 @@ import { DeploymentHub } from '@/components/DeploymentHub'
 import { SocialPoster } from '@/components/SocialPoster'
 import { AzureGitHubDeployer } from '@/components/AzureGitHubDeployer'
 import { HashtagTrendAnalyzer } from '@/components/HashtagTrendAnalyzer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash } from '@phosphor-icons/react'
+import { SentimentHeatmap } from '@/components/SentimentHeatmap'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -78,7 +79,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-13 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-14 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -130,6 +131,10 @@ function App() {
               <TabsTrigger value="azure" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Cloud size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Azure</span>
+              </TabsTrigger>
+              <TabsTrigger value="sentiment" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Heart size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Sentiment</span>
               </TabsTrigger>
             </TabsList>
 
@@ -227,6 +232,12 @@ function App() {
             <TabsContent value="azure">
               <div className="max-w-5xl mx-auto">
                 <AzureGitHubDeployer />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="sentiment">
+              <div className="max-w-6xl mx-auto">
+                <SentimentHeatmap />
               </div>
             </TabsContent>
           </Tabs>

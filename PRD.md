@@ -152,6 +152,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User needs help → Click legend → Visual guide displays with annotations → User understands feature
 - Success criteria: Legend is clear, comprehensive, and doesn't obstruct interface
 
+**Sentiment Analysis Heatmap**
+- Functionality: AI-powered emotional analysis with D3 heatmap visualization showing sentiment patterns over time
+- Purpose: Enable users to understand emotional patterns in text across different times and days, revealing insights about mood and communication trends
+- Trigger: Navigate to Sentiment tab and analyze text
+- Progression: User enters text → AI analyzes 6 core emotions (joy, sadness, anger, fear, surprise, love) → Scores assigned 0-100 → Overall sentiment calculated → Entry added to heatmap → Patterns visualized by hour and day → User switches between emotion views → Exports analysis data
+- Success criteria: Text analyzed accurately with emotion breakdown, interactive D3 heatmap renders showing temporal patterns, hover tooltips display detailed data, entries persist in storage, multiple emotion view modes work, data exportable as JSON, recent analyses list updates dynamically
+
 ## Edge Case Handling
 
 - **AI Service Unavailable**: Display friendly message with retry option, allow offline search through cached results
@@ -170,6 +177,7 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - **Invalid Azure Credentials**: Validate Azure configuration before deployment, show specific credential errors, guide users to correct setup
 - **Workflow Generation Failure**: Gracefully handle AI service errors during workflow generation, offer retry with different parameters, provide manual workflow templates as fallback
 - **Emoji Detection Edge Cases**: Handle multiple emojis in single post, prevent double-posting, clear emoji after processing
+- **Sentiment Analysis Edge Cases**: Handle empty text submissions gracefully, manage very long text inputs, handle special characters and emojis in sentiment analysis, validate AI response format, provide meaningful error messages when analysis fails
 
 ## Design Direction
 
