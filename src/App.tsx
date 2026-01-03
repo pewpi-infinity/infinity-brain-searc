@@ -57,6 +57,7 @@ import { GitHubInfinityScanner } from '@/components/GitHubInfinityScanner'
 import { TokenActivityMonitor } from '@/components/TokenActivityMonitor'
 import { TokenRedistributionNotifier } from '@/components/TokenRedistributionNotifier'
 import { RedistributionHistory } from '@/components/RedistributionHistory'
+import { AutoPricingAlgorithm } from '@/components/AutoPricingAlgorithm'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -292,6 +293,10 @@ function App() {
                 <ShieldCheck size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Admin</span>
               </TabsTrigger>
+              <TabsTrigger value="auto-pricing" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Robot size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">AutoPrice</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="home" className="space-y-8">
@@ -518,6 +523,12 @@ function App() {
             <TabsContent value="admin">
               <div className="max-w-6xl mx-auto">
                 <AdminTools />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="auto-pricing">
+              <div className="max-w-7xl mx-auto">
+                <AutoPricingAlgorithm />
               </div>
             </TabsContent>
           </Tabs>
