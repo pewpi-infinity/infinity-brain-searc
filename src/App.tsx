@@ -45,10 +45,14 @@ import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
+import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
+import { BatchRepoAnalyzer } from '@/components/BatchRepoAnalyzer'
+import { RepoFileBuilder } from '@/components/RepoFileBuilder'
+import { GitHubInfinityScanner } from '@/components/GitHubInfinityScanner'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -130,7 +134,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-31 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-35 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -142,6 +146,22 @@ function App() {
               <TabsTrigger value="quality" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Sparkle size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Quality AI</span>
+              </TabsTrigger>
+              <TabsTrigger value="batch-analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <GitBranch size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Batch</span>
+              </TabsTrigger>
+              <TabsTrigger value="file-builder" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Code size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Builder</span>
+              </TabsTrigger>
+              <TabsTrigger value="scanner" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <FolderOpen size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Scanner</span>
+              </TabsTrigger>
+              <TabsTrigger value="auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Robot size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Auto</span>
               </TabsTrigger>
               <TabsTrigger value="charts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ChartLine size={20} weight="duotone" />
@@ -280,6 +300,22 @@ function App() {
 
             <TabsContent value="quality">
               <ResearchTokenMinter />
+            </TabsContent>
+
+            <TabsContent value="batch-analyzer">
+              <BatchRepoAnalyzer />
+            </TabsContent>
+
+            <TabsContent value="file-builder">
+              <RepoFileBuilder />
+            </TabsContent>
+
+            <TabsContent value="scanner">
+              <GitHubInfinityScanner />
+            </TabsContent>
+
+            <TabsContent value="auto-auction">
+              <AutoAuctionSystem />
             </TabsContent>
 
             <TabsContent value="charts">

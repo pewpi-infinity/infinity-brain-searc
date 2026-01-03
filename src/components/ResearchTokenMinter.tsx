@@ -57,7 +57,7 @@ export function ResearchTokenMinter() {
     return await generateHash(verificationData)
   }
 
-  const calculateResearchValue = (token: Partial<ResearchToken>): number => {
+  const calculateResearchValue = async (token: Partial<ResearchToken>): Promise<number> => {
     let value = 1000
     
     if (token.content && token.content.length > 500) value += 500
@@ -80,6 +80,37 @@ export function ResearchTokenMinter() {
     }
     
     value *= categoryMultipliers[token.category || 'general'] || 1.0
+    
+    if (token.repository && token.repository.includes('github.com')) {
+      try {
+        const repoMatch = token.repository.match(/github\.com\/([^\/]+)\/([^\/\s]+)/)
+        if (repoMatch) {
+          const [, owner, repo] = repoMatch
+          const repoName = `${owner}/${repo.replace('.git', '')}`
+          
+          const prompt = `Analyze GitHub repository ${repoName} for quality scoring. Return ONLY valid JSON:
+{
+  "qualityScore": 85,
+  "codeQuality": 88,
+  "documentation": 82,
+  "activity": 90,
+  "community": 75
+}`
+          
+          const response = await window.spark.llm(prompt, 'gpt-4o-mini', true)
+          const quality = JSON.parse(response)
+          
+          const qualityBonus = Math.floor((quality.qualityScore / 100) * value * 0.5)
+          value += qualityBonus
+          
+          toast.info(`Quality score applied: +${qualityBonus} INF`, {
+            description: `Repo score: ${quality.qualityScore}/100`
+          })
+        }
+      } catch (error) {
+        console.error('Quality scoring failed:', error)
+      }
+    }
     
     return Math.floor(value)
   }
@@ -120,7 +151,7 @@ export function ResearchTokenMinter() {
       
       const contentHash = await generateHash(content)
       const verificationHash = await generateVerificationHash(tokenData)
-      const value = calculateResearchValue(tokenData)
+      const value = await calculateResearchValue(tokenData)
       
       const newToken: ResearchToken = {
         ...tokenData as ResearchToken,
