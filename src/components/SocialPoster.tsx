@@ -352,27 +352,30 @@ Return ONLY the enhanced post text, no explanations.`
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {(platforms || []).map((platform) => (
-              <Card
-                key={platform.id}
-                className={`cursor-pointer transition-all hover:scale-105 ${
-                  platform.connected ? 'ring-2 ring-accent' : ''
-                }`}
-                onClick={() => togglePlatform(platform.id)}
-              >
-                <CardContent className="p-4 flex flex-col items-center gap-2">
-                  <platform.icon
-                    size={32}
-                    weight={platform.connected ? 'fill' : 'regular'}
-                    style={{ color: platform.connected ? platform.color : 'currentColor' }}
-                  />
-                  <span className="text-sm font-medium text-center">{platform.name}</span>
-                  {platform.connected && (
-                    <Check size={16} weight="bold" className="text-accent" />
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+            {(platforms || []).map((platform) => {
+              const PlatformIcon = platform.icon
+              return (
+                <Card
+                  key={platform.id}
+                  className={`cursor-pointer transition-all hover:scale-105 ${
+                    platform.connected ? 'ring-2 ring-accent' : ''
+                  }`}
+                  onClick={() => togglePlatform(platform.id)}
+                >
+                  <CardContent className="p-4 flex flex-col items-center gap-2">
+                    <PlatformIcon
+                      size={32}
+                      weight={platform.connected ? 'fill' : 'regular'}
+                      style={{ color: platform.connected ? platform.color : 'currentColor' }}
+                    />
+                    <span className="text-sm font-medium text-center">{platform.name}</span>
+                    {platform.connected && (
+                      <Check size={16} weight="bold" className="text-accent" />
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
 
           <div className="space-y-4">
