@@ -29,6 +29,7 @@ import { ContentCalendar, type ScheduledPost } from './ContentCalendar'
 import { BestTimeRecommender } from './BestTimeRecommender'
 import { AnalyticsDashboard } from './AnalyticsDashboard'
 import { BulkUploader } from './BulkUploader'
+import { TemplateLibrary } from './TemplateLibrary'
 
 interface PlatformConnection {
   id: string
@@ -255,28 +256,37 @@ Return ONLY the enhanced post text, no explanations.`
   const connectedCount = (platforms || []).filter(p => p.connected).length
   const connectedPlatformNames = (platforms || []).filter(p => p.connected).map(p => p.name)
 
+  const handleUseTemplate = (content: string, hashtags: string[]) => {
+    setPostContent(content)
+    setActiveTab('post')
+  }
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-5 bg-card/80 backdrop-blur">
-        <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground">
-          <PaperPlaneTilt size={20} weight="duotone" className="mr-2" />
-          Post
+      <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+        <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <PaperPlaneTilt size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Post</span>
         </TabsTrigger>
-        <TabsTrigger value="bulk" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-secondary-foreground">
-          <UploadSimple size={20} weight="duotone" className="mr-2" />
-          Bulk Upload
+        <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <Sparkle size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Templates</span>
         </TabsTrigger>
-        <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground">
-          <Calendar size={20} weight="duotone" className="mr-2" />
-          Calendar
+        <TabsTrigger value="bulk" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-secondary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <UploadSimple size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Bulk</span>
         </TabsTrigger>
-        <TabsTrigger value="ai" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground">
-          <Sparkle size={20} weight="duotone" className="mr-2" />
-          AI Timing
+        <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <Calendar size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Calendar</span>
         </TabsTrigger>
-        <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground">
-          <ChartLine size={20} weight="duotone" className="mr-2" />
-          Analytics
+        <TabsTrigger value="ai" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <Sparkle size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">AI Timing</span>
+        </TabsTrigger>
+        <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <ChartLine size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Analytics</span>
         </TabsTrigger>
       </TabsList>
 
@@ -488,6 +498,10 @@ Return ONLY the enhanced post text, no explanations.`
           </div>
         </CardContent>
       </Card>
+      </TabsContent>
+
+      <TabsContent value="templates">
+        <TemplateLibrary onUseTemplate={handleUseTemplate} />
       </TabsContent>
 
       <TabsContent value="bulk">
