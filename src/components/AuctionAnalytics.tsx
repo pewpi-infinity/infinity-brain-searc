@@ -57,122 +57,23 @@ interface AuctionMetric {
 const COLORS = ['oklch(0.45 0.15 300)', 'oklch(0.55 0.20 250)', 'oklch(0.70 0.18 200)', 'oklch(0.75 0.08 290)', 'oklch(0.577 0.245 27.325)']
 
 export function AuctionAnalytics() {
-  const [auctions, setAuctions] = useKV<AuctionMetric[]>('auction-history', [])
-  const [templates] = useKV<any[]>('auction-templates', [])
+  const [auctions] = useKV<AuctionMetric[]>('auction-history', [])
+  const [liveAuctions] = useKV<any[]>('token-auctions', [])
   const [timeRange, setTimeRange] = useState('7d')
   const [selectedMetric, setSelectedMetric] = useState('revenue')
-  const [hasSeedData, setHasSeedData] = useKV<string>('auction-analytics-seeded', 'false')
 
-  useEffect(() => {
-    if (hasSeedData !== 'true' && (!auctions || auctions.length === 0)) {
-      const sampleAuctions: AuctionMetric[] = [
-        {
-          id: 'sample-1',
-          tokenSymbol: 'TECH',
-          startPrice: 100,
-          finalPrice: 450,
-          totalBids: 12,
-          uniqueBidders: 5,
-          duration: 24 * 60 * 60 * 1000,
-          endTime: Date.now() - 6 * 24 * 60 * 60 * 1000,
-          winner: 'alice_dev',
-          status: 'completed',
-          views: 87,
-          watchlist: 15
-        },
-        {
-          id: 'sample-2',
-          tokenSymbol: 'ART',
-          startPrice: 200,
-          finalPrice: 850,
-          totalBids: 24,
-          uniqueBidders: 8,
-          duration: 48 * 60 * 60 * 1000,
-          endTime: Date.now() - 5 * 24 * 60 * 60 * 1000,
-          winner: 'bob_collector',
-          status: 'completed',
-          views: 142,
-          watchlist: 28
-        },
-        {
-          id: 'sample-3',
-          tokenSymbol: 'GAME',
-          startPrice: 50,
-          finalPrice: 320,
-          totalBids: 18,
-          uniqueBidders: 7,
-          duration: 24 * 60 * 60 * 1000,
-          endTime: Date.now() - 4 * 24 * 60 * 60 * 1000,
-          winner: 'charlie_gamer',
-          status: 'completed',
-          views: 95,
-          watchlist: 22
-        },
-        {
-          id: 'sample-4',
-          tokenSymbol: 'MUSIC',
-          startPrice: 150,
-          finalPrice: 680,
-          totalBids: 31,
-          uniqueBidders: 11,
-          duration: 36 * 60 * 60 * 1000,
-          endTime: Date.now() - 3 * 24 * 60 * 60 * 1000,
-          winner: 'diana_musician',
-          status: 'completed',
-          views: 168,
-          watchlist: 34
-        },
-        {
-          id: 'sample-5',
-          tokenSymbol: 'TECH',
-          startPrice: 120,
-          finalPrice: 590,
-          totalBids: 22,
-          uniqueBidders: 9,
-          duration: 24 * 60 * 60 * 1000,
-          endTime: Date.now() - 2 * 24 * 60 * 60 * 1000,
-          winner: 'eve_investor',
-          status: 'completed',
-          views: 112,
-          watchlist: 19
-        },
-        {
-          id: 'sample-6',
-          tokenSymbol: 'SPORT',
-          startPrice: 80,
-          finalPrice: 275,
-          totalBids: 15,
-          uniqueBidders: 6,
-          duration: 24 * 60 * 60 * 1000,
-          endTime: Date.now() - 1 * 24 * 60 * 60 * 1000,
-          winner: 'frank_athlete',
-          status: 'completed',
-          views: 76,
-          watchlist: 13
-        },
-        {
-          id: 'sample-7',
-          tokenSymbol: 'ART',
-          startPrice: 250,
-          finalPrice: 1200,
-          totalBids: 38,
-          uniqueBidders: 14,
-          duration: 72 * 60 * 60 * 1000,
-          endTime: Date.now() - 12 * 60 * 60 * 1000,
-          winner: 'grace_curator',
-          status: 'completed',
-          views: 203,
-          watchlist: 41
-        }
-      ]
-      setAuctions(sampleAuctions)
-      setHasSeedData('true')
-    }
-  }, [hasSeedData, auctions, setAuctions, setHasSeedData])
+  const filteredAuctions = (auctions || []).filter(auction => {
+    const daysAgo = (Date.now() - auction.endTime) / (24 * 60 * 60 * 1000)
+    if (timeRange === '24h') return daysAgo <= 1
+    if (timeRange === '7d') return daysAgo <= 7
+    if (timeRange === '30d') return daysAgo <= 30
+    return true
+  })
+
+  const completedAuctions = filteredAuctions.filter(a => a.status === 'completed')
+  const activeAuctionsCount = (liveAuctions || []).filter(a => a.status === 'active').length
 
   const auctionsList = auctions || []
-  const completedAuctions = auctionsList.filter(a => a.status === 'completed')
-  const activeAuctions = auctionsList.filter(a => a.status === 'active')
 
   const totalRevenue = completedAuctions.reduce((sum, a) => sum + a.finalPrice, 0)
   const totalBids = completedAuctions.reduce((sum, a) => sum + a.totalBids, 0)
@@ -293,7 +194,7 @@ export function AuctionAnalytics() {
                 {completedAuctions.length} completed
               </Badge>
               <Badge variant="default" className="text-xs px-1.5 py-0">
-                {activeAuctions.length} active
+                {activeAuctionsCount} active
               </Badge>
             </p>
           </CardContent>

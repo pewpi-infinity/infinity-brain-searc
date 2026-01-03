@@ -782,9 +782,15 @@ export function TokenAuction() {
                                           </p>
                                         )}
                                         {bidCurrency === 'USD' && (
-                                          <p className="text-xs text-muted-foreground">
-                                            USD bids require manual payment confirmation
-                                          </p>
+                                          <div className="p-3 rounded-lg bg-accent/10 border border-accent/30 space-y-1">
+                                            <p className="text-xs font-medium">💳 USD Payment Instructions:</p>
+                                            <p className="text-xs text-muted-foreground">
+                                              Send payment to: <strong className="text-foreground">your-paypal@email.com</strong>
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                              Include auction ID in payment note
+                                            </p>
+                                          </div>
                                         )}
                                       </div>
 

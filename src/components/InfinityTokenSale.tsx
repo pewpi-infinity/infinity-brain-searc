@@ -459,15 +459,28 @@ export function InfinityTokenSale() {
 
                           <div className="space-y-2">
                             <Label htmlFor="payment-method">Payment Method</Label>
-                            <Input
+                            <select
                               id="payment-method"
-                              placeholder="PayPal, Venmo, Bank Transfer, etc."
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                               value={paymentMethod}
                               onChange={(e) => setPaymentMethod(e.target.value)}
-                            />
-                            <p className="text-xs text-muted-foreground">
-                              Payment instructions will be provided after request submission
-                            </p>
+                            >
+                              <option value="">Select payment method</option>
+                              <option value="PayPal">PayPal</option>
+                              <option value="Venmo">Venmo</option>
+                              <option value="Bank Transfer">Bank Transfer</option>
+                              <option value="Zelle">Zelle</option>
+                              <option value="Cash App">Cash App</option>
+                            </select>
+                            <div className="p-3 rounded-lg bg-accent/10 border border-accent/30">
+                              <p className="text-sm font-medium mb-1">💳 Payment Instructions:</p>
+                              <p className="text-xs text-muted-foreground">
+                                After submitting, send payment to: <strong className="text-foreground">your-paypal@email.com</strong>
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Include your username in the payment note for fast processing
+                              </p>
+                            </div>
                           </div>
 
                           <Button
@@ -503,12 +516,28 @@ export function InfinityTokenSale() {
 
                 <div className="space-y-2">
                   <Label htmlFor="payment-method-custom">Payment Method</Label>
-                  <Input
+                  <select
                     id="payment-method-custom"
-                    placeholder="PayPal, Venmo, Bank Transfer, etc."
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
+                  >
+                    <option value="">Select payment method</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Venmo">Venmo</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Zelle">Zelle</option>
+                    <option value="Cash App">Cash App</option>
+                  </select>
+                  <div className="p-3 rounded-lg bg-accent/10 border border-accent/30 text-xs">
+                    <p className="font-medium mb-1">💳 Send payment to:</p>
+                    <p className="text-muted-foreground">
+                      PayPal: <strong className="text-foreground">your-paypal@email.com</strong>
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      Include your username in payment note
+                    </p>
+                  </div>
                 </div>
 
                 <Button

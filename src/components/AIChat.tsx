@@ -3,8 +3,11 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { PaperPlaneRight, User, Robot } from '@phosphor-icons/react'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet'
+import { Separator } from '@/components/ui/separator'
+import { PaperPlaneRight, User, Robot, List, Trash, Clock, Plus } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { toast } from 'sonner'
 
 interface Message {
   id: string
@@ -13,11 +16,30 @@ interface Message {
   timestamp: number
 }
 
+interface ChatSession {
+  id: string
+  title: string
+  messages: Message[]
+  createdAt: number
+  lastUpdated: number
+}
+
 export function AIChat() {
-  const [messages, setMessages] = useKV<Message[]>('ai-chat-messages', [])
+  const [chatSessions, setChatSessions] = useKV<ChatSession[]>('ai-chat-sessions', [])
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  const currentSession = chatSessions?.find(s => s.id === currentSessionId)
+  const messages = currentSession?.messages || []
+
+  useEffect(() => {
+    if (!currentSessionId && chatSessions && chatSessions.length > 0) {
+      setCurrentSessionId(chatSessions[0].id)
+    }
+  }, [chatSessions, currentSessionId])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -25,8 +47,36 @@ export function AIChat() {
     }
   }, [messages])
 
+  const createNewChat = () => {
+    const newSession: ChatSession = {
+      id: `session-${Date.now()}`,
+      title: 'New Chat',
+      messages: [],
+      createdAt: Date.now(),
+      lastUpdated: Date.now()
+    }
+    setChatSessions((prev) => [newSession, ...(prev || [])])
+    setCurrentSessionId(newSession.id)
+    setSheetOpen(false)
+    toast.success('New chat created')
+  }
+
+  const deleteChat = (sessionId: string) => {
+    setChatSessions((prev) => (prev || []).filter(s => s.id !== sessionId))
+    if (sessionId === currentSessionId) {
+      const remaining = (chatSessions || []).filter(s => s.id !== sessionId)
+      setCurrentSessionId(remaining.length > 0 ? remaining[0].id : null)
+    }
+    toast.success('Chat deleted')
+  }
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
+
+    if (!currentSessionId) {
+      createNewChat()
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -35,7 +85,21 @@ export function AIChat() {
       timestamp: Date.now()
     }
 
-    setMessages((prev) => [...(prev || []), userMessage])
+    setChatSessions((prev) => {
+      return (prev || []).map(session => {
+        if (session.id === currentSessionId) {
+          const firstMessage = session.messages.length === 0
+          return {
+            ...session,
+            messages: [...session.messages, userMessage],
+            lastUpdated: Date.now(),
+            title: firstMessage ? input.trim().substring(0, 50) : session.title
+          }
+        }
+        return session
+      })
+    })
+
     setInput('')
     setIsLoading(true)
 
@@ -51,7 +115,18 @@ export function AIChat() {
         timestamp: Date.now()
       }
 
-      setMessages((prev) => [...(prev || []), assistantMessage])
+      setChatSessions((prev) => {
+        return (prev || []).map(session => {
+          if (session.id === currentSessionId) {
+            return {
+              ...session,
+              messages: [...session.messages, assistantMessage],
+              lastUpdated: Date.now()
+            }
+          }
+          return session
+        })
+      })
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -59,7 +134,18 @@ export function AIChat() {
         content: 'I apologize, but I encountered an error. Please try again.',
         timestamp: Date.now()
       }
-      setMessages((prev) => [...(prev || []), errorMessage])
+      setChatSessions((prev) => {
+        return (prev || []).map(session => {
+          if (session.id === currentSessionId) {
+            return {
+              ...session,
+              messages: [...session.messages, errorMessage],
+              lastUpdated: Date.now()
+            }
+          }
+          return session
+        })
+      })
     } finally {
       setIsLoading(false)
     }
@@ -72,24 +158,111 @@ export function AIChat() {
     }
   }
 
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`
+    return date.toLocaleDateString()
+  }
+
   return (
     <Card className="h-full flex flex-col gradient-border">
-      <div className="p-4 border-b border-border">
-        <h3 className="font-semibold text-lg flex items-center gap-2">
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <List size={24} weight="duotone" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle>Chat History</SheetTitle>
+                <SheetDescription>View and manage your AI conversations</SheetDescription>
+              </SheetHeader>
+              <div className="mt-6 space-y-4">
+                <Button 
+                  onClick={createNewChat} 
+                  className="w-full bg-gradient-to-r from-accent to-secondary"
+                >
+                  <Plus size={20} weight="bold" className="mr-2" />
+                  New Chat
+                </Button>
+                <Separator />
+                <ScrollArea className="h-[calc(100vh-200px)]">
+                  <div className="space-y-2">
+                    {(chatSessions || []).length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Robot size={48} weight="duotone" className="mx-auto mb-2 text-accent" />
+                        <p>No chats yet</p>
+                      </div>
+                    ) : (
+                      (chatSessions || []).map((session) => (
+                        <div
+                          key={session.id}
+                          className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                            session.id === currentSessionId
+                              ? 'border-accent bg-accent/10'
+                              : 'border-border hover:border-accent/50'
+                          }`}
+                          onClick={() => {
+                            setCurrentSessionId(session.id)
+                            setSheetOpen(false)
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{session.title}</p>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                <Clock size={12} />
+                                <span>{formatTime(session.lastUpdated)}</span>
+                                <span>•</span>
+                                <span>{session.messages.length} messages</span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 flex-shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteChat(session.id)
+                              }}
+                            >
+                              <Trash size={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </SheetContent>
+          </Sheet>
           <Robot size={24} weight="duotone" className="text-accent" />
-          AI Assistant
-        </h3>
+          <h3 className="font-semibold text-lg">AI Assistant</h3>
+        </div>
+        {currentSession && (
+          <span className="text-sm text-muted-foreground">
+            {currentSession.messages.length} messages
+          </span>
+        )}
       </div>
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
-          {(messages || []).length === 0 && (
+          {messages.length === 0 && (
             <div className="text-center text-muted-foreground py-8">
               <Robot size={48} weight="duotone" className="mx-auto mb-2 text-accent" />
               <p>Start a conversation with your AI assistant</p>
             </div>
           )}
-          {(messages || []).map((message) => (
+          {messages.map((message) => (
             <div
               key={message.id}
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

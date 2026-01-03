@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useKV } from '@github/spark/hooks'
+import { toast } from 'sonner'
 
 export interface UserSession {
   userId: string
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           avatarUrl: user.avatarUrl,
           createdAt: Date.now(),
           businessTokens: {
-            'INF': 1000
+            'INF': 10
           },
           preferences: {}
         }
@@ -86,6 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ...(currentProfiles || {}),
           [String(user.id)]: newProfile
         }))
+        
+        toast.success('Welcome! You received 10 free INF tokens to get started! 🎉')
       } else {
         const updatedProfile = {
           ...userProfile,
