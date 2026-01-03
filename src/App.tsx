@@ -49,7 +49,7 @@ import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, 
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
-import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService'
+import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService.tsx'
 import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
 import { BatchRepoAnalyzer } from '@/components/BatchRepoAnalyzer'
 import { RepoFileBuilder } from '@/components/RepoFileBuilder'
