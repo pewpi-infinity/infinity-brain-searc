@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HTMLExporter, PageExport } from '@/lib/htmlExporter'
-import { GitHubDeployer } from '@/components/GitHubDeployer'
+import { DeploymentHub } from '@/components/DeploymentHub'
+import { DeploymentGuide } from '@/components/DeploymentGuide'
+import { DeploymentStats } from '@/components/DeploymentStats'
 import { StaticSiteGenerator } from '@/components/StaticSiteGenerator'
 import { FileHtml, Download, Package, Rocket } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -168,6 +170,12 @@ export function PageExporter() {
 
   return (
     <div className="space-y-6">
+      <DeploymentStats />
+      
+      <DeploymentHub />
+
+      <DeploymentGuide />
+
       <StaticSiteGenerator />
 
       <Card className="gradient-border">
@@ -357,8 +365,6 @@ export function PageExporter() {
           <p><strong>Any Host:</strong> Upload files via FTP or hosting control panel</p>
         </CardContent>
       </Card>
-
-      <GitHubDeployer />
     </div>
   )
 }

@@ -103,6 +103,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User selects export options (include styles, scripts, standalone mode) → Names the export → Chooses to export current view, specific page, or all pages → System captures page HTML with styles → Downloads HTML files to device → Optional index.html generated for multi-page exports → Files ready for deployment
 - Success criteria: Exports complete within seconds, HTML files are valid and self-contained, all styles preserved, files work on any hosting platform, export history tracked persistently, users can re-download previous exports
 
+**Automated Platform Deployment**
+- Functionality: One-click deployment to Netlify, Vercel, and GitHub Pages with API integration or drag-and-drop workflows
+- Purpose: Enable instant deployment of exported pages to production-grade hosting platforms without leaving Infinity Brain
+- Trigger: Navigate to Export tab → Deployment Hub section
+- Progression: User views platform comparison → Selects platform (Netlify/Vercel/GitHub) → Chooses deployment method (Quick Deploy via drag-and-drop or API Deploy with token) → For API Deploy: enters API token and site/project name → Configures build settings (optional) → Clicks deploy → Platform receives files → Site goes live on global CDN → Deployment history tracked → User receives live URL
+- Success criteria: Deployments complete in under 30 seconds, sites are live with HTTPS, deployment history persists with live URLs, users can re-deploy with one click, both API and manual workflows supported, clear instructions for obtaining API tokens, deployment failures show helpful error messages
+
 **Page Integration Hub**
 - Functionality: Central navigation to all connected pages and projects including infinity-facebook, infinity-twitter, infinity-ebay
 - Purpose: Unify multiple existing pages into cohesive experience - each with copyable functions
