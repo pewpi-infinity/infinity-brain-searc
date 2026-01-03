@@ -164,21 +164,32 @@ export function UserDashboard() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">Token Balances</h3>
-              <Button
-                onClick={handleSyncWallet}
-                disabled={isSyncing}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <ArrowsClockwise 
-                  size={16} 
-                  weight="bold" 
-                  className={isSyncing ? 'animate-spin' : ''} 
-                />
-                {isSyncing ? 'Syncing...' : 'Sync Wallet'}
-              </Button>
+              {currentUser.isOwner && (
+                <Button
+                  onClick={handleSyncWallet}
+                  disabled={isSyncing}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  title="Sync tokens from all Infinity repos (Admin only)"
+                >
+                  <ArrowsClockwise 
+                    size={16} 
+                    weight="bold" 
+                    className={isSyncing ? 'animate-spin' : ''} 
+                  />
+                  {isSyncing ? 'Syncing...' : 'Sync from Repos'}
+                </Button>
+              )}
             </div>
+            {currentUser.isOwner && (
+              <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/30 text-sm">
+                <p className="font-semibold text-accent mb-1">🔒 Admin Sync Protection</p>
+                <p className="text-muted-foreground text-xs">
+                  Syncs tokens FROM Infinity ecosystem repos only. Never resets spent tokens or auction earnings.
+                </p>
+              </div>
+            )}
             <div className="grid md:grid-cols-2 gap-3">
               {Object.entries(userProfile.businessTokens).map(([symbol, balance]) => (
                 <div
@@ -203,22 +214,8 @@ export function UserDashboard() {
             {Object.keys(userProfile.businessTokens).length === 0 && (
               <div className="text-center py-8">
                 <p className="text-sm text-muted-foreground mb-4">
-                  No tokens yet. Visit the Tokens tab to mint your first token!
+                  No tokens yet. Visit the Mint tab to create your first token!
                 </p>
-                <Button
-                  onClick={handleSyncWallet}
-                  disabled={isSyncing}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <ArrowsClockwise 
-                    size={16} 
-                    weight="bold" 
-                    className={isSyncing ? 'animate-spin' : ''} 
-                  />
-                  {isSyncing ? 'Syncing...' : 'Sync Wallet'}
-                </Button>
               </div>
             )}
           </Card>

@@ -220,31 +220,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      toast.info('Syncing wallet from Infinity repos...', {
+        description: 'Checking all Infinity ecosystem repos for your tokens'
+      })
+
+      const currentBalances = { ...userProfile.businessTokens }
       
-      const recalculateTokenBalances = (userId: string) => {
-        const balances: Record<string, number> = { 'INF': 10 }
-        
-        for (const tx of allTransactions) {
-          if (tx.status !== 'completed') continue
+      const repoTokens: Record<string, number> = {}
+      const reposToCheck = [
+        'infinity-brain-111',
+        'pewpi-infinity',
+        'buotuner',
+        'Osprey-Terminal'
+      ]
+
+      for (const repo of reposToCheck) {
+        try {
+          const repoKey = `repo-${repo}-tokens-${currentUser.username}`
+          const tokens = await window.spark.kv.get<Record<string, number>>(repoKey)
           
-          if (tx.type === 'mint' && tx.from === userId && tx.to === userId) {
-            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
-          } else if (tx.to === userId) {
-            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
-          } else if (tx.from === userId) {
-            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) - tx.amount
+          if (tokens) {
+            for (const [symbol, amount] of Object.entries(tokens)) {
+              repoTokens[symbol] = (repoTokens[symbol] || 0) + amount
+            }
           }
+        } catch (error) {
+          console.log(`No tokens found in ${repo}`)
         }
-        
-        return balances
       }
-      
-      const calculatedBalances = recalculateTokenBalances(currentUser.userId)
+
+      for (const [symbol, amount] of Object.entries(repoTokens)) {
+        const currentAmount = currentBalances[symbol] || 0
+        if (amount > currentAmount) {
+          currentBalances[symbol] = amount
+        }
+      }
       
       const updatedProfile = {
         ...userProfile,
-        businessTokens: calculatedBalances
+        businessTokens: currentBalances
       }
       
       setUserProfile(updatedProfile)
@@ -256,7 +270,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await restoreAdminAuctions()
       
-      toast.success('Admin wallet synced! All tokens and auctions restored. ✨')
+      const addedTokens = Object.entries(repoTokens)
+        .filter(([symbol, amount]) => amount > (userProfile.businessTokens[symbol] || 0))
+        .map(([symbol, amount]) => `+${amount - (userProfile.businessTokens[symbol] || 0)} ${symbol}`)
+        .join(', ')
+      
+      if (addedTokens) {
+        toast.success('Wallet synced from repos! ✨', {
+          description: `Added: ${addedTokens}`
+        })
+      } else {
+        toast.success('Wallet synced! All tokens up to date. ✨', {
+          description: 'No new tokens found in Infinity repos'
+        })
+      }
     } catch (error) {
       console.error('Wallet sync failed:', error)
       toast.error('Failed to sync wallet. Please try again.')

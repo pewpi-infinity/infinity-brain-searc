@@ -40,10 +40,12 @@ import { InteractiveTokenChart } from '@/components/InteractiveTokenChart'
 import { MediaUploadWithAI } from '@/components/MediaUploadWithAI'
 import { EngagementAnalytics } from '@/components/EngagementAnalytics'
 import { TwitterSpacesRadio } from '@/components/TwitterSpacesRadio'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio } from '@phosphor-icons/react'
+import { AdminTools } from '@/components/AdminTools'
+import { ActionWheel } from '@/components/ActionWheel'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
-import { restoreAdminAuctions } from '@/lib/adminProtection'
+import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -56,12 +58,23 @@ function App() {
     const initializeApp = async () => {
       try {
         await restoreAdminAuctions()
+        await protectAdminAuctions()
       } catch (error) {
         console.error('Failed to restore auctions:', error)
       }
     }
     
     initializeApp()
+    
+    const protectionInterval = setInterval(async () => {
+      try {
+        await protectAdminAuctions()
+      } catch (error) {
+        console.error('Failed to protect auctions:', error)
+      }
+    }, 60000)
+    
+    return () => clearInterval(protectionInterval)
   }, [])
 
   const handleSearch = async (query: string, mode: 'web' | 'ai') => {
@@ -114,7 +127,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-28 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-29 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -226,6 +239,10 @@ function App() {
               <TabsTrigger value="alerts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <BellRinging size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Alerts</span>
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <ShieldCheck size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Admin</span>
               </TabsTrigger>
             </TabsList>
 
@@ -411,12 +428,37 @@ function App() {
                 <SentimentAlertSystem />
               </div>
             </TabsContent>
+
+            <TabsContent value="admin">
+              <div className="max-w-6xl mx-auto">
+                <AdminTools />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
 
         <HelpLegend />
         <BackgroundChanger />
         <ThemeCustomizer />
+        <ActionWheel
+          onImport={() => {
+            toast.info('Import feature - coming soon', {
+              description: 'Import data from external sources'
+            })
+          }}
+          onExport={() => {
+            setActiveTab('export')
+          }}
+          onEngineering={() => {
+            setActiveTab('modules')
+          }}
+          onPullMemory={() => {
+            setActiveTab('chat')
+            toast.info('Memory pulled to conversation', {
+              description: 'Local context loaded for AI chat'
+            })
+          }}
+        />
       </div>
     </AuthProvider>
   )
