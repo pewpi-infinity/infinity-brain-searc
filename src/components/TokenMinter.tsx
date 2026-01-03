@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
+import { TokenPriceChart } from './TokenPriceChart'
 
 interface BusinessToken {
   symbol: string
@@ -110,6 +111,10 @@ export function TokenMinter() {
           Create your own business token backed by Infinity ecosystem
         </p>
       </div>
+
+      {allTokensList.length > 0 && (
+        <TokenPriceChart tokenSymbol={allTokensList[0]?.symbol} />
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 gradient-border">

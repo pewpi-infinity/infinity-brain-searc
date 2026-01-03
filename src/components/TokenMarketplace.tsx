@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
+import { TokenPriceChart } from './TokenPriceChart'
 
 export interface MarketOrder {
   id: string
@@ -337,6 +338,8 @@ export function TokenMarketplace() {
           {openOrders.length} Active Orders
         </Badge>
       </div>
+
+      <TokenPriceChart tokenSymbol={selectedOrderView || availableTokens[0]} />
 
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6">

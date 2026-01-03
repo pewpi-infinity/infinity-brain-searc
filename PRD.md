@@ -34,11 +34,18 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Success criteria: Transfers complete instantly, balances sync across users, transaction history persists, insufficient balance prevented
 
 **Token Exchange Marketplace**
-- Functionality: Decentralized marketplace for trading tokens with buy/sell order books
+- Functionality: Decentralized marketplace for trading tokens with buy/sell order books and historical price charts
 - Purpose: Create liquidity and enable price discovery for all business tokens in the ecosystem
-- Trigger: Navigate to Market tab
-- Progression: User selects token → Views order book (buy/sell orders) → Creates buy or sell order with price and amount → Order placed in open order book → Other users fill orders → Trade executed instantly → Balances updated → Transaction recorded
-- Success criteria: Real-time order book displays aggregated buy/sell orders, users can create/cancel orders, trades execute instantly with proper balance validation, order history tracked per user, supports multiple token pairs trading against INF
+- Trigger: Navigate to Market tab or Trade tab
+- Progression: User selects token → Views interactive price chart with historical data → Analyzes market trends with candlestick or line charts → Views order book (buy/sell orders) → Creates buy or sell order with price and amount → Order placed in open order book → Other users fill orders → Trade executed instantly → Balances updated → Transaction recorded
+- Success criteria: Real-time order book displays aggregated buy/sell orders, interactive D3 price charts show historical trends with multiple timeframes (1H, 24H, 7D, 30D, ALL), candlestick and line chart views available, users can create/cancel orders, trades execute instantly with proper balance validation, order history tracked per user, supports multiple token pairs trading against INF
+
+**Market Overview Dashboard**
+- Functionality: Comprehensive view of all tokens with live pricing, mini sparkline charts, and market statistics
+- Purpose: Provide at-a-glance market intelligence for the entire token ecosystem
+- Trigger: Navigate to Markets tab
+- Progression: User views dashboard → Sees top gainers and total market cap → Browses token list with live prices and sparklines → Sorts by market cap, price change, or volume → Clicks token to view detailed charts
+- Success criteria: All tokens display with current price, 24h change percentage, volume data, mini sparkline charts render using D3, real-time sorting and filtering, smooth transitions between views
 
 **Transaction History**
 - Functionality: Comprehensive audit trail of all token transactions (mints, sends, receives)

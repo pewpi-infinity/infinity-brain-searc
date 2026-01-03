@@ -11,7 +11,8 @@ import { ModuleBrowser } from '@/components/ModuleBrowser'
 import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
 import { UserDashboard } from '@/components/UserDashboard'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront } from '@phosphor-icons/react'
+import { MarketOverview } from '@/components/MarketOverview'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -72,7 +73,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4 md:grid-cols-7 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4 md:grid-cols-8 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -89,9 +90,13 @@ function App() {
                 <CurrencyDollar size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Mint</span>
               </TabsTrigger>
+              <TabsTrigger value="markets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <ChartLine size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Markets</span>
+              </TabsTrigger>
               <TabsTrigger value="marketplace" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Storefront size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Market</span>
+                <span className="text-xs md:text-sm">Trade</span>
               </TabsTrigger>
               <TabsTrigger value="search" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <MagnifyingGlass size={20} weight="duotone" />
@@ -124,6 +129,12 @@ function App() {
 
             <TabsContent value="tokens">
               <TokenMinter />
+            </TabsContent>
+
+            <TabsContent value="markets">
+              <MarketOverview onTokenSelect={(symbol) => {
+                setActiveTab('marketplace')
+              }} />
             </TabsContent>
 
             <TabsContent value="marketplace">
