@@ -68,6 +68,7 @@ export function SocialPoster() {
   const [postHistory, setPostHistory] = useKV<PostHistory[]>('post-history', [])
   const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
   const [conversationHistory, setConversationHistory] = useKV<ConversationMessage[]>('conversation-history', [])
+  const [socialSuggestions, setSocialSuggestions] = useKV<any[]>('social-suggestions', [])
   const [includeContext, setIncludeContext] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [postingProgress, setPostingProgress] = useState(0)
@@ -471,6 +472,49 @@ Return ONLY the enhanced post text, no explanations.`
           </div>
 
           <div className="space-y-4">
+            {socialSuggestions && socialSuggestions.length > 0 && (
+              <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-600/10 rounded-lg border border-green-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkle size={20} weight="fill" className="text-green-500" />
+                    🤑 Research Token Suggestions
+                  </h3>
+                  <Badge variant="secondary">{socialSuggestions.length} ready</Badge>
+                </div>
+                <div className="space-y-2">
+                  {socialSuggestions.map((suggestion, idx) => (
+                    <Card key={idx} className="border-green-500/20 hover:border-green-500/40 transition-colors cursor-pointer" onClick={() => {
+                      const postText = `${suggestion.title}\n\n${suggestion.description}\n\n${suggestion.hashtags.map((h: string) => `#${h}`).join(' ')}`
+                      setPostContent(postText)
+                      toast.success('Suggestion loaded! Edit and post when ready.')
+                    }}>
+                      <CardContent className="p-3">
+                        <div className="space-y-1">
+                          <h4 className="font-semibold text-sm">{suggestion.title}</h4>
+                          <p className="text-xs text-muted-foreground">{suggestion.description}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {suggestion.hashtags.map((tag: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                #{tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full mt-2"
+                  onClick={() => setSocialSuggestions([])}
+                >
+                  Clear suggestions
+                </Button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <Label htmlFor="post-content" className="text-base font-semibold">
                 What's on your mind?

@@ -52,7 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const user = await window.spark.user()
       
-      if (!user) {
+      if (!user || !user.id) {
+        toast.error('Authentication failed - please try again')
         throw new Error('User authentication failed')
       }
       

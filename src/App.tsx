@@ -43,6 +43,7 @@ import { TwitterSpacesRadio } from '@/components/TwitterSpacesRadio'
 import { AdminTools } from '@/components/AdminTools'
 import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
+import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -252,6 +253,8 @@ function App() {
             </TabsList>
 
             <TabsContent value="home" className="space-y-8">
+              <ResearchAuctionQuickLinks onNavigate={setActiveTab} />
+              
               <MetricsExplainer />
               
               <PageHub />
