@@ -18,7 +18,7 @@ import {
   FacebookLogo,
   LinkedinLogo,
   InstagramLogo,
-  TiktokLogo
+  MusicNote
 } from '@phosphor-icons/react'
 
 interface PostAnalytics {
@@ -72,7 +72,7 @@ export function AnalyticsDashboard() {
       'Facebook': { icon: FacebookLogo, color: 'oklch(0.50 0.20 250)' },
       'LinkedIn': { icon: LinkedinLogo, color: 'oklch(0.45 0.15 240)' },
       'Instagram': { icon: InstagramLogo, color: 'oklch(0.60 0.25 320)' },
-      'TikTok': { icon: TiktokLogo, color: 'oklch(0.40 0.10 280)' }
+      'TikTok': { icon: MusicNote, color: 'oklch(0.40 0.10 280)' }
     }
 
     return (platforms || [])
