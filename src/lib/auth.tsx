@@ -74,17 +74,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
       const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
+      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      
+      const recalculateTokenBalances = (userId: string) => {
+        const balances: Record<string, number> = { 'INF': 10 }
+        
+        for (const tx of allTransactions) {
+          if (tx.status !== 'completed') continue
+          
+          if (tx.type === 'mint' && tx.from === userId && tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.from === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) - tx.amount
+          }
+        }
+        
+        return balances
+      }
       
       if (!existingProfileData) {
+        const calculatedBalances = recalculateTokenBalances(userIdString)
+        
         const newProfile: UserProfile = {
           userId: userIdString,
           username: user.login,
           email: user.email,
           avatarUrl: user.avatarUrl,
           createdAt: Date.now(),
-          businessTokens: {
-            'INF': 10
-          },
+          businessTokens: calculatedBalances,
           preferences: {}
         }
         setUserProfile(newProfile)
@@ -94,13 +113,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           [userIdString]: newProfile
         }))
         
-        toast.success('Welcome! You received 10 free INF tokens to get started! 🎉')
+        const hasTokens = Object.keys(calculatedBalances).length > 1 || calculatedBalances['INF'] > 10
+        if (hasTokens) {
+          toast.success('Welcome back! Your tokens have been restored from transaction history! 🎉')
+        } else {
+          toast.success('Welcome! You received 10 free INF tokens to get started! 🎉')
+        }
       } else {
+        const calculatedBalances = recalculateTokenBalances(userIdString)
+        
         const updatedProfile = {
           ...existingProfileData,
           username: user.login,
           email: user.email,
-          avatarUrl: user.avatarUrl
+          avatarUrl: user.avatarUrl,
+          businessTokens: calculatedBalances
         }
         setUserProfile(updatedProfile)
         
