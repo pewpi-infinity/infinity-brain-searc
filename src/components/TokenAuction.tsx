@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
+import { TokenMediaAttachment, MediaAttachment } from '@/components/TokenMediaAttachment'
 
 export interface AuctionBid {
   bidId: string
@@ -56,6 +57,7 @@ export interface TokenAuction {
   winnerUsername?: string
   bids: AuctionBid[]
   description?: string
+  attachments?: MediaAttachment[]
 }
 
 export function TokenAuction() {
@@ -73,6 +75,7 @@ export function TokenAuction() {
   const [reservePrice, setReservePrice] = useState('')
   const [duration, setDuration] = useState('24')
   const [description, setDescription] = useState('')
+  const [attachments, setAttachments] = useState<MediaAttachment[]>([])
   const [isCreating, setIsCreating] = useState(false)
 
   const [selectedAuction, setSelectedAuction] = useState<TokenAuction | null>(null)
@@ -242,7 +245,8 @@ export function TokenAuction() {
         endTime: Date.now() + (durationHours * 60 * 60 * 1000),
         status: 'active',
         bids: [],
-        description
+        description,
+        attachments
       }
 
       await deductTokens(selectedToken, amount)
@@ -257,6 +261,7 @@ export function TokenAuction() {
       setReservePrice('')
       setDuration('24')
       setDescription('')
+      setAttachments([])
     } catch (error) {
       toast.error('Failed to create auction')
       console.error('Auction creation error:', error)
@@ -633,6 +638,13 @@ export function TokenAuction() {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <TokenMediaAttachment
+                    attachments={attachments}
+                    onAttachmentsChange={setAttachments}
+                  />
+                </div>
+
                 <Button
                   onClick={handleCreateAuction}
                   className="w-full bg-gradient-to-r from-primary to-accent"
@@ -694,6 +706,14 @@ export function TokenAuction() {
                               {getTimeRemaining(auction.endTime)}
                             </Badge>
                           </div>
+
+                          {auction.attachments && auction.attachments.length > 0 && (
+                            <TokenMediaAttachment
+                              attachments={auction.attachments}
+                              onAttachmentsChange={() => {}}
+                              readonly={true}
+                            />
+                          )}
 
                           <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-muted/30">
                             <div>

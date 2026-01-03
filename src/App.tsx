@@ -30,7 +30,10 @@ import { MarioScene } from '@/components/MarioScene'
 import { SpriteBuilder } from '@/components/SpriteBuilder'
 import { SocialSecurityDistributor } from '@/components/SocialSecurityDistributor'
 import { InfinityTokenSale } from '@/components/InfinityTokenSale'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye } from '@phosphor-icons/react'
+import { EmojiCatcherGame } from '@/components/EmojiCatcherGame'
+import { RepoBackupSystem } from '@/components/RepoBackupSystem'
+import { ThemeCustomizer } from '@/components/ThemeCustomizer'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -91,10 +94,14 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-23 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-24 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="backup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Database size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Backup</span>
               </TabsTrigger>
               <TabsTrigger value="buy-inf" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Coin size={20} weight="duotone" />
@@ -189,12 +196,18 @@ function App() {
             <TabsContent value="home" className="space-y-8">
               <PageHub />
               
-              <div className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <EmojiCatcherGame />
                 <SlotMachine />
-                <div className="h-[500px]">
-                  <AIChat />
-                </div>
               </div>
+              
+              <div className="h-[500px]">
+                <AIChat />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="backup">
+              <RepoBackupSystem />
             </TabsContent>
 
             <TabsContent value="buy-inf">
@@ -343,6 +356,7 @@ function App() {
 
         <HelpLegend />
         <BackgroundChanger />
+        <ThemeCustomizer />
       </div>
     </AuthProvider>
   )

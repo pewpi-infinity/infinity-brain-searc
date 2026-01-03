@@ -162,7 +162,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const addTokens = async (tokenSymbol: string, amount: number) => {
-    if (!userProfile) return
+    if (!userProfile) {
+      throw new Error('No user profile')
+    }
 
     const currentBalance = userProfile.businessTokens[tokenSymbol] || 0
     const updatedProfile = {
@@ -181,7 +183,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const deductTokens = async (tokenSymbol: string, amount: number) => {
-    if (!userProfile) return
+    if (!userProfile) {
+      throw new Error('No user profile')
+    }
 
     const currentBalance = userProfile.businessTokens[tokenSymbol] || 0
     const updatedProfile = {
