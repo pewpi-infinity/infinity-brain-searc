@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { ResearchTokenVerifier } from '@/components/ResearchTokenVerifier'
 import { ResearchRepositoryBrowser } from '@/components/ResearchRepositoryBrowser'
 import { ResearchTokenAnalytics } from '@/components/ResearchTokenAnalytics'
+import { GitHubRepoImporter } from '@/components/GitHubRepoImporter'
 
 interface ResearchToken {
   id: string
@@ -172,8 +173,9 @@ export function ResearchTokenMinter() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Research Tokens</TabsTrigger>
+          <TabsTrigger value="import">Auto-Import</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="repos">Repository Browser</TabsTrigger>
         </TabsList>
@@ -488,6 +490,10 @@ export function ResearchTokenMinter() {
           </Tabs>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="import">
+          <GitHubRepoImporter />
         </TabsContent>
 
         <TabsContent value="analytics">
