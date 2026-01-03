@@ -17,7 +17,7 @@ import {
   PaperPlaneTilt,
   ChatCircleText,
   Clock,
-  Image as ImageIcon,
+  Image,
   Calendar,
   ChartLine,
   Sparkle,
@@ -410,7 +410,7 @@ Return ONLY the enhanced post text, no explanations.`
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" disabled>
-                  <ImageIcon size={16} className="mr-2" />
+                  <Image size={16} className="mr-2" />
                   Add Media
                 </Button>
                 <Button
