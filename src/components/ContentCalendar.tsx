@@ -140,16 +140,6 @@ export function ContentCalendar({ onSchedulePost }: ContentCalendarProps) {
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="rounded-md border w-full"
-            modifiers={{
-              hasPost: getDatesWithPosts()
-            }}
-            modifiersStyles={{
-              hasPost: {
-                backgroundColor: 'oklch(0.70 0.18 200 / 0.2)',
-                fontWeight: 'bold',
-                borderRadius: '50%'
-              }
-            }}
           />
 
           {selectedDate && (

@@ -25,7 +25,8 @@ import {
   FloppyDisk
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { ContentCalendar, type ScheduledPost } from './ContentCalendar'
+import { ContentCalendar } from './ContentCalendar'
+import type { ScheduledPost } from './ContentCalendar'
 import { BestTimeRecommender } from './BestTimeRecommender'
 import { AnalyticsDashboard } from './AnalyticsDashboard'
 import { BulkUploader } from './BulkUploader'
