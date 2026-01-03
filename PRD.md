@@ -159,6 +159,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User enters text → AI analyzes 6 core emotions (joy, sadness, anger, fear, surprise, love) → Scores assigned 0-100 → Overall sentiment calculated → Entry added to heatmap → Patterns visualized by hour and day → User switches between emotion views → Exports analysis data
 - Success criteria: Text analyzed accurately with emotion breakdown, interactive D3 heatmap renders showing temporal patterns, hover tooltips display detailed data, entries persist in storage, multiple emotion view modes work, data exportable as JSON, recent analyses list updates dynamically
 
+**Voice Command Integration for Emoji Features**
+- Functionality: Hands-free activation of emoji features using natural speech recognition with continuous listening mode, visual feedback, and command history tracking
+- Purpose: Enable completely hands-free operation of all emoji-triggered features - users can activate planet pull, backups, security, scans, and all other emoji features through voice commands without touching keyboard or mouse
+- Trigger: Navigate to Emoji tab → Click "Enable Voice" button to activate voice recognition
+- Progression: User enables voice commands → Microphone icon shows listening status with pulsing animation → User speaks natural commands like "planet pull", "full backup", "mushroom power", "global scan" → Speech recognition processes command → System matches keywords to emoji features (planet/pull, magnet/attract, backup/disk, mushroom/power, security/trident, etc.) → Emoji feature activates with visual toast confirmation → Command logged to history with timestamp and emoji → Last command displays prominently → Command history shows recent 10 commands with timestamps → User can disable voice to stop listening → Voice state persists between sessions
+- Success criteria: Voice recognition activates immediately on browser support, continuous listening mode restarts automatically after each command, 18 emoji features all respond to multiple voice keywords (e.g. "planet" or "pull" triggers 🪐), command recognition completes within 500ms, visual feedback shows listening state with pulsing microphone icon, successful commands display emoji and feature name in toast, command history persists in storage with timestamps, unsupported commands show helpful error message, browser compatibility check prevents errors on unsupported browsers, voice state (enabled/disabled) persists between page refreshes, clear visual distinction between listening/idle/disabled states
+
 ## Edge Case Handling
 
 - **AI Service Unavailable**: Display friendly message with retry option, allow offline search through cached results

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +23,9 @@ import {
   SquaresFour,
   Phone,
   TwitterLogo,
-  Sparkle
+  Sparkle,
+  Microphone,
+  MicrophoneSlash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -63,6 +65,12 @@ export function EmojiFeatureHub() {
   const [backupStatus, setBackupStatus] = useKV<{ local: boolean; full: boolean }>('backup-status', { local: false, full: false })
   const [scanningRepos, setScanningRepos] = useState(false)
   const [repoCount, setRepoCount] = useKV<number>('scanned-repos', 0)
+  
+  const [isListening, setIsListening] = useState(false)
+  const [voiceEnabled, setVoiceEnabled] = useKV<boolean>('voice-commands-enabled', false)
+  const [lastCommand, setLastCommand] = useState<string>('')
+  const [commandHistory, setCommandHistory] = useKV<string[]>('voice-command-history', [])
+  const recognitionRef = useRef<any>(null)
 
   const toggleFeature = (featureKey: string) => {
     setFeatures((current = {}) => ({
@@ -172,39 +180,195 @@ export function EmojiFeatureHub() {
   }
 
   const emojiFeatures = [
-    { emoji: '🪐', name: 'Planet Pull', desc: 'Pull everything you\'ve typed', icon: Planet, action: () => toast.success('🪐 Pulling all typed content!') },
-    { emoji: '🧲', name: 'Magnet Mode', desc: 'Magnetic content attraction', icon: MagnetStraight, action: () => toast.success('🧲 Magnet pulling anything!') },
-    { emoji: '🤑', name: 'Multi-Post', desc: 'Post to all signed-in socials', icon: CurrencyDollar, action: () => toast.success('🤑 Posting to all socials!') },
-    { emoji: '📀', name: 'Full Backup', desc: 'Complete terminal backup', icon: HardDrives, action: performFullBackup },
-    { emoji: '💲', name: 'Local Backup', desc: 'Save data locally', icon: CurrencyDollar, action: performLocalBackup },
-    { emoji: '⭐', name: 'Site Repair', desc: 'Fix broken websites live', icon: Star, action: enableSiteRepair },
-    { emoji: '🎛️', name: 'Route Modulate', desc: 'Modulate route content', icon: Faders, action: modulateRoute },
-    { emoji: '💫', name: 'Cycle Scan', desc: 'Star-like repo scanner', icon: Sparkle, action: cycleStarScan },
-    { emoji: '⚙️', name: 'Infinity Phone', desc: 'Personalized phone tools', icon: Phone, action: setupInfinityPhone },
-    { emoji: '👑', name: 'Twitter Clicks', desc: 'Twitter-like movement', icon: CrownSimple, action: enableTwitterClicks },
-    { emoji: '🔱', name: 'Trident Security', desc: 'Advanced protection', icon: ShieldCheckered, action: enableSecurity },
-    { emoji: '💰', name: 'Armored Car', desc: 'Maximum security', icon: Vault, action: enableArmored },
-    { emoji: '🍄', name: 'Mushroom Power', desc: 'Double in size', icon: Sparkle, action: doubleSizeMushroom },
-    { emoji: '✨', name: 'Global Scan', desc: 'Scan pages in all repos', icon: Scan, action: scanGlobalPages },
-    { emoji: '💎', name: 'Facet Content', desc: 'Crystal-clear content', icon: DiamondsFour, action: facetContent },
-    { emoji: '🦾', name: 'Robot Strength', desc: 'Enhanced carts & OS', icon: Robot, action: enableRobotStrength },
-    { emoji: '🌐', name: 'Worldwide Web', desc: 'Global connectivity', icon: Globe, action: enableWorldwideWeb },
-    { emoji: '🟦', name: 'Import System', desc: 'Import anything attached', icon: SquaresFour, action: importAttachments }
+    { emoji: '🪐', name: 'Planet Pull', desc: 'Pull everything you\'ve typed', icon: Planet, action: () => toast.success('🪐 Pulling all typed content!'), keywords: ['planet', 'pull'] },
+    { emoji: '🧲', name: 'Magnet Mode', desc: 'Magnetic content attraction', icon: MagnetStraight, action: () => toast.success('🧲 Magnet pulling anything!'), keywords: ['magnet', 'attract'] },
+    { emoji: '🤑', name: 'Multi-Post', desc: 'Post to all signed-in socials', icon: CurrencyDollar, action: () => toast.success('🤑 Posting to all socials!'), keywords: ['post', 'social', 'multipost', 'money'] },
+    { emoji: '📀', name: 'Full Backup', desc: 'Complete terminal backup', icon: HardDrives, action: performFullBackup, keywords: ['full', 'backup', 'terminal', 'disk'] },
+    { emoji: '💲', name: 'Local Backup', desc: 'Save data locally', icon: CurrencyDollar, action: performLocalBackup, keywords: ['local', 'backup', 'save', 'dollar'] },
+    { emoji: '⭐', name: 'Site Repair', desc: 'Fix broken websites live', icon: Star, action: enableSiteRepair, keywords: ['star', 'repair', 'fix', 'site'] },
+    { emoji: '🎛️', name: 'Route Modulate', desc: 'Modulate route content', icon: Faders, action: modulateRoute, keywords: ['modulate', 'route', 'control'] },
+    { emoji: '💫', name: 'Cycle Scan', desc: 'Star-like repo scanner', icon: Sparkle, action: cycleStarScan, keywords: ['cycle', 'scan', 'dizzy'] },
+    { emoji: '⚙️', name: 'Infinity Phone', desc: 'Personalized phone tools', icon: Phone, action: setupInfinityPhone, keywords: ['phone', 'infinity', 'gear', 'settings'] },
+    { emoji: '👑', name: 'Twitter Clicks', desc: 'Twitter-like movement', icon: CrownSimple, action: enableTwitterClicks, keywords: ['crown', 'twitter', 'royal', 'king'] },
+    { emoji: '🔱', name: 'Trident Security', desc: 'Advanced protection', icon: ShieldCheckered, action: enableSecurity, keywords: ['trident', 'security', 'protect'] },
+    { emoji: '💰', name: 'Armored Car', desc: 'Maximum security', icon: Vault, action: enableArmored, keywords: ['armored', 'vault', 'money bag', 'secure'] },
+    { emoji: '🍄', name: 'Mushroom Power', desc: 'Double in size', icon: Sparkle, action: doubleSizeMushroom, keywords: ['mushroom', 'power', 'grow', 'double'] },
+    { emoji: '✨', name: 'Global Scan', desc: 'Scan pages in all repos', icon: Scan, action: scanGlobalPages, keywords: ['sparkle', 'global', 'worldwide', 'glitter'] },
+    { emoji: '💎', name: 'Facet Content', desc: 'Crystal-clear content', icon: DiamondsFour, action: facetContent, keywords: ['diamond', 'facet', 'crystal', 'gem'] },
+    { emoji: '🦾', name: 'Robot Strength', desc: 'Enhanced carts & OS', icon: Robot, action: enableRobotStrength, keywords: ['robot', 'strength', 'mechanical', 'arm'] },
+    { emoji: '🌐', name: 'Worldwide Web', desc: 'Global connectivity', icon: Globe, action: enableWorldwideWeb, keywords: ['globe', 'worldwide', 'web', 'world'] },
+    { emoji: '🟦', name: 'Import System', desc: 'Import anything attached', icon: SquaresFour, action: importAttachments, keywords: ['blue', 'square', 'import', 'attach'] }
   ]
+
+  const executeVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase()
+    
+    for (const feature of emojiFeatures) {
+      for (const keyword of feature.keywords) {
+        if (lowerCommand.includes(keyword)) {
+          toast.success(`🎤 Voice command: "${command}"`)
+          feature.action()
+          setLastCommand(`${feature.emoji} ${feature.name}`)
+          setCommandHistory((current = []) => [
+            `${new Date().toLocaleTimeString()}: ${feature.emoji} ${feature.name}`,
+            ...current.slice(0, 9)
+          ])
+          return
+        }
+      }
+    }
+    
+    toast.error(`❌ Command not recognized: "${command}"`)
+  }
+
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      return
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const recognition = new SpeechRecognition()
+    
+    recognition.continuous = true
+    recognition.interimResults = false
+    recognition.lang = 'en-US'
+    
+    recognition.onstart = () => {
+      setIsListening(true)
+      toast.info('🎤 Voice commands active - listening...')
+    }
+    
+    recognition.onend = () => {
+      setIsListening(false)
+      if (voiceEnabled) {
+        recognition.start()
+      }
+    }
+    
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error)
+      if (event.error === 'no-speech') {
+        return
+      }
+      setIsListening(false)
+    }
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[event.results.length - 1][0].transcript
+      executeVoiceCommand(transcript)
+    }
+    
+    recognitionRef.current = recognition
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
+    }
+  }, [voiceEnabled])
+
+  const toggleVoiceCommands = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error('Voice commands not supported in this browser')
+      return
+    }
+
+    const newState = !voiceEnabled
+    setVoiceEnabled(newState)
+    
+    if (newState) {
+      recognitionRef.current?.start()
+    } else {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+      toast.info('🎤 Voice commands disabled')
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <Card className="gradient-border">
+      <Card className="gradient-border bg-gradient-to-br from-accent/5 via-primary/5 to-secondary/5">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <Sparkle size={32} weight="duotone" className="text-accent" />
-            Emoji Feature Hub
-          </CardTitle>
-          <CardDescription className="text-base">
-            Activate powerful features with emoji shortcuts - Your complete toolkit
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Sparkle size={32} weight="duotone" className="text-accent" />
+                Emoji Feature Hub
+              </CardTitle>
+              <CardDescription className="text-base">
+                Activate powerful features with emoji shortcuts or voice commands
+              </CardDescription>
+            </div>
+            <Button
+              size="lg"
+              variant={voiceEnabled ? 'default' : 'outline'}
+              onClick={toggleVoiceCommands}
+              className={voiceEnabled ? 'animate-pulse' : ''}
+            >
+              {isListening ? (
+                <>
+                  <Microphone size={24} weight="fill" className="mr-2 text-red-500 animate-pulse" />
+                  Listening
+                </>
+              ) : voiceEnabled ? (
+                <>
+                  <Microphone size={24} weight="duotone" className="mr-2" />
+                  Voice Active
+                </>
+              ) : (
+                <>
+                  <MicrophoneSlash size={24} weight="duotone" className="mr-2" />
+                  Enable Voice
+                </>
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {voiceEnabled && (
+            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-300 dark:border-green-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Microphone size={24} weight="duotone" className={isListening ? 'text-red-500 animate-pulse' : 'text-green-600'} />
+                  Voice Commands {isListening && '(Listening...)'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Say commands like:</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <Badge variant="secondary" className="justify-center">"Planet pull"</Badge>
+                    <Badge variant="secondary" className="justify-center">"Magnet attract"</Badge>
+                    <Badge variant="secondary" className="justify-center">"Full backup"</Badge>
+                    <Badge variant="secondary" className="justify-center">"Mushroom power"</Badge>
+                    <Badge variant="secondary" className="justify-center">"Security trident"</Badge>
+                    <Badge variant="secondary" className="justify-center">"Global scan"</Badge>
+                  </div>
+                </div>
+                
+                {lastCommand && (
+                  <div className="p-3 bg-background rounded-lg border">
+                    <p className="text-xs text-muted-foreground">Last Command:</p>
+                    <p className="text-sm font-bold">{lastCommand}</p>
+                  </div>
+                )}
+                
+                {commandHistory && commandHistory.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Command History:</p>
+                    <div className="max-h-32 overflow-y-auto space-y-1 text-xs">
+                      {commandHistory.map((cmd, idx) => (
+                        <div key={idx} className="p-2 bg-background/50 rounded text-xs">
+                          {cmd}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {emojiFeatures.map((feature) => {
               const Icon = feature.icon
