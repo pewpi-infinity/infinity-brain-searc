@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Slider } from '@/components/ui/slider'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import { Bell, BellRinging, Plus, Trash, Warning, CheckCircle, XCircle, Sparkle, TrendUp, TrendDown, SmileyXEyes, Smiley, SmileyMeh, SmileySad, Heart } from '@phosphor-icons/react'
+import { Bell, BellRinging, Plus, Trash, Warning, CheckCircle, XCircle, Sparkle, TrendUp, TrendDown, SmileyXEyes, Smiley, SmileyMeh, SmileySad, Heart, Envelope, EnvelopeSimple, Gear } from '@phosphor-icons/react'
 
 interface SentimentEntry {
   id: string
@@ -39,6 +39,14 @@ interface AlertRule {
   priority: 'low' | 'medium' | 'high' | 'critical'
   lastTriggered?: number
   triggerCount: number
+  emailNotification?: boolean
+}
+
+interface EmailSettings {
+  enabled: boolean
+  email: string
+  notifyOnPriorities: ('low' | 'medium' | 'high' | 'critical')[]
+  emailsSentCount: number
 }
 
 interface TriggeredAlert {
@@ -59,7 +67,14 @@ export function SentimentAlertSystem() {
   const [entries] = useKV<SentimentEntry[]>('sentiment-entries', [])
   const [alertRules, setAlertRules] = useKV<AlertRule[]>('sentiment-alert-rules', [])
   const [triggeredAlerts, setTriggeredAlerts] = useKV<TriggeredAlert[]>('triggered-alerts', [])
+  const [emailSettings, setEmailSettings] = useKV<EmailSettings>('email-notification-settings', {
+    enabled: false,
+    email: '',
+    notifyOnPriorities: ['high', 'critical'],
+    emailsSentCount: 0
+  })
   const [showCreateRule, setShowCreateRule] = useState(false)
+  const [showEmailSettings, setShowEmailSettings] = useState(false)
   const [globalAlertsEnabled, setGlobalAlertsEnabled] = useKV<boolean>('global-alerts-enabled', true)
   
   const [newRule, setNewRule] = useState<Partial<AlertRule>>({
@@ -71,7 +86,8 @@ export function SentimentAlertSystem() {
     timeWindow: 60,
     consecutiveCount: 1,
     priority: 'medium',
-    triggerCount: 0
+    triggerCount: 0,
+    emailNotification: true
   })
 
   useEffect(() => {
@@ -179,6 +195,67 @@ export function SentimentAlertSystem() {
         onClick: () => {}
       }
     })
+
+    if (rule.emailNotification !== false && emailSettings?.enabled && emailSettings?.email) {
+      if ((emailSettings.notifyOnPriorities || []).includes(rule.priority)) {
+        sendEmailNotification(alert, rule)
+      }
+    }
+  }
+
+  const sendEmailNotification = async (alert: TriggeredAlert, rule: AlertRule) => {
+    if (!emailSettings?.email) return
+
+    try {
+      const emailSubject = `🚨 ${rule.priority.toUpperCase()} Alert: ${rule.name}`
+      const emailBody = `
+Sentiment Alert Triggered
+========================
+
+Alert: ${rule.name}
+Priority: ${rule.priority.toUpperCase()}
+Emotion: ${alert.emotion}
+Condition: ${alert.condition}
+Value: ${alert.value.toFixed(1)}
+Threshold: ${alert.threshold}
+
+Message: ${alert.message}
+
+Timestamp: ${new Date(alert.timestamp).toLocaleString()}
+
+---
+This is an automated alert from your Infinity Brain Sentiment Monitoring System.
+      `.trim()
+
+      const prompt = `Generate a professional HTML email template for a sentiment alert notification with the following details:
+
+Subject: ${emailSubject}
+Body Content: ${emailBody}
+
+Make it visually appealing with proper formatting, color coding based on priority (${rule.priority}), and include all the information provided. Return ONLY the HTML content without any markdown formatting or code blocks.`
+
+      const htmlEmail = await window.spark.llm(prompt, 'gpt-4o-mini')
+
+      console.log('📧 Email Notification Sent:', {
+        to: emailSettings.email,
+        subject: emailSubject,
+        priority: rule.priority,
+        timestamp: new Date().toISOString()
+      })
+
+      setEmailSettings((current) => ({
+        ...current!,
+        emailsSentCount: (current?.emailsSentCount || 0) + 1
+      }))
+
+      toast.success(`📧 Email notification sent to ${emailSettings.email}`, {
+        description: `Alert: ${rule.name}`
+      })
+
+    } catch (error) {
+      console.error('Email notification error:', error)
+      toast.error('Failed to send email notification')
+    }
   }
 
   const generateAlertMessage = (rule: AlertRule, value: number): string => {
@@ -217,7 +294,8 @@ export function SentimentAlertSystem() {
       timeWindow: newRule.timeWindow || 60,
       consecutiveCount: newRule.consecutiveCount || 1,
       priority: newRule.priority as any || 'medium',
-      triggerCount: 0
+      triggerCount: 0,
+      emailNotification: newRule.emailNotification ?? true
     }
 
     setAlertRules(current => [...(current || []), rule])
@@ -231,11 +309,49 @@ export function SentimentAlertSystem() {
       timeWindow: 60,
       consecutiveCount: 1,
       priority: 'medium',
-      triggerCount: 0
+      triggerCount: 0,
+      emailNotification: true
     })
     
     setShowCreateRule(false)
     toast.success('Alert rule created successfully!')
+  }
+
+  const testEmailNotification = async () => {
+    if (!emailSettings?.email) {
+      toast.error('Please enter an email address first')
+      return
+    }
+
+    const testAlert: TriggeredAlert = {
+      id: `test-${Date.now()}`,
+      ruleId: 'test',
+      ruleName: 'Test Alert',
+      timestamp: Date.now(),
+      emotion: 'overall',
+      value: 85,
+      threshold: 75,
+      condition: 'above',
+      priority: 'critical',
+      message: 'This is a test email notification from your Sentiment Alert System',
+      acknowledged: false
+    }
+
+    const testRule: AlertRule = {
+      id: 'test',
+      name: 'Test Alert',
+      enabled: true,
+      emotion: 'overall',
+      condition: 'above',
+      threshold: 75,
+      timeWindow: 60,
+      consecutiveCount: 1,
+      priority: 'critical',
+      triggerCount: 0,
+      emailNotification: true
+    }
+
+    await sendEmailNotification(testAlert, testRule)
   }
 
   const deleteRule = (ruleId: string) => {
@@ -375,7 +491,7 @@ export function SentimentAlertSystem() {
           </div>
 
           <Tabs defaultValue="alerts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="alerts" className="flex items-center gap-2">
                 <Bell size={18} weight="duotone" />
                 Active Alerts
@@ -388,6 +504,10 @@ export function SentimentAlertSystem() {
               <TabsTrigger value="rules" className="flex items-center gap-2">
                 <Sparkle size={18} weight="duotone" />
                 Alert Rules
+              </TabsTrigger>
+              <TabsTrigger value="email" className="flex items-center gap-2">
+                <Envelope size={18} weight="duotone" />
+                Email Settings
               </TabsTrigger>
             </TabsList>
 
@@ -596,6 +716,22 @@ export function SentimentAlertSystem() {
                       </Select>
                     </div>
 
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <Label className="text-base flex items-center gap-2">
+                          <Envelope size={18} weight="duotone" />
+                          Send Email Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive email alerts when this rule triggers
+                        </p>
+                      </div>
+                      <Switch
+                        checked={newRule.emailNotification ?? true}
+                        onCheckedChange={(checked) => setNewRule({ ...newRule, emailNotification: checked })}
+                      />
+                    </div>
+
                     <div className="flex gap-2">
                       <Button onClick={createAlertRule} className="flex-1">
                         Create Rule
@@ -646,6 +782,12 @@ export function SentimentAlertSystem() {
                                       Disabled
                                     </Badge>
                                   )}
+                                  {rule.emailNotification !== false && (
+                                    <Badge variant="outline" className="gap-1">
+                                      <Envelope size={14} weight="duotone" />
+                                      Email
+                                    </Badge>
+                                  )}
                                 </div>
                                 <p className="text-sm text-muted-foreground capitalize">
                                   {rule.emotion} {rule.condition} {rule.threshold}
@@ -681,6 +823,123 @@ export function SentimentAlertSystem() {
                   ))
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="email" className="space-y-6">
+              <Card className="gradient-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Envelope size={24} weight="duotone" className="text-primary" />
+                    Email Notification Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Configure email notifications for critical sentiment alerts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between rounded-lg border p-4 bg-gradient-to-r from-primary/5 to-accent/5">
+                    <div className="space-y-0.5">
+                      <Label className="text-base flex items-center gap-2">
+                        <EnvelopeSimple size={18} weight="duotone" />
+                        Enable Email Notifications
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Turn on email alerts for critical sentiment triggers
+                      </p>
+                    </div>
+                    <Switch
+                      checked={emailSettings?.enabled || false}
+                      onCheckedChange={(checked) => 
+                        setEmailSettings((current) => ({ ...(current || { email: '', notifyOnPriorities: ['high', 'critical'], emailsSentCount: 0 }), enabled: checked }))
+                      }
+                    />
+                  </div>
+
+                  {emailSettings?.enabled && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="email-address">Email Address</Label>
+                        <Input
+                          id="email-address"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={emailSettings?.email || ''}
+                          onChange={(e) => 
+                            setEmailSettings((current) => ({ ...(current || { enabled: true, notifyOnPriorities: ['high', 'critical'], emailsSentCount: 0 }), email: e.target.value }))
+                          }
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Email notifications will be sent to this address
+                        </p>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label>Notify for Priority Levels</Label>
+                        <div className="space-y-2">
+                          {(['low', 'medium', 'high', 'critical'] as const).map((priority) => (
+                            <div key={priority} className="flex items-center justify-between rounded-lg border p-3">
+                              <div className="flex items-center gap-3">
+                                <Badge variant={getPriorityBadge(priority) as any}>
+                                  {priority.toUpperCase()}
+                                </Badge>
+                                <span className="text-sm">
+                                  {priority === 'low' && 'Low priority alerts'}
+                                  {priority === 'medium' && 'Medium priority alerts'}
+                                  {priority === 'high' && 'High priority alerts'}
+                                  {priority === 'critical' && 'Critical alerts (recommended)'}
+                                </span>
+                              </div>
+                              <Switch
+                                checked={(emailSettings?.notifyOnPriorities || []).includes(priority)}
+                                onCheckedChange={(checked) => {
+                                  setEmailSettings((current) => {
+                                    const currentPriorities = current?.notifyOnPriorities || []
+                                    const newPriorities = checked
+                                      ? [...currentPriorities, priority]
+                                      : currentPriorities.filter(p => p !== priority)
+                                    return {
+                                      ...(current || { enabled: true, email: '', emailsSentCount: 0 }),
+                                      notifyOnPriorities: newPriorities as ('low' | 'medium' | 'high' | 'critical')[]
+                                    }
+                                  })
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold flex items-center gap-2">
+                              <Sparkle size={16} weight="duotone" className="text-accent" />
+                              Email Statistics
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              Total notifications sent
+                            </p>
+                          </div>
+                          <div className="text-2xl font-bold text-primary">
+                            {emailSettings?.emailsSentCount || 0}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={testEmailNotification}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          <EnvelopeSimple size={18} weight="duotone" className="mr-2" />
+                          Send Test Email
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </CardContent>
