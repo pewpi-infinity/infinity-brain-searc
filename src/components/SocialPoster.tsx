@@ -22,9 +22,14 @@ import {
   ChartLine,
   Sparkle,
   UploadSimple,
-  FloppyDisk
+  FloppyDisk,
+  Key,
+  Info
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { socialAPI } from '@/lib/socialApis'
+import { SocialOAuthManager } from './SocialOAuthManager'
+import { SocialAPIGuide } from './SocialAPIGuide'
 import { ContentCalendar } from './ContentCalendar'
 import type { ScheduledPost } from './ContentCalendar'
 import { BestTimeRecommender } from './BestTimeRecommender'
@@ -70,6 +75,7 @@ export function SocialPoster() {
   const [scheduleTime, setScheduleTime] = useState('')
   const [activeTab, setActiveTab] = useState('post')
   const [initialized, setInitialized] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
 
   const getIconComponent = (iconName: string) => {
     const iconMap: Record<string, React.ComponentType<any>> = {
@@ -166,7 +172,7 @@ Return ONLY the enhanced post text, no explanations.`
 
     const connectedPlatforms = platforms.filter(p => p.connected)
     if (connectedPlatforms.length === 0) {
-      toast.error('Please connect at least one platform')
+      toast.error('Please connect at least one platform. Go to API Setup tab.')
       return
     }
 
@@ -175,42 +181,61 @@ Return ONLY the enhanced post text, no explanations.`
 
     try {
       const enhancedContent = await enhanceWithAI(textToPost)
-      setPostingProgress(30)
+      setPostingProgress(20)
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const results = await socialAPI.postToAll(enhancedContent)
+      setPostingProgress(70)
 
-      for (let i = 0; i < connectedPlatforms.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 300))
-        setPostingProgress(30 + ((i + 1) / connectedPlatforms.length) * 70)
-        
-        const PlatformIcon = getIconComponent(connectedPlatforms[i].iconName)
-        toast.success(`Posted to ${connectedPlatforms[i].name}`, {
-          icon: <PlatformIcon size={20} weight="fill" />
-        })
-      }
+      let successCount = 0
+      let failCount = 0
 
-      const newPost: PostHistory = {
-        id: Date.now().toString(),
-        content: enhancedContent,
-        platforms: connectedPlatforms.map(p => p.name),
-        timestamp: Date.now(),
-        includeContext
-      }
-
-      setPostHistory((current = []) => [newPost, ...current].slice(0, 50))
-
-      setConversationHistory((current = []) => [
-        ...current,
-        {
-          role: 'user' as const,
-          content: textToPost,
-          timestamp: Date.now()
+      for (const result of results) {
+        const PlatformIcon = getIconComponent(result.platform)
+        if (result.success) {
+          successCount++
+          toast.success(`Posted to ${result.platform.charAt(0).toUpperCase() + result.platform.slice(1)}`, {
+            icon: <PlatformIcon size={20} weight="fill" />,
+            description: result.url ? `View at: ${result.url}` : undefined
+          })
+        } else {
+          failCount++
+          toast.error(`Failed to post to ${result.platform.charAt(0).toUpperCase() + result.platform.slice(1)}`, {
+            icon: <PlatformIcon size={20} weight="regular" />,
+            description: result.error || 'Unknown error'
+          })
         }
-      ].slice(-20))
+      }
 
-      toast.success(`Successfully posted to ${connectedPlatforms.length} platform${connectedPlatforms.length > 1 ? 's' : ''}!`)
-      setPostContent('')
-      setIncludeContext(false)
+      setPostingProgress(100)
+
+      if (successCount > 0) {
+        const newPost: PostHistory = {
+          id: Date.now().toString(),
+          content: enhancedContent,
+          platforms: results.filter(r => r.success).map(r => r.platform),
+          timestamp: Date.now(),
+          includeContext
+        }
+
+        setPostHistory((current = []) => [newPost, ...current].slice(0, 50))
+
+        setConversationHistory((current = []) => [
+          ...current,
+          {
+            role: 'user' as const,
+            content: textToPost,
+            timestamp: Date.now()
+          }
+        ].slice(-20))
+
+        toast.success(`Successfully posted to ${successCount} platform${successCount > 1 ? 's' : ''}!`)
+        setPostContent('')
+        setIncludeContext(false)
+      }
+
+      if (failCount > 0 && successCount === 0) {
+        toast.error('All posts failed. Check your API credentials in the Setup tab.')
+      }
     } catch (error) {
       toast.error('Failed to post. Please try again.')
       console.error('Post error:', error)
@@ -304,7 +329,15 @@ Return ONLY the enhanced post text, no explanations.`
 
   return (
     <div className="space-y-6">
-      <div className="grid w-full max-w-6xl mx-auto grid-cols-4 md:grid-cols-8 gap-2">
+      <div className="grid w-full max-w-6xl mx-auto grid-cols-4 md:grid-cols-9 gap-2">
+        <Button
+          variant={activeTab === 'setup' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('setup')}
+          className={activeTab === 'setup' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' : ''}
+        >
+          <Key size={20} weight="duotone" className="mr-1" />
+          <span className="text-xs md:text-sm">API Setup</span>
+        </Button>
         <Button
           variant={activeTab === 'post' ? 'default' : 'outline'}
           onClick={() => setActiveTab('post')}
@@ -370,6 +403,25 @@ Return ONLY the enhanced post text, no explanations.`
           <span className="text-xs md:text-sm">Backup</span>
         </Button>
       </div>
+
+      {activeTab === 'setup' && (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowGuide(!showGuide)}
+              size="sm"
+            >
+              <Info size={16} className="mr-2" />
+              {showGuide ? 'Hide Guide' : 'Show Setup Guide'}
+            </Button>
+          </div>
+          
+          {showGuide && <SocialAPIGuide />}
+          
+          <SocialOAuthManager />
+        </div>
+      )}
 
       {activeTab === 'post' && (
         <div className="space-y-6">
