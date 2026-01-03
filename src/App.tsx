@@ -29,6 +29,7 @@ import { EmojiFeatureHub } from '@/components/EmojiFeatureHub'
 import { MarioScene } from '@/components/MarioScene'
 import { SpriteBuilder } from '@/components/SpriteBuilder'
 import { SocialSecurityDistributor } from '@/components/SocialSecurityDistributor'
+import { InfinityTokenSale } from '@/components/InfinityTokenSale'
 import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -81,7 +82,7 @@ function App() {
               </h1>
             </div>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive ecosystem registry powering tokenized business infrastructure
+              Comprehensive tokenized business infrastructure ecosystem. Buy INF with USD or earn through contributions!
             </p>
           </header>
 
@@ -90,10 +91,14 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-22 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-23 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="buy-inf" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Coin size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Buy INF</span>
               </TabsTrigger>
               <TabsTrigger value="ss-pay" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <HandCoins size={20} weight="duotone" />
@@ -189,6 +194,12 @@ function App() {
                 <div className="h-[500px]">
                   <AIChat />
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="buy-inf">
+              <div className="max-w-7xl mx-auto">
+                <InfinityTokenSale />
               </div>
             </TabsContent>
 

@@ -32,6 +32,7 @@ export interface AuctionBid {
   bidderUsername: string
   bidderAvatar: string
   amount: number
+  currency?: 'INF' | 'USD'
   timestamp: number
 }
 
@@ -73,6 +74,7 @@ export function TokenAuction() {
 
   const [selectedAuction, setSelectedAuction] = useState<TokenAuction | null>(null)
   const [bidAmount, setBidAmount] = useState('')
+  const [bidCurrency, setBidCurrency] = useState<'INF' | 'USD'>('INF')
 
   const availableTokens = userProfile 
     ? Object.keys(userProfile.businessTokens).filter(
@@ -278,14 +280,16 @@ export function TokenAuction() {
     }
 
     if (bid <= auction.currentBid) {
-      toast.error(`Bid must be higher than current bid of ${auction.currentBid} INF`)
+      toast.error(`Bid must be higher than current bid of ${auction.currentBid} ${bidCurrency}`)
       return
     }
 
-    const userInfBalance = userProfile.businessTokens['INF'] || 0
-    if (bid > userInfBalance) {
-      toast.error('Insufficient INF balance')
-      return
+    if (bidCurrency === 'INF') {
+      const userInfBalance = userProfile.businessTokens['INF'] || 0
+      if (bid > userInfBalance) {
+        toast.error('Insufficient INF balance')
+        return
+      }
     }
 
     if (auction.creatorId === userProfile.userId) {
@@ -301,6 +305,7 @@ export function TokenAuction() {
         bidderUsername: userProfile.username,
         bidderAvatar: userProfile.avatarUrl,
         amount: bid,
+        currency: bidCurrency,
         timestamp: Date.now()
       }
 
@@ -326,10 +331,13 @@ export function TokenAuction() {
         }
       }))
 
-      toast.success(`Bid placed successfully! Current bid: ${bid} INF`, {
-        description: 'You will be notified if you are outbid'
+      toast.success(`Bid placed successfully! Current bid: ${bid} ${bidCurrency}`, {
+        description: bidCurrency === 'USD' 
+          ? 'USD bids require payment confirmation' 
+          : 'You will be notified if you are outbid'
       })
       setBidAmount('')
+      setBidCurrency('INF')
     } catch (error) {
       toast.error('Failed to place bid')
       console.error('Bid error:', error)
@@ -673,7 +681,7 @@ export function TokenAuction() {
                                         )}
                                       </span>
                                       <span className={`font-mono ${isUserBid && isWinning ? 'font-bold text-accent' : 'font-bold'}`}>
-                                        {bid.amount.toLocaleString()} INF
+                                        {bid.amount.toLocaleString()} {bid.currency || 'INF'}
                                       </span>
                                     </div>
                                   )
@@ -738,7 +746,29 @@ export function TokenAuction() {
                                   ) : (
                                     <>
                                       <div className="space-y-2">
-                                        <Label htmlFor="bid-amount">Your Bid (INF)</Label>
+                                        <Label>Bid Currency</Label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <Button
+                                            type="button"
+                                            variant={bidCurrency === 'INF' ? 'default' : 'outline'}
+                                            onClick={() => setBidCurrency('INF')}
+                                            className="w-full"
+                                          >
+                                            INF
+                                          </Button>
+                                          <Button
+                                            type="button"
+                                            variant={bidCurrency === 'USD' ? 'default' : 'outline'}
+                                            onClick={() => setBidCurrency('USD')}
+                                            className="w-full"
+                                          >
+                                            USD
+                                          </Button>
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-2">
+                                        <Label htmlFor="bid-amount">Your Bid ({bidCurrency})</Label>
                                         <Input
                                           id="bid-amount"
                                           type="number"
@@ -746,9 +776,16 @@ export function TokenAuction() {
                                           value={bidAmount}
                                           onChange={(e) => setBidAmount(e.target.value)}
                                         />
-                                        <p className="text-xs text-muted-foreground">
-                                          Your balance: {userProfile?.businessTokens['INF']?.toLocaleString() || 0} INF
-                                        </p>
+                                        {bidCurrency === 'INF' && (
+                                          <p className="text-xs text-muted-foreground">
+                                            Your balance: {userProfile?.businessTokens['INF']?.toLocaleString() || 0} INF
+                                          </p>
+                                        )}
+                                        {bidCurrency === 'USD' && (
+                                          <p className="text-xs text-muted-foreground">
+                                            USD bids require manual payment confirmation
+                                          </p>
+                                        )}
                                       </div>
 
                                       <Button

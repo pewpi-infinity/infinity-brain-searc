@@ -1,16 +1,30 @@
 # Planning Guide
 
-A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework.
+A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales and earning opportunities, with silver-backed tokens and a planned Summer 2026 major distribution event.
 
 **Experience Qualities**:
-1. **Empowering** - Users can create their own business tokens and participate in a tokenized economy with full transparency and control
-2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce
-3. **Secure & Persistent** - All user sessions, logins, and token balances are permanently stored with audit trails for global currency launch
+1. **Empowering** - Users can create their own business tokens, buy INF with USD, or earn tokens through contributions with full transparency and control
+2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce, including real-world backed assets like silver tokens
+3. **Secure & Persistent** - All user sessions, logins, token balances, USD purchases, and transactions are permanently stored with audit trails for global currency launch
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a multi-feature ecosystem platform integrating user authentication, token minting, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system.
+This is a multi-feature ecosystem platform integrating user authentication, token minting, USD token sales, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system with real-world asset backing and beta program pricing.
 
 ## Essential Features
+
+**Infinity Token Sale & USD Payment System**
+- Functionality: Complete USD-to-INF token purchasing system with pre-configured packages and custom amounts, plus earning opportunities through contributions
+- Purpose: Enable users to buy Infinity tokens with real USD currency during beta program, or earn them through development, research, and ecosystem contributions - preparing for Summer 2026 major distribution event
+- Trigger: Navigate to Buy INF tab
+- Progression: User selects from pre-configured token packages (Starter, Growth, Pro, Enterprise, Whale) with bonus percentages → Or enters custom USD amount → Selects payment method (PayPal, Venmo, Bank Transfer) → Submits purchase request → OR switches to Earn tab → Enters requested INF amount → Describes contribution/work performed → Submits earn request → Requests tracked with pending/approved/rejected status → Upon approval, INF tokens automatically added to user balance → All requests logged permanently with timestamps
+- Success criteria: Multiple package options available with bonus incentives (10-35% bonus on larger packages), custom USD amounts supported, rate calculation shows INF received ($0.10 per INF base rate), earn requests support detailed justifications, all purchase and earn requests tracked by status, approved requests automatically credit INF tokens, payment methods captured for processing, beta program badge displayed, Summer 2026 giveaway information prominent, request history persistent across sessions, mobile-responsive interface
+
+**Silver-Backed Token Display**
+- Functionality: Special showcase for tokens backed by real-world assets (silver bits)
+- Purpose: Highlight premium tokens with tangible backing separate from research/ecosystem-backed tokens
+- Trigger: Displays on Buy INF tab when silver tokens exist
+- Progression: System detects tokens with "SILVER" symbol or name → Displays in dedicated section → Shows token details, supply, and backing information → Badge indicates "Silver Backed" status
+- Success criteria: Silver tokens automatically identified and displayed, clear indication of real silver backing, separate from standard business tokens, elegant presentation matching premium nature
 
 **Social Security Rapid Payment Distributor**
 - Functionality: High-speed collision-aware bot spawning system for distributing trillion-dollar social security payments to millions of recipients across multiple service categories (housing, food, healthcare, security, infrastructure, veterans care)
@@ -46,6 +60,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Trigger: Navigate to Market tab or Trade tab
 - Progression: User selects token → Views interactive price chart with historical data → Analyzes market trends with candlestick or line charts → Views order book (buy/sell orders) → Creates buy or sell order with price and amount → Order placed in open order book → Other users fill orders → Trade executed instantly → Balances updated → Transaction recorded
 - Success criteria: Real-time order book displays aggregated buy/sell orders, interactive D3 price charts show historical trends with multiple timeframes (1H, 24H, 7D, 30D, ALL), candlestick and line chart views available, users can create/cancel orders, trades execute instantly with proper balance validation, order history tracked per user, supports multiple token pairs trading against INF
+
+**Token Auction System with USD Bidding**
+- Functionality: Time-limited auctions for tokens with competitive bidding in both INF and USD currencies, shareable auction links, watch lists, and real-time outbid notifications
+- Purpose: Enable price discovery through competitive bidding, create urgency and excitement around token sales, support both crypto (INF) and fiat (USD) currency bidding to maximize accessibility
+- Trigger: Navigate to Auction tab → Create or bid on auctions
+- Progression: User creates auction by selecting token → Sets amount, starting bid, optional reserve price → Chooses duration (hours) → Adds optional description → Auction goes live → Other users view active auctions → Users select bid currency (INF or USD) → Place bids higher than current bid → Real-time updates show new bids → Highest bidder displayed with crown icon → User receives notification if outbid → Auction ends when timer expires → Winner receives tokens, creator receives payment → USD bids flagged for manual payment confirmation → Users can share auction links externally → Add auctions to watch list for tracking without bidding → Auction templates available for recurring sales → Analytics dashboard tracks auction performance
+- Success criteria: Auctions create successfully with all fields validated, countdown timers update in real-time, bids only accepted if higher than current bid, INF bids validate token balance before accepting, USD bids accepted with payment confirmation notice, outbid notifications trigger immediately with clickable action to re-bid, ended auctions show winner clearly, auction links are shareable and load correctly, watch list persists across sessions with notification badges, auction templates save configuration for reuse, analytics show total bids, unique bidders, final prices, and performance metrics, all auction data persists permanently, mobile-responsive interface with touch-friendly bidding
 
 **Market Overview Dashboard**
 - Functionality: Comprehensive view of all tokens with live pricing, mini sparkline charts, and market statistics
