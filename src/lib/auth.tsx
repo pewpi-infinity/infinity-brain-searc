@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
+import { adminProtection, restoreAdminAuctions } from './adminProtection'
 
 export interface UserSession {
   userId: string
@@ -213,6 +214,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('User must be logged in to sync wallet')
     }
 
+    if (!adminProtection.canSyncWallet(currentUser.userId, currentUser.username)) {
+      toast.error('Wallet sync is restricted to admin only. Your tokens are protected! 🔒')
+      return
+    }
+
     try {
       const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
       
@@ -247,8 +253,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...(currentProfiles || {}),
         [currentUser.userId]: updatedProfile
       }))
+
+      await restoreAdminAuctions()
       
-      toast.success('Wallet synced successfully! All tokens restored from transaction history. ✨')
+      toast.success('Admin wallet synced! All tokens and auctions restored. ✨')
     } catch (error) {
       console.error('Wallet sync failed:', error)
       toast.error('Failed to sync wallet. Please try again.')

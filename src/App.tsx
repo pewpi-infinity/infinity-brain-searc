@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SearchBar } from '@/components/SearchBar'
 import { AIChat } from '@/components/AIChat'
@@ -36,9 +36,14 @@ import { InfinityTokenSale } from '@/components/InfinityTokenSale'
 import { EmojiCatcherGame } from '@/components/EmojiCatcherGame'
 import { RepoBackupSystem } from '@/components/RepoBackupSystem'
 import { ThemeCustomizer } from '@/components/ThemeCustomizer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database } from '@phosphor-icons/react'
+import { InteractiveTokenChart } from '@/components/InteractiveTokenChart'
+import { MediaUploadWithAI } from '@/components/MediaUploadWithAI'
+import { EngagementAnalytics } from '@/components/EngagementAnalytics'
+import { TwitterSpacesRadio } from '@/components/TwitterSpacesRadio'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
+import { restoreAdminAuctions } from '@/lib/adminProtection'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -46,6 +51,18 @@ function App() {
   const [isSearching, setIsSearching] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
   const [showGraph, setShowGraph] = useState(false)
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        await restoreAdminAuctions()
+      } catch (error) {
+        console.error('Failed to restore auctions:', error)
+      }
+    }
+    
+    initializeApp()
+  }, [])
 
   const handleSearch = async (query: string, mode: 'web' | 'ai') => {
     setSearchQuery(query)
@@ -97,10 +114,26 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-25 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-28 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="charts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <ChartLine size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Charts</span>
+              </TabsTrigger>
+              <TabsTrigger value="media" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <UploadSimple size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Media</span>
+              </TabsTrigger>
+              <TabsTrigger value="spaces" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Radio size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Spaces</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <ChartBar size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Analytics</span>
               </TabsTrigger>
               <TabsTrigger value="metrics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ChartLine size={20} weight="duotone" />
@@ -153,10 +186,6 @@ function App() {
               <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <ClockClockwise size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Templates</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartBar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Analytics</span>
               </TabsTrigger>
               <TabsTrigger value="watchlist" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Eye size={20} weight="duotone" />
@@ -213,6 +242,27 @@ function App() {
               <div className="h-[500px]">
                 <AIChat />
               </div>
+            </TabsContent>
+
+            <TabsContent value="charts">
+              <InteractiveTokenChart />
+            </TabsContent>
+
+            <TabsContent value="media">
+              <MediaUploadWithAI 
+                maxFiles={10}
+                onMediaApproved={(files) => {
+                  toast.success(`${files.length} files approved and ready! ✅`)
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="spaces">
+              <TwitterSpacesRadio />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <EngagementAnalytics />
             </TabsContent>
 
             <TabsContent value="metrics">
@@ -277,12 +327,6 @@ function App() {
 
             <TabsContent value="templates">
               <AuctionTemplates />
-            </TabsContent>
-
-            <TabsContent value="analytics">
-              <div className="max-w-7xl mx-auto">
-                <AuctionAnalytics />
-              </div>
             </TabsContent>
 
             <TabsContent value="watchlist">
