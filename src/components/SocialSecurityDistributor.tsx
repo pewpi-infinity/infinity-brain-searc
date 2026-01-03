@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useKV } from '@github/spark/hooks'
 import { 
   Rocket, 
@@ -20,7 +21,12 @@ import {
   Truck,
   Buildings,
   Wrench,
-  FirstAidKit
+  FirstAidKit,
+  CalendarBlank,
+  ClockCounterClockwise,
+  Play,
+  Pause,
+  Trash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -53,6 +59,20 @@ interface DistributionStats {
   avgSpeed: number
 }
 
+interface PaymentSchedule {
+  id: string
+  name: string
+  frequency: 'once' | 'daily' | 'weekly' | 'biweekly' | 'monthly'
+  nextPaymentDate: number
+  amount: number
+  recipientCount: number
+  serviceType: string
+  isActive: boolean
+  lastRun?: number
+  runCount: number
+  autoDistribute: boolean
+}
+
 const defaultStats: DistributionStats = {
   totalRecipients: 0,
   totalDistributed: 0,
@@ -65,6 +85,7 @@ export function SocialSecurityDistributor() {
   const [bots, setBots] = useKV<PaymentBot[]>('ss-payment-bots', [])
   const [recipients, setRecipients] = useKV<PaymentRecipient[]>('ss-recipients', [])
   const [stats, setStats] = useKV<DistributionStats>('ss-distribution-stats', defaultStats)
+  const [schedules, setSchedules] = useKV<PaymentSchedule[]>('ss-payment-schedules', [])
   
   const [totalAmount, setTotalAmount] = useState('1000000000000')
   const [recipientCount, setRecipientCount] = useState('1000000')
@@ -72,10 +93,19 @@ export function SocialSecurityDistributor() {
   const [collisionProtection, setCollisionProtection] = useState(true)
   const [speedMultiplier, setSpeedMultiplier] = useState(1000)
   const [selectedService, setSelectedService] = useState<string>('all')
+  
+  const [scheduleName, setScheduleName] = useState('')
+  const [scheduleFrequency, setScheduleFrequency] = useState<'once' | 'daily' | 'weekly' | 'biweekly' | 'monthly'>('monthly')
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('09:00')
+  const [scheduleAmount, setScheduleAmount] = useState('100000000')
+  const [scheduleRecipients, setScheduleRecipients] = useState('10000')
+  const [scheduleService, setScheduleService] = useState('housing')
 
   const currentBots = bots || []
   const currentRecipients = recipients || []
   const currentStats = stats || defaultStats
+  const currentSchedules = schedules || []
 
   const serviceTypes = [
     { id: 'housing', name: 'Housing', icon: House, color: 'bg-blue-500' },
@@ -85,6 +115,142 @@ export function SocialSecurityDistributor() {
     { id: 'infrastructure', name: 'Infrastructure', icon: Buildings, color: 'bg-orange-500' },
     { id: 'veterans', name: 'Veterans Care', icon: FirstAidKit, color: 'bg-teal-500' }
   ]
+
+  useEffect(() => {
+    const checkSchedules = setInterval(() => {
+      const now = Date.now()
+      
+      currentSchedules.forEach(schedule => {
+        if (schedule.isActive && schedule.autoDistribute && schedule.nextPaymentDate <= now) {
+          executeScheduledPayment(schedule)
+        }
+      })
+    }, 60000)
+
+    return () => clearInterval(checkSchedules)
+  }, [currentSchedules])
+
+  const getNextPaymentDate = (frequency: string, baseDate: number): number => {
+    const date = new Date(baseDate)
+    
+    switch (frequency) {
+      case 'daily':
+        date.setDate(date.getDate() + 1)
+        break
+      case 'weekly':
+        date.setDate(date.getDate() + 7)
+        break
+      case 'biweekly':
+        date.setDate(date.getDate() + 14)
+        break
+      case 'monthly':
+        date.setMonth(date.getMonth() + 1)
+        break
+      default:
+        return baseDate
+    }
+    
+    return date.getTime()
+  }
+
+  const createSchedule = () => {
+    if (!scheduleName || !scheduleDate) {
+      toast.error('Please provide schedule name and date')
+      return
+    }
+
+    const dateTime = new Date(`${scheduleDate}T${scheduleTime}`)
+    
+    if (dateTime.getTime() < Date.now() && scheduleFrequency === 'once') {
+      toast.error('Schedule date must be in the future')
+      return
+    }
+
+    const newSchedule: PaymentSchedule = {
+      id: `schedule-${Date.now()}`,
+      name: scheduleName,
+      frequency: scheduleFrequency,
+      nextPaymentDate: dateTime.getTime(),
+      amount: parseFloat(scheduleAmount),
+      recipientCount: parseInt(scheduleRecipients),
+      serviceType: scheduleService,
+      isActive: true,
+      runCount: 0,
+      autoDistribute: true
+    }
+
+    setSchedules((prev) => [...(prev || []), newSchedule])
+    
+    toast.success('Payment schedule created!', {
+      description: `Will run on ${dateTime.toLocaleDateString()} at ${dateTime.toLocaleTimeString()}`
+    })
+
+    setScheduleName('')
+    setScheduleDate('')
+  }
+
+  const executeScheduledPayment = async (schedule: PaymentSchedule) => {
+    toast.info(`Executing scheduled payment: ${schedule.name}`)
+    
+    const scheduleRecipients: PaymentRecipient[] = []
+    const amountPerRecipient = schedule.amount / schedule.recipientCount
+    
+    for (let i = 0; i < schedule.recipientCount; i++) {
+      scheduleRecipients.push({
+        id: `scheduled-recipient-${schedule.id}-${i}`,
+        name: `Recipient ${i + 1}`,
+        amount: amountPerRecipient,
+        received: false,
+        serviceType: schedule.serviceType
+      })
+    }
+
+    setRecipients((prev) => [...(prev || []), ...scheduleRecipients])
+    
+    spawnBot(schedule.serviceType)
+    
+    setTimeout(() => {
+      startDistribution()
+    }, 1000)
+
+    setSchedules((prev) =>
+      (prev || []).map(s =>
+        s.id === schedule.id
+          ? {
+              ...s,
+              lastRun: Date.now(),
+              runCount: s.runCount + 1,
+              nextPaymentDate: s.frequency === 'once' 
+                ? s.nextPaymentDate 
+                : getNextPaymentDate(s.frequency, Date.now()),
+              isActive: s.frequency === 'once' ? false : s.isActive
+            }
+          : s
+      )
+    )
+
+    toast.success(`Scheduled payment "${schedule.name}" executed!`, {
+      description: `Distributed $${(schedule.amount / 1000000).toFixed(2)}M to ${schedule.recipientCount.toLocaleString()} recipients`
+    })
+  }
+
+  const toggleSchedule = (scheduleId: string) => {
+    setSchedules((prev) =>
+      (prev || []).map(s =>
+        s.id === scheduleId ? { ...s, isActive: !s.isActive } : s
+      )
+    )
+    
+    const schedule = currentSchedules.find(s => s.id === scheduleId)
+    if (schedule) {
+      toast.info(`Schedule ${schedule.isActive ? 'paused' : 'activated'}`)
+    }
+  }
+
+  const deleteSchedule = (scheduleId: string) => {
+    setSchedules((prev) => (prev || []).filter(s => s.id !== scheduleId))
+    toast.info('Schedule deleted')
+  }
 
   const spawnBot = (serviceType: string) => {
     const newBot: PaymentBot = {
@@ -340,12 +506,247 @@ export function SocialSecurityDistributor() {
           </div>
 
           <Tabs defaultValue="setup" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="setup">Setup</TabsTrigger>
+              <TabsTrigger value="schedules">
+                Schedules ({currentSchedules.length})
+              </TabsTrigger>
               <TabsTrigger value="bots">Bots ({currentBots.length})</TabsTrigger>
               <TabsTrigger value="recipients">Recipients ({currentRecipients.length})</TabsTrigger>
               <TabsTrigger value="services">Services</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="schedules" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarBlank size={24} weight="duotone" />
+                    Create Payment Schedule
+                  </CardTitle>
+                  <CardDescription>
+                    Set up automatic recurring payments distributed on specific dates
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-name">Schedule Name</Label>
+                      <Input
+                        id="schedule-name"
+                        value={scheduleName}
+                        onChange={(e) => setScheduleName(e.target.value)}
+                        placeholder="Monthly Housing Payment"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-frequency">Frequency</Label>
+                      <Select value={scheduleFrequency} onValueChange={(value: any) => setScheduleFrequency(value)}>
+                        <SelectTrigger id="schedule-frequency">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="once">One Time</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="biweekly">Bi-Weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-date">Payment Date</Label>
+                      <Input
+                        id="schedule-date"
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-time">Payment Time</Label>
+                      <Input
+                        id="schedule-time"
+                        type="time"
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-amount">Total Amount</Label>
+                      <Input
+                        id="schedule-amount"
+                        type="number"
+                        value={scheduleAmount}
+                        onChange={(e) => setScheduleAmount(e.target.value)}
+                        placeholder="100000000"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        ${(parseFloat(scheduleAmount) / 1000000).toFixed(2)}M
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule-recipients">Recipients</Label>
+                      <Input
+                        id="schedule-recipients"
+                        type="number"
+                        value={scheduleRecipients}
+                        onChange={(e) => setScheduleRecipients(e.target.value)}
+                        placeholder="10000"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        ${(parseFloat(scheduleAmount) / parseInt(scheduleRecipients)).toFixed(2)} per person
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="schedule-service">Service Type</Label>
+                      <Select value={scheduleService} onValueChange={setScheduleService}>
+                        <SelectTrigger id="schedule-service">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {serviceTypes.map(service => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Button onClick={createSchedule} className="w-full" size="lg">
+                    <CalendarBlank size={20} className="mr-2" />
+                    Create Schedule
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Active Schedules</h3>
+                
+                {currentSchedules.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-16 text-center">
+                      <CalendarBlank size={64} className="mx-auto mb-4 text-muted-foreground" weight="duotone" />
+                      <h3 className="text-xl font-semibold mb-2">No Schedules Created</h3>
+                      <p className="text-muted-foreground">Create a payment schedule above to automate distributions</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {currentSchedules.map((schedule) => {
+                      const serviceType = serviceTypes.find(s => s.id === schedule.serviceType)
+                      const Icon = serviceType?.icon || CurrencyDollar
+                      const nextDate = new Date(schedule.nextPaymentDate)
+                      const isPast = nextDate.getTime() < Date.now()
+                      const isUpcoming = nextDate.getTime() - Date.now() < 86400000
+
+                      return (
+                        <motion.div
+                          key={schedule.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                        >
+                          <Card className={schedule.isActive ? 'border-accent' : 'opacity-60'}>
+                            <CardContent className="pt-6">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3 flex-1">
+                                  <div className={`p-3 rounded-lg ${serviceType?.color || 'bg-gray-500'}`}>
+                                    <Icon size={24} weight="duotone" className="text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="font-semibold">{schedule.name}</h4>
+                                      {isUpcoming && schedule.isActive && (
+                                        <Badge variant="secondary" className="text-xs">
+                                          Coming Soon
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                      {serviceType?.name} • {schedule.frequency}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => toggleSchedule(schedule.id)}
+                                  >
+                                    {schedule.isActive ? (
+                                      <Pause size={16} weight="fill" />
+                                    ) : (
+                                      <Play size={16} weight="fill" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => deleteSchedule(schedule.id)}
+                                  >
+                                    <Trash size={16} />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Next Payment</p>
+                                  <p className="font-semibold text-sm">
+                                    {nextDate.toLocaleDateString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Amount</p>
+                                  <p className="font-semibold text-sm">
+                                    ${(schedule.amount / 1000000).toFixed(2)}M
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Recipients</p>
+                                  <p className="font-semibold text-sm">
+                                    {schedule.recipientCount.toLocaleString()}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Executions</p>
+                                  <p className="font-semibold text-sm">{schedule.runCount}</p>
+                                </div>
+                              </div>
+
+                              {schedule.lastRun && (
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3 border-t">
+                                  <ClockCounterClockwise size={14} />
+                                  <span>
+                                    Last run: {new Date(schedule.lastRun).toLocaleString()}
+                                  </span>
+                                </div>
+                              )}
+
+                              {!schedule.isActive && (
+                                <div className="mt-3 p-2 bg-muted rounded text-sm text-center">
+                                  Schedule paused
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
 
             <TabsContent value="setup" className="space-y-4">
               <Card>
