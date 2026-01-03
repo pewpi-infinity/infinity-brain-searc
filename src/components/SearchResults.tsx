@@ -32,7 +32,7 @@ export function SearchResults({ results, query, onVisualize }: SearchResultsProp
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Search Results</h2>
           <p className="text-muted-foreground">
@@ -42,11 +42,11 @@ export function SearchResults({ results, query, onVisualize }: SearchResultsProp
         {onVisualize && (
           <Button
             onClick={onVisualize}
-            variant="outline"
-            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+            size="lg"
+            className="bg-gradient-to-r from-accent to-secondary hover:opacity-90 text-accent-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <Graph size={20} weight="duotone" className="mr-2" />
-            Visualize Connections
+            Visualize Knowledge Graph
           </Button>
         )}
       </div>

@@ -4,6 +4,7 @@ import { SearchBar } from '@/components/SearchBar'
 import { AIChat } from '@/components/AIChat'
 import { SlotMachine } from '@/components/SlotMachine'
 import { SearchResults, SearchResult } from '@/components/SearchResults'
+import { SearchGraph } from '@/components/SearchGraph'
 import { PageHub } from '@/components/PageHub'
 import { HelpLegend } from '@/components/HelpLegend'
 import { MagnifyingGlass, Robot, Coin, House, Sparkle } from '@phosphor-icons/react'
@@ -14,10 +15,12 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
+  const [showGraph, setShowGraph] = useState(false)
 
   const handleSearch = async (query: string, mode: 'web' | 'ai') => {
     setSearchQuery(query)
     setIsSearching(true)
+    setShowGraph(false)
 
     if (mode === 'ai') {
       setActiveTab('chat')
@@ -95,11 +98,21 @@ function App() {
 
           <TabsContent value="search">
             {searchResults.length > 0 ? (
-              <SearchResults
-                results={searchResults}
-                query={searchQuery}
-                onVisualize={() => toast.info('Visualization coming soon!')}
-              />
+              <div className="space-y-6">
+                {showGraph ? (
+                  <SearchGraph
+                    results={searchResults}
+                    query={searchQuery}
+                    onClose={() => setShowGraph(false)}
+                  />
+                ) : (
+                  <SearchResults
+                    results={searchResults}
+                    query={searchQuery}
+                    onVisualize={() => setShowGraph(true)}
+                  />
+                )}
+              </div>
             ) : (
               <div className="text-center py-16">
                 <MagnifyingGlass size={64} weight="duotone" className="mx-auto mb-4 text-muted-foreground" />
