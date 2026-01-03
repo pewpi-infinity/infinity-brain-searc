@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useKV } from '@github/spark/hooks'
 import { 
   TwitterLogo, 
@@ -264,43 +263,76 @@ Return ONLY the enhanced post text, no explanations.`
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-8 h-auto gap-1 bg-card/80 backdrop-blur p-2">
-        <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <PaperPlaneTilt size={20} weight="duotone" />
+    <div className="space-y-6">
+      <div className="grid w-full max-w-6xl mx-auto grid-cols-4 md:grid-cols-8 gap-2">
+        <Button
+          variant={activeTab === 'post' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('post')}
+          className={activeTab === 'post' ? 'bg-gradient-to-r from-accent to-secondary text-accent-foreground' : ''}
+        >
+          <PaperPlaneTilt size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Post</span>
-        </TabsTrigger>
-        <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <Sparkle size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'templates' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('templates')}
+          className={activeTab === 'templates' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' : ''}
+        >
+          <Sparkle size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Templates</span>
-        </TabsTrigger>
-        <TabsTrigger value="bulk" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-secondary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <UploadSimple size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'bulk' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('bulk')}
+          className={activeTab === 'bulk' ? 'bg-gradient-to-r from-secondary to-accent text-secondary-foreground' : ''}
+        >
+          <UploadSimple size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Bulk</span>
-        </TabsTrigger>
-        <TabsTrigger value="csv-import" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <UploadSimple size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'csv-import' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('csv-import')}
+          className={activeTab === 'csv-import' ? 'bg-gradient-to-r from-accent to-primary text-accent-foreground' : ''}
+        >
+          <UploadSimple size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Import</span>
-        </TabsTrigger>
-        <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <Calendar size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'calendar' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('calendar')}
+          className={activeTab === 'calendar' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' : ''}
+        >
+          <Calendar size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Calendar</span>
-        </TabsTrigger>
-        <TabsTrigger value="ai" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <Sparkle size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'ai' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('ai')}
+          className={activeTab === 'ai' ? 'bg-gradient-to-r from-secondary to-primary text-primary-foreground' : ''}
+        >
+          <Sparkle size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">AI Timing</span>
-        </TabsTrigger>
-        <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <ChartLine size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'analytics' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('analytics')}
+          className={activeTab === 'analytics' ? 'bg-gradient-to-r from-accent to-primary text-accent-foreground' : ''}
+        >
+          <ChartLine size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Analytics</span>
-        </TabsTrigger>
-        <TabsTrigger value="backup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-          <FloppyDisk size={20} weight="duotone" />
+        </Button>
+        <Button
+          variant={activeTab === 'backup' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('backup')}
+          className={activeTab === 'backup' ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground' : ''}
+        >
+          <FloppyDisk size={20} weight="duotone" className="mr-1" />
           <span className="text-xs md:text-sm">Backup</span>
-        </TabsTrigger>
-      </TabsList>
+        </Button>
+      </div>
 
-      <TabsContent value="post" className="space-y-6">
+      {activeTab === 'post' && (
+        <div className="space-y-6">
       <Card className="gradient-border">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -508,13 +540,14 @@ Return ONLY the enhanced post text, no explanations.`
           </div>
         </CardContent>
       </Card>
-      </TabsContent>
+      </div>
+      )}
 
-      <TabsContent value="templates">
+      {activeTab === 'templates' && (
         <TemplateLibrary onUseTemplate={handleUseTemplate} />
-      </TabsContent>
+      )}
 
-      <TabsContent value="bulk">
+      {activeTab === 'bulk' && (
         <BulkUploader 
           platforms={connectedPlatformNames}
           onScheduleBulk={(posts) => {
@@ -522,27 +555,27 @@ Return ONLY the enhanced post text, no explanations.`
             setActiveTab('calendar')
           }}
         />
-      </TabsContent>
+      )}
 
-      <TabsContent value="csv-import">
+      {activeTab === 'csv-import' && (
         <BulkScheduleImporter />
-      </TabsContent>
+      )}
 
-      <TabsContent value="calendar">
+      {activeTab === 'calendar' && (
         <ContentCalendar />
-      </TabsContent>
+      )}
 
-      <TabsContent value="ai">
+      {activeTab === 'ai' && (
         <BestTimeRecommender onScheduleWithAI={handleScheduleWithAI} />
-      </TabsContent>
+      )}
 
-      <TabsContent value="analytics">
+      {activeTab === 'analytics' && (
         <AnalyticsDashboard />
-      </TabsContent>
+      )}
 
-      <TabsContent value="backup">
+      {activeTab === 'backup' && (
         <AutoBackupScheduler />
-      </TabsContent>
-    </Tabs>
+      )}
+    </div>
   )
 }
