@@ -10,7 +10,9 @@ import {
   Trash,
   CheckCircle,
   CalendarBlank,
-  Sparkle
+  Sparkle,
+  DownloadSimple,
+  FileArrowDown
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -61,17 +63,76 @@ export function ContentCalendar({ onSchedulePost }: ContentCalendarProps) {
     .sort((a, b) => a.scheduledTime - b.scheduledTime)
     .slice(0, 5)
 
+  const exportToCSV = () => {
+    const posts = scheduledPosts || []
+    
+    if (posts.length === 0) {
+      toast.error('No scheduled posts to export')
+      return
+    }
+
+    const headers = ['ID', 'Content', 'Platforms', 'Scheduled Date', 'Scheduled Time', 'Status', 'Created Date', 'Posted Date', 'AI Recommended']
+    
+    const csvRows = posts.map(post => {
+      const scheduledDate = new Date(post.scheduledTime)
+      const createdDate = new Date(post.createdAt)
+      const postedDate = post.postedAt ? new Date(post.postedAt) : null
+      
+      return [
+        post.id,
+        `"${post.content.replace(/"/g, '""')}"`,
+        `"${post.platforms.join(', ')}"`,
+        scheduledDate.toLocaleDateString(),
+        scheduledDate.toLocaleTimeString(),
+        post.status,
+        createdDate.toISOString(),
+        postedDate ? postedDate.toISOString() : '',
+        post.aiRecommended ? 'Yes' : 'No'
+      ].join(',')
+    })
+
+    const csvContent = [headers.join(','), ...csvRows].join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute('href', url)
+    link.setAttribute('download', `scheduled-posts-backup-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    toast.success(`Exported ${posts.length} scheduled posts to CSV`)
+  }
+
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <Card className="gradient-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon size={24} weight="duotone" className="text-accent" />
-            Content Calendar
-          </CardTitle>
-          <CardDescription>
-            View and manage your scheduled posts
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon size={24} weight="duotone" className="text-accent" />
+                Content Calendar
+              </CardTitle>
+              <CardDescription>
+                View and manage your scheduled posts
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToCSV}
+              disabled={(scheduledPosts || []).length === 0}
+              className="gap-2"
+            >
+              <DownloadSimple size={18} weight="bold" />
+              Export CSV
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <Calendar
@@ -277,6 +338,21 @@ export function ContentCalendar({ onSchedulePost }: ContentCalendarProps) {
                 </p>
                 <p className="text-xs text-muted-foreground">This Week</p>
               </div>
+            </div>
+            
+            <div className="pt-4 border-t">
+              <Button
+                variant="default"
+                className="w-full bg-gradient-to-r from-accent to-secondary hover:opacity-90"
+                onClick={exportToCSV}
+                disabled={(scheduledPosts || []).length === 0}
+              >
+                <FileArrowDown size={20} weight="bold" className="mr-2" />
+                Download Full Backup (CSV)
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Export all {(scheduledPosts || []).length} scheduled posts for safekeeping
+              </p>
             </div>
           </CardContent>
         </Card>
