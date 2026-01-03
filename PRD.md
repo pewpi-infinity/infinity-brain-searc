@@ -132,11 +132,18 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Success criteria: All pages accessible, clear descriptions, smooth navigation
 
 **Multi-Platform Social Posting System**
-- Functionality: Post to multiple social media platforms simultaneously with AI enhancement, emoji shortcuts, and conversation context integration
-- Purpose: Enable seamless cross-platform posting from within Infinity Brain without switching between platforms - truly unified social presence
+- Functionality: Post to multiple social media platforms simultaneously with AI enhancement, emoji shortcuts, conversation context integration, and automatic daily backups
+- Purpose: Enable seamless cross-platform posting from within Infinity Brain without switching between platforms - truly unified social presence with data protection
 - Trigger: Navigate to Social tab or use emoji shortcuts (🤑 for auto-post, 🧲🪐 for context inclusion)
-- Progression: User connects platforms (Twitter, Facebook, LinkedIn, Instagram, TikTok) → Types post content → Optionally includes recent conversation context → Uses emoji shortcut or clicks post button → AI enhances content for engagement → Posts simultaneously to all connected platforms → Real-time progress indicators → Success confirmation for each platform → Post saved to history with platform badges
-- Success criteria: Platform connections persist between sessions, emoji shortcuts trigger instant posting, conversation context properly included when requested, AI enhancement maintains authentic voice while improving engagement, posts successfully reach all connected platforms, post history shows all previous posts with timestamps and platform tags, character count warnings for Twitter compatibility, schedule posts for future times
+- Progression: User connects platforms (Twitter, Facebook, LinkedIn, Instagram, TikTok) → Types post content → Optionally includes recent conversation context → Uses emoji shortcut or clicks post button → AI enhances content for engagement → Posts simultaneously to all connected platforms → Real-time progress indicators → Success confirmation for each platform → Post saved to history with platform badges → Automatic daily backups run in background preserving all posts and schedules
+- Success criteria: Platform connections persist between sessions, emoji shortcuts trigger instant posting, conversation context properly included when requested, AI enhancement maintains authentic voice while improving engagement, posts successfully reach all connected platforms, post history shows all previous posts with timestamps and platform tags, character count warnings for Twitter compatibility, schedule posts for future times, automatic backups run on configured schedule without user intervention
+
+**Automatic Backup Scheduler**
+- Functionality: Automated daily backup system that saves all posts, scheduled content, analytics, and settings with customizable frequency and manual backup options
+- Purpose: Protect user data through automated, scheduled backups with downloadable JSON files and one-click restore capability - ensuring no content is ever lost
+- Trigger: Navigate to Social tab → Backup tab, or automatic execution based on schedule
+- Progression: User enables automatic backups → Sets frequency (twice-daily, daily, weekly) → Configures backup time (default 2:00 AM) → System calculates next backup time → Background scheduler monitors time → When scheduled time arrives, system collects all post history, scheduled posts, platform connections, conversation history, and analytics data → Compresses data to JSON → Downloads backup file with timestamp → Stores snapshot in KV storage → Records backup in history → Updates last backup timestamp and calculates next backup time → User can manually trigger backup anytime → View backup history with timestamps, data sizes, and item counts → Restore from any previous backup with one click
+- Success criteria: Automatic backups execute on schedule without user action, backups complete within 5 seconds, all relevant data included (posts, schedules, analytics, settings, conversation history), backup files download automatically with timestamped filenames, backup history persists showing type (auto/manual), status, data size, and item count, manual backups work instantly from button click, users can restore from any backup in history, backup settings persist between sessions, next backup time displayed and updates correctly, progress indicator shows backup status, success/failure toasts provide clear feedback, backup files are valid JSON and can be opened externally
 
 **Azure Static Web Apps Deployment**
 - Functionality: One-click deployment to Azure Static Web Apps with full configuration management and deployment tracking
@@ -197,6 +204,7 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - **Workflow Generation Failure**: Gracefully handle AI service errors during workflow generation, offer retry with different parameters, provide manual workflow templates as fallback
 - **Emoji Detection Edge Cases**: Handle multiple emojis in single post, prevent double-posting, clear emoji after processing
 - **Sentiment Analysis Edge Cases**: Handle empty text submissions gracefully, manage very long text inputs, handle special characters and emojis in sentiment analysis, validate AI response format, provide meaningful error messages when analysis fails
+- **Backup System Edge Cases**: Handle backup failures gracefully with clear error messages, retry mechanism for failed backups, prevent backup conflicts when multiple backups triggered simultaneously, validate backup data integrity before storage, handle large backup files (>5MB) with compression warnings, recover gracefully from browser storage quota exceeded, prevent accidental backup deletion with confirmation dialogs, handle corrupted backup files during restore with validation checks, maintain backup history even when backups fail to track issues
 
 ## Design Direction
 

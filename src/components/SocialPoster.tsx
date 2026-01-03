@@ -22,7 +22,8 @@ import {
   Calendar,
   ChartLine,
   Sparkle,
-  UploadSimple
+  UploadSimple,
+  FloppyDisk
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { ContentCalendar, type ScheduledPost } from './ContentCalendar'
@@ -31,6 +32,7 @@ import { AnalyticsDashboard } from './AnalyticsDashboard'
 import { BulkUploader } from './BulkUploader'
 import { TemplateLibrary } from './TemplateLibrary'
 import { BulkScheduleImporter } from './BulkScheduleImporter'
+import { AutoBackupScheduler } from './AutoBackupScheduler'
 
 interface PlatformConnection {
   id: string
@@ -263,7 +265,7 @@ Return ONLY the enhanced post text, no explanations.`
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-7 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+      <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-8 h-auto gap-1 bg-card/80 backdrop-blur p-2">
         <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
           <PaperPlaneTilt size={20} weight="duotone" />
           <span className="text-xs md:text-sm">Post</span>
@@ -291,6 +293,10 @@ Return ONLY the enhanced post text, no explanations.`
         <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
           <ChartLine size={20} weight="duotone" />
           <span className="text-xs md:text-sm">Analytics</span>
+        </TabsTrigger>
+        <TabsTrigger value="backup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+          <FloppyDisk size={20} weight="duotone" />
+          <span className="text-xs md:text-sm">Backup</span>
         </TabsTrigger>
       </TabsList>
 
@@ -532,6 +538,10 @@ Return ONLY the enhanced post text, no explanations.`
 
       <TabsContent value="analytics">
         <AnalyticsDashboard />
+      </TabsContent>
+
+      <TabsContent value="backup">
+        <AutoBackupScheduler />
       </TabsContent>
     </Tabs>
   )
