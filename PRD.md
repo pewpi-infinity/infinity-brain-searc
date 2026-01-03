@@ -12,6 +12,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 
 ## Essential Features
 
+**Automatic Token Redistribution System**
+- Functionality: Monitors token holder activity and automatically transfers tokens from inactive/dormant holders to the most active traders, keeping tokens in circulation and rewarding engagement
+- Purpose: Prevent token hoarding, ensure liquidity, and incentivize active participation in the token economy by redistributing stagnant tokens to engaged users
+- Trigger: Navigate to Activity tab → Configure redistribution settings → Enable auto-redistribution
+- Progression: System scans all token holders → Calculates days since last activity for each holder → Classifies holders as active (<30 days), inactive (30-90 days), or dormant (>90 days) → On configured interval (default 24 hours), system identifies inactive/dormant holders → Calculates redistribution amount (configurable percentage, default 25%) → Identifies top active traders by activity score → Distributes tokens from inactive holders to active traders → Records all transfers with timestamp and reason → Updates holder balances automatically → Dashboard displays real-time stats (total holders, active/inactive/dormant counts, tokens redistributed, transfer history) → Manual scan and redistribution available anytime → Transfer history shows all redistributions with from/to users, amounts, and reasons
+- Success criteria: Activity scanning completes in under 5 seconds, holder classification accurate based on last activity timestamp, redistribution runs automatically at configured interval, configurable thresholds (inactivity 7-90 days, dormancy 30-365 days), configurable redistribution percentage (5-50%), configurable number of target traders (1-100), all transfers recorded with full audit trail, balances updated atomically, no duplicate transfers, system can be enabled/disabled with toggle, manual redistribution available, transfer history persists permanently, holder status view shows all tokens with activity badges, real-time statistics update after each scan, reset system clears transfer history without affecting balances
+
 **Real-Time Token Metrics & Value System**
 - Functionality: Comprehensive engagement tracking system that measures every user interaction with tokens (clicks, views, transfers, bids, trades) and automatically calculates real-time token values based on actual usage metrics
 - Purpose: Provide transparent, verifiable token valuation based on genuine user engagement rather than speculation - creating a fair value system where tokens gain worth through real utility and community interaction
