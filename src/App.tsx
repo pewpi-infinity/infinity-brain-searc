@@ -111,11 +111,11 @@ function App() {
             <TabsContent value="home" className="space-y-8">
               <PageHub />
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <SlotMachine />
                 <div className="h-[500px]">
                   <AIChat />
                 </div>
-                <SlotMachine />
               </div>
             </TabsContent>
 

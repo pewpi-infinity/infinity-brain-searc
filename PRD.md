@@ -89,6 +89,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User clicks spin → Reels animate with visual effects → Results determine → Win/loss state shows → Credits update
 - Success criteria: Smooth animations, clear win states, satisfying feedback
 
+**Neural Page Generator (Slot Machine Enhanced)**
+- Functionality: AI-powered page generation from user thoughts with expandable sections and neural cart storage
+- Purpose: Enable users to rapidly prototype web pages by describing ideas, then grow content section-by-section
+- Trigger: User enters thought/idea in the text area and clicks "Generate Page from Thought"
+- Progression: User describes page idea → Clicks generate → Slot machine reels spin with icons → AI generates page structure with title, description, and 5 sections → User clicks section buttons to "grow" detailed content → Each section expands with AI-generated paragraphs → User saves complete page to Neural Cart → Pages persist and can be loaded later for further editing
+- Success criteria: Pages generate within 3 seconds, sections grow on demand with relevant content, Neural Cart stores unlimited pages persistently, smooth reel animations provide satisfying feedback, users can reload and continue working on saved pages
+
 **Page Integration Hub**
 - Functionality: Central navigation to all connected pages and projects including infinity-facebook, infinity-twitter, infinity-ebay
 - Purpose: Unify multiple existing pages into cohesive experience - each with copyable functions
