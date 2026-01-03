@@ -1,16 +1,37 @@
 # Planning Guide
 
-A powerful, visually engaging search and productivity hub that combines AI assistance, intelligent search across multiple sources, visual data representation, and integrated mini-apps - designed to be intuitive and delightful for all users.
+A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework.
 
 **Experience Qualities**:
-1. **Empowering** - Users feel capable and supported with AI assistance that understands their needs and helps them build what they want
-2. **Visually Rich** - Moving beyond terminal aesthetics to create a colorful, modern interface with graphs, charts, and visual feedback that makes data beautiful
-3. **Intuitively Navigable** - Clear sections, helpful legends, and visual cues guide users naturally through features without confusion
+1. **Empowering** - Users can create their own business tokens and participate in a tokenized economy with full transparency and control
+2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce
+3. **Secure & Persistent** - All user sessions, logins, and token balances are permanently stored with audit trails for global currency launch
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a multi-feature platform integrating AI chat, search engines, data visualization, mini-games, and multiple page integrations requiring sophisticated state management and external API integration.
+This is a multi-feature ecosystem platform integrating user authentication, token minting, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system.
 
 ## Essential Features
+
+**User Authentication & Session Management**
+- Functionality: GitHub-based login with persistent session tracking and user profiles
+- Purpose: Enable personalized experiences and secure access to token minting and business features
+- Trigger: Click login button or access protected features
+- Progression: User clicks login → GitHub authentication → Session created with timestamp → Profile loaded/created → Token balances displayed → Activity tracked
+- Success criteria: Sessions persist across refreshes, all login data saved permanently, user can logout and login again
+
+**Business Token Minter**
+- Functionality: Create custom business tokens backed by Infinity ecosystem with configurable supply
+- Purpose: Enable businesses to mint their own currency for their logged-in pages within Infinity
+- Trigger: Navigate to Tokens tab and fill in token details
+- Progression: User enters business name → Token details (name/symbol) → Initial supply → Mint button → Token created and added to ecosystem → Balance updated in user profile
+- Success criteria: Tokens persist permanently, display in user wallet, appear in ecosystem registry, backed by INF
+
+**Module Registry & Browser**
+- Functionality: Comprehensive catalog of all system modules with categories, dependencies, and capabilities
+- Purpose: Track entire ecosystem from socket/chain to commerce to AI - every repo aware of its position
+- Trigger: Navigate to Modules tab
+- Progression: View all modules → Filter by category → Search capabilities → Select module → View details/dependencies/dependents → Understand ecosystem architecture
+- Success criteria: All 50+ modules cataloged, searchable, categorized with visual hierarchy and dependency graphs
 
 **AI Chat Assistant**
 - Functionality: Personal AI chatbot that helps users build and search for what they need
@@ -41,8 +62,8 @@ This is a multi-feature platform integrating AI chat, search engines, data visua
 - Success criteria: Smooth animations, clear win states, satisfying feedback
 
 **Page Integration Hub**
-- Functionality: Central navigation to all connected pages and projects
-- Purpose: Unify multiple existing pages into cohesive experience
+- Functionality: Central navigation to all connected pages and projects including infinity-facebook, infinity-twitter, infinity-ebay
+- Purpose: Unify multiple existing pages into cohesive experience - each with copyable functions
 - Trigger: Click navigation or hub icon
 - Progression: User explores hub → Visual cards show each page → Click to navigate → Seamless transitions
 - Success criteria: All pages accessible, clear descriptions, smooth navigation
@@ -62,10 +83,15 @@ This is a multi-feature platform integrating AI chat, search engines, data visua
 - **Data Visualization Empty State**: Show example visualizations, guide user to generate data
 - **Network Interruption**: Cache user input, auto-retry when connection restored, show connection status
 - **Unsupported Content**: Gracefully handle unknown data types, provide alternative display options
+- **Token Symbol Collision**: Prevent duplicate token symbols, show error with suggestion for alternative
+- **Session Expiry**: Gracefully handle expired sessions, prompt re-authentication, preserve unsaved work
+- **Login Failure**: Clear error messaging, retry mechanism, fallback to guest mode for non-authenticated features
+- **Insufficient Balance**: Prevent transactions with insufficient tokens, display clear balance information
+- **Module Not Found**: Handle missing module references, suggest similar modules, allow creation request
 
 ## Design Direction
 
-The design should feel modern, sophisticated, and energetic - moving completely away from terminal green to embrace a vibrant, gradient-rich aesthetic that feels like a next-generation productivity tool. Users should feel excited to use it, with every interaction providing clear visual feedback and delightful micro-animations.
+The design should feel modern, sophisticated, and trustworthy - combining the energy of a startup with the reliability of financial infrastructure. Moving completely away from terminal green to embrace a vibrant, gradient-rich aesthetic that feels like a next-generation economic platform. Users should feel confident using it as the foundation for world currency, with every interaction providing clear visual feedback and delightful micro-animations that reinforce security and permanence.
 
 ## Color Selection
 
