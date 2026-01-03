@@ -21,12 +21,14 @@ import {
   Image as ImageIcon,
   Calendar,
   ChartLine,
-  Sparkle
+  Sparkle,
+  UploadSimple
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { ContentCalendar, type ScheduledPost } from './ContentCalendar'
 import { BestTimeRecommender } from './BestTimeRecommender'
 import { AnalyticsDashboard } from './AnalyticsDashboard'
+import { BulkUploader } from './BulkUploader'
 
 interface PlatformConnection {
   id: string
@@ -251,13 +253,18 @@ Return ONLY the enhanced post text, no explanations.`
   }
 
   const connectedCount = (platforms || []).filter(p => p.connected).length
+  const connectedPlatformNames = (platforms || []).filter(p => p.connected).map(p => p.name)
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4 bg-card/80 backdrop-blur">
+      <TabsList className="grid w-full grid-cols-5 bg-card/80 backdrop-blur">
         <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground">
           <PaperPlaneTilt size={20} weight="duotone" className="mr-2" />
           Post
+        </TabsTrigger>
+        <TabsTrigger value="bulk" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-secondary-foreground">
+          <UploadSimple size={20} weight="duotone" className="mr-2" />
+          Bulk Upload
         </TabsTrigger>
         <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground">
           <Calendar size={20} weight="duotone" className="mr-2" />
@@ -481,6 +488,16 @@ Return ONLY the enhanced post text, no explanations.`
           </div>
         </CardContent>
       </Card>
+      </TabsContent>
+
+      <TabsContent value="bulk">
+        <BulkUploader 
+          platforms={connectedPlatformNames}
+          onScheduleBulk={(posts) => {
+            toast.success(`Scheduled ${posts.length} posts! Check the Calendar tab.`)
+            setActiveTab('calendar')
+          }}
+        />
       </TabsContent>
 
       <TabsContent value="calendar">
