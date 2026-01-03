@@ -11,6 +11,9 @@ import { ModuleBrowser } from '@/components/ModuleBrowser'
 import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
 import { TokenAuction } from '@/components/TokenAuction'
+import { LiveAuctionViewer } from '@/components/LiveAuctionViewer'
+import { TokenMetricsDashboard } from '@/components/TokenMetricsDashboard'
+import { MetricsExplainer } from '@/components/MetricsExplainer'
 import { AuctionTemplates } from '@/components/AuctionTemplates'
 import { AuctionAnalytics } from '@/components/AuctionAnalytics'
 import { AuctionWatchList } from '@/components/AuctionWatchList'
@@ -94,10 +97,14 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-24 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-25 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="metrics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <ChartLine size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">📊 Metrics</span>
               </TabsTrigger>
               <TabsTrigger value="backup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Database size={20} weight="duotone" />
@@ -194,6 +201,8 @@ function App() {
             </TabsList>
 
             <TabsContent value="home" className="space-y-8">
+              <MetricsExplainer />
+              
               <PageHub />
               
               <div className="grid lg:grid-cols-2 gap-6">
@@ -204,6 +213,10 @@ function App() {
               <div className="h-[500px]">
                 <AIChat />
               </div>
+            </TabsContent>
+
+            <TabsContent value="metrics">
+              <TokenMetricsDashboard showAllTokens={true} />
             </TabsContent>
 
             <TabsContent value="backup">
@@ -256,7 +269,10 @@ function App() {
             </TabsContent>
 
             <TabsContent value="auction">
-              <TokenAuction />
+              <div className="space-y-6">
+                <LiveAuctionViewer showCreateForm={true} />
+                <TokenAuction />
+              </div>
             </TabsContent>
 
             <TabsContent value="templates">

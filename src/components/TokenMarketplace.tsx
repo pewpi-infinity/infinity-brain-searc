@@ -26,6 +26,7 @@ import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
+import { trackTokenMetric } from '@/lib/tokenMetrics'
 
 export interface MarketOrder {
   id: string
@@ -266,6 +267,11 @@ export function TokenMarketplace() {
             : o
         )
       )
+
+      const totalCost = order.amount * order.pricePerToken
+      await trackTokenMetric(order.tokenSymbol, 'trade', userProfile.userId, totalCost, {
+        tradeId: transactionId
+      })
 
       toast.success(
         `Trade completed! ${order.orderType === 'sell' ? 'Bought' : 'Sold'} ${order.amount} ${order.tokenSymbol}`

@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
+import { trackTokenMetric } from '@/lib/tokenMetrics'
 
 interface UserProfile {
   userId: string
@@ -123,6 +124,8 @@ export function TokenTransfer() {
           businessTokens: updatedRecipientTokens
         }
       }))
+
+      await trackTokenMetric(tokenSymbol, 'transfer', userProfile.userId, transferAmount)
 
       toast.success(
         `Successfully sent ${transferAmount.toLocaleString()} ${tokenSymbol} to ${recipient.username}!`

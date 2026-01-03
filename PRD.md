@@ -1,16 +1,30 @@
 # Planning Guide
 
-A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales and earning opportunities, with silver-backed tokens and a planned Summer 2026 major distribution event.
+A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales, real-time value tracking based on user engagement metrics, and earning opportunities, with silver-backed tokens and a planned Summer 2026 major distribution event.
 
 **Experience Qualities**:
-1. **Empowering** - Users can create their own business tokens, buy INF with USD, or earn tokens through contributions with full transparency and control
-2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce, including real-world backed assets like silver tokens
-3. **Secure & Persistent** - All user sessions, logins, token balances, USD purchases, and transactions are permanently stored with audit trails for global currency launch
+1. **Empowering** - Users can create their own business tokens, buy INF with USD, or earn tokens through contributions with full transparency and control, while watching token values grow based on real engagement
+2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce, including real-world backed assets like silver tokens and real-time metrics dashboards
+3. **Secure & Persistent** - All user sessions, logins, token balances, USD purchases, transactions, and engagement metrics are permanently stored with audit trails for global currency launch
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a multi-feature ecosystem platform integrating user authentication, token minting, USD token sales, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system with real-world asset backing and beta program pricing.
+This is a multi-feature ecosystem platform integrating user authentication, token minting, real-time value tracking, USD token sales, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system with real-world asset backing, transparent value metrics, and beta program pricing.
 
 ## Essential Features
+
+**Real-Time Token Metrics & Value System**
+- Functionality: Comprehensive engagement tracking system that measures every user interaction with tokens (clicks, views, transfers, bids, trades) and automatically calculates real-time token values based on actual usage metrics
+- Purpose: Provide transparent, verifiable token valuation based on genuine user engagement rather than speculation - creating a fair value system where tokens gain worth through real utility and community interaction
+- Trigger: All token interactions automatically tracked; view analytics on dedicated Metrics tab
+- Progression: User interacts with token (click, view, transfer, bid, trade) → Metric recorded with timestamp and user ID → Value calculation triggered → Token snapshot updated → Historical data preserved → Dashboard displays real-time value with breakdown → Charts show value growth over time → Users can click tokens to directly increase value → Network effect multiplier applied based on active users → Engagement multiplier rewards sustained activity
+- Success criteria: All interactions tracked accurately, values update in real-time (30s refresh), historical charts display growth trends, metric breakdowns show contribution by type, transparent calculation formulas visible, network effect multiplier scales with users, engagement multiplier rewards activity, auction pages show real token values, click-to-increase-value feature functional, mobile-responsive analytics dashboard, all data persists permanently, supports unlimited tokens
+
+**Live Auction Viewer with Real-Time Metrics**
+- Functionality: Enhanced auction interface showing real-time token values based on engagement metrics alongside bid prices, with USD/INF bidding, expandable details, and automatic value tracking
+- Purpose: Enable transparent token auctions where bidders can see both the current bid price and the underlying real value based on actual token engagement - building trust through data-driven valuations
+- Trigger: Navigate to Auction tab to see live auctions
+- Progression: User browses active auctions → Sees token symbol, current bid, and real-time value from metrics → Views click count, view count, transfers, active users → Clicks auction to expand details → Sees detailed metrics breakdown (base value + metrics value) → Places bid in INF or USD → Bid tracked as metric, increasing token value → Real-time updates show new bids and value changes → Historical bid list shows all bidders → Winner determined at auction end → Ended auctions archived with final metrics
+- Success criteria: Auctions display both bid price and real token value, metrics update in real-time during bidding, bidding tracked and increases token value, USD and INF currencies supported, expandable details show full analytics, bid history visible, time remaining countdown accurate, winner notification system, PayPal integration for USD bids, mobile-responsive interface, all data persists
 
 **Infinity Token Sale & USD Payment System**
 - Functionality: Complete USD-to-INF token purchasing system with pre-configured packages and custom amounts, plus earning opportunities through contributions

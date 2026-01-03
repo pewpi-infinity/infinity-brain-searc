@@ -10,6 +10,7 @@ import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
+import { trackTokenMetric } from '@/lib/tokenMetrics'
 
 interface BusinessToken {
   symbol: string
@@ -20,6 +21,7 @@ interface BusinessToken {
   createdAt: number
   backedBy: 'infinity'
   mintedBy: string
+  initialPrice?: number
 }
 
 export function TokenMinter() {
@@ -64,13 +66,16 @@ export function TokenMinter() {
       businessName,
       createdAt: Date.now(),
       backedBy: 'infinity',
-      mintedBy: userProfile.userId
+      mintedBy: userProfile.userId,
+      initialPrice: 1.0
     }
 
     const updatedTokens = { ...(allTokens || {}), [symbolUpper]: newToken }
     setAllTokens(updatedTokens)
 
     await addTokens(symbolUpper, supply)
+
+    await trackTokenMetric(symbolUpper, 'mint', userProfile.userId, supply)
 
     const mintTransaction: Transaction = {
       id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
