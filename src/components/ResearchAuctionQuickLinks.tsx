@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Flask, Gavel, Sparkle, TrendUp, Fire, Eye, ShareNetwork, CurrencyDollar } from '@phosphor-icons/react'
+import { Flask, Gavel, Sparkle, TrendUp, Fire, Eye, ShareNetwork, CurrencyDollar, Lightning } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { useState } from 'react'
@@ -294,7 +294,7 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Button
             onClick={() => onNavigate?.('research')}
             variant="outline"
@@ -323,6 +323,15 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
           </Button>
 
           <Button
+            onClick={() => onNavigate?.('create-auto-auction')}
+            variant="outline"
+            className="flex-col h-auto py-4 gap-2 border-purple-500/30 hover:border-purple-500/60 bg-purple-500/5"
+          >
+            <Lightning size={24} weight="fill" className="text-purple-500" />
+            <span className="text-xs">Auto Auction</span>
+          </Button>
+
+          <Button
             onClick={() => onNavigate?.('auction')}
             variant="outline"
             className="flex-col h-auto py-4 gap-2"
@@ -340,6 +349,27 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
             <ShareNetwork size={24} weight="duotone" className="text-green-500" />
             <span className="text-xs">🤑 Share</span>
           </Button>
+        </div>
+
+        <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-600/10 rounded-lg border border-purple-500/20">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-purple-500/20 rounded-lg">
+              <Lightning size={24} weight="fill" className="text-purple-500" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold mb-1 flex items-center gap-2">
+                ⚡ Auto-Priced Auction Creator
+              </h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                NEW! Create auctions with AI-calculated pricing based on quality scores, market demand, and rarity. Get suggested start price, reserve price, and buy-now price with confidence ratings!
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">Smart Pricing</Badge>
+                <Badge variant="secondary" className="text-xs">AI Analysis</Badge>
+                <Badge variant="secondary" className="text-xs">One-Click Create</Badge>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="p-4 bg-gradient-to-r from-green-500/10 to-teal-600/10 rounded-lg border border-green-500/20">

@@ -45,7 +45,7 @@ import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell, Lightning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
@@ -58,6 +58,7 @@ import { TokenActivityMonitor } from '@/components/TokenActivityMonitor'
 import { TokenRedistributionNotifier } from '@/components/TokenRedistributionNotifier'
 import { RedistributionHistory } from '@/components/RedistributionHistory'
 import { AutoPricingAlgorithm } from '@/components/AutoPricingAlgorithm'
+import { AutoPricedAuctionCreator } from '@/components/AutoPricedAuctionCreator'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -297,6 +298,10 @@ function App() {
                 <Robot size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">AutoPrice</span>
               </TabsTrigger>
+              <TabsTrigger value="create-auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Lightning size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Auto Auction</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="home" className="space-y-8">
@@ -529,6 +534,12 @@ function App() {
             <TabsContent value="auto-pricing">
               <div className="max-w-7xl mx-auto">
                 <AutoPricingAlgorithm />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="create-auto-auction">
+              <div className="max-w-7xl mx-auto">
+                <AutoPricedAuctionCreator />
               </div>
             </TabsContent>
           </Tabs>
