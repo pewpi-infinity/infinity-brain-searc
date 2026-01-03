@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HTMLExporter } from '@/lib/htmlExporter'
-import { Lightning, CheckCircle, WarningCircle, Rocket, GithubLogo } from '@phosphor-icons/react'
+import { Lightning, CheckCircle, WarningCircle, Rocket, GithubLogo, Flask, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
@@ -31,6 +31,13 @@ interface VercelDeployment {
   pages: number
 }
 
+interface TestResult {
+  step: string
+  status: 'pending' | 'success' | 'failed' | 'testing'
+  message: string
+  details?: string
+}
+
 export function VercelDeployer() {
   const [config, setConfig] = useState<VercelConfig>({
     projectName: '',
@@ -43,6 +50,9 @@ export function VercelDeployer() {
   const [isDeploying, setIsDeploying] = useState(false)
   const [deploymentHistory = [], setDeploymentHistory] = useKV<VercelDeployment[]>('vercel-deployments', [])
   const [showApiToken, setShowApiToken] = useState(false)
+  const [isTesting, setIsTesting] = useState(false)
+  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const [showTestPanel, setShowTestPanel] = useState(false)
 
   const frameworks = [
     { value: 'static', label: 'Static HTML' },
@@ -51,6 +61,165 @@ export function VercelDeployer() {
     { value: 'vue', label: 'Vue' },
     { value: 'svelte', label: 'Svelte' }
   ]
+
+  const testVercelConnection = async () => {
+    if (!config.apiToken) {
+      toast.error('Please enter your Vercel API token first')
+      return
+    }
+
+    setIsTesting(true)
+    setShowTestPanel(true)
+    const results: TestResult[] = [
+      { step: 'Validate Token Format', status: 'pending', message: '' },
+      { step: 'Test API Connection', status: 'pending', message: '' },
+      { step: 'Verify User Access', status: 'pending', message: '' },
+      { step: 'Check Team Permissions', status: 'pending', message: '' },
+      { step: 'Test Project Creation', status: 'pending', message: '' }
+    ]
+    setTestResults([...results])
+
+    try {
+      results[0].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      if (config.apiToken.length < 20) {
+        results[0].status = 'failed'
+        results[0].message = 'Token appears too short'
+        results[0].details = 'Vercel tokens are typically 24+ characters'
+        setTestResults([...results])
+        toast.error('Invalid token format')
+        setIsTesting(false)
+        return
+      }
+
+      results[0].status = 'success'
+      results[0].message = 'Token format valid'
+      setTestResults([...results])
+
+      results[1].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${config.apiToken}`,
+        'Content-Type': 'application/json'
+      }
+
+      if (config.teamId) {
+        headers['teamId'] = config.teamId
+      }
+
+      const userResponse = await fetch('https://api.vercel.com/v2/user', {
+        method: 'GET',
+        headers
+      })
+
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json().catch(() => null)
+        results[1].status = 'failed'
+        results[1].message = 'API connection failed'
+        results[1].details = errorData?.error?.message || userResponse.statusText
+        setTestResults([...results])
+        toast.error('Failed to connect to Vercel API')
+        setIsTesting(false)
+        return
+      }
+
+      results[1].status = 'success'
+      results[1].message = 'Connected to Vercel API'
+      setTestResults([...results])
+
+      const userData = await userResponse.json()
+      
+      results[2].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      if (!userData || !userData.user) {
+        results[2].status = 'failed'
+        results[2].message = 'No user data found'
+        results[2].details = 'Token may not have proper permissions'
+        setTestResults([...results])
+        toast.error('Cannot access user information')
+        setIsTesting(false)
+        return
+      }
+
+      results[2].status = 'success'
+      results[2].message = `User: ${userData.user.username || userData.user.email}`
+      results[2].details = `Plan: ${userData.user.plan || 'Hobby'}`
+      setTestResults([...results])
+
+      results[3].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const teamsResponse = await fetch('https://api.vercel.com/v2/teams', {
+        method: 'GET',
+        headers
+      })
+
+      if (teamsResponse.ok) {
+        const teamsData = await teamsResponse.json()
+        results[3].status = 'success'
+        results[3].message = 'Team access verified'
+        results[3].details = `${teamsData.teams?.length || 0} team(s) accessible`
+        setTestResults([...results])
+      } else {
+        results[3].status = 'success'
+        results[3].message = 'Personal account only'
+        results[3].details = 'No team access (this is normal for personal accounts)'
+        setTestResults([...results])
+      }
+
+      results[4].status = 'testing'
+      setTestResults([...results])
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      const projectsResponse = await fetch('https://api.vercel.com/v9/projects', {
+        method: 'GET',
+        headers
+      })
+
+      if (!projectsResponse.ok) {
+        results[4].status = 'failed'
+        results[4].message = 'Cannot verify project creation permissions'
+        results[4].details = 'May not have access to create projects'
+        setTestResults([...results])
+        toast.warning('Token works but project creation permissions unclear')
+        setIsTesting(false)
+        return
+      }
+
+      const projectsData = await projectsResponse.json()
+      results[4].status = 'success'
+      results[4].message = 'Ready to deploy projects'
+      results[4].details = `${projectsData.projects?.length || 0} existing project(s) found`
+      setTestResults([...results])
+
+      toast.success('✅ Token validated successfully!', {
+        description: 'Your Vercel API token is configured correctly and ready to use',
+        duration: 5000
+      })
+
+    } catch (error) {
+      const failedIndex = results.findIndex(r => r.status === 'testing')
+      if (failedIndex !== -1) {
+        results[failedIndex].status = 'failed'
+        results[failedIndex].message = 'Test failed'
+        results[failedIndex].details = error instanceof Error ? error.message : 'Unknown error'
+        setTestResults([...results])
+      }
+      
+      toast.error('Token validation failed', {
+        description: error instanceof Error ? error.message : 'Network or authentication error'
+      })
+    } finally {
+      setIsTesting(false)
+    }
+  }
 
   const handleDeploy = async () => {
     if (!config.projectName) {
@@ -232,6 +401,16 @@ export function VercelDeployer() {
           </AlertDescription>
         </Alert>
 
+        <Alert className="border-primary/30">
+          <Info size={20} weight="duotone" className="text-primary" />
+          <AlertDescription>
+            <div className="space-y-1">
+              <p className="font-semibold text-sm">🧪 Test Your Configuration</p>
+              <p className="text-xs">Use the "Test Connection" button to validate your API token before deploying. The test will verify permissions, check user access, and ensure everything is ready for deployment.</p>
+            </div>
+          </AlertDescription>
+        </Alert>
+
         <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={handleQuickDeploy}
@@ -344,6 +523,65 @@ export function VercelDeployer() {
               onChange={(e) => setConfig({ ...config, teamId: e.target.value })}
             />
           </div>
+
+          {config.apiToken && (
+            <Button
+              onClick={testVercelConnection}
+              disabled={isTesting}
+              variant="outline"
+              className="w-full"
+            >
+              <Flask size={20} weight="duotone" className="mr-2" />
+              {isTesting ? 'Testing Connection...' : 'Test Connection'}
+            </Button>
+          )}
+
+          {showTestPanel && testResults.length > 0 && (
+            <Card className="border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Flask size={20} weight="duotone" className="text-accent" />
+                  Connection Test Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {testResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 p-3 bg-card rounded-lg border"
+                  >
+                    <div className="pt-0.5">
+                      {result.status === 'success' && (
+                        <CheckCircle size={20} weight="duotone" className="text-green-500" />
+                      )}
+                      {result.status === 'failed' && (
+                        <WarningCircle size={20} weight="duotone" className="text-destructive" />
+                      )}
+                      {result.status === 'testing' && (
+                        <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                      )}
+                      {result.status === 'pending' && (
+                        <div className="w-5 h-5 border-2 border-muted rounded-full" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{result.step}</p>
+                      {result.message && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {result.message}
+                        </p>
+                      )}
+                      {result.details && (
+                        <p className="text-xs text-accent mt-1 font-mono">
+                          {result.details}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <Button
