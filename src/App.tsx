@@ -16,7 +16,8 @@ import { PageExporter } from '@/components/PageExporter'
 import { DeploymentHub } from '@/components/DeploymentHub'
 import { SocialPoster } from '@/components/SocialPoster'
 import { AzureGitHubDeployer } from '@/components/AzureGitHubDeployer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud } from '@phosphor-icons/react'
+import { HashtagTrendAnalyzer } from '@/components/HashtagTrendAnalyzer'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -77,7 +78,7 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-12 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-13 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
@@ -113,6 +114,10 @@ function App() {
               <TabsTrigger value="social" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <ShareNetwork size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Social</span>
+              </TabsTrigger>
+              <TabsTrigger value="trends" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <Hash size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Trends</span>
               </TabsTrigger>
               <TabsTrigger value="export" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <FileHtml size={20} weight="duotone" />
@@ -198,6 +203,12 @@ function App() {
             <TabsContent value="social">
               <div className="max-w-5xl mx-auto">
                 <SocialPoster />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="trends">
+              <div className="max-w-6xl mx-auto">
+                <HashtagTrendAnalyzer />
               </div>
             </TabsContent>
 
