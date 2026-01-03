@@ -22,7 +22,9 @@ import { SentimentForecaster } from '@/components/SentimentForecaster'
 import { SentimentAlertSystem } from '@/components/SentimentAlertSystem'
 import { BackgroundChanger } from '@/components/BackgroundChanger'
 import { EmojiFeatureHub } from '@/components/EmojiFeatureHub'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley } from '@phosphor-icons/react'
+import { MarioScene } from '@/components/MarioScene'
+import { SpriteBuilder } from '@/components/SpriteBuilder'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 
@@ -83,10 +85,14 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-16 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-17 h-auto gap-1 bg-card/80 backdrop-blur p-2">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <House size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="mario" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
+                <GameController size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">🍄 Mario</span>
               </TabsTrigger>
               <TabsTrigger value="emoji" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Smiley size={20} weight="duotone" />
@@ -158,6 +164,13 @@ function App() {
                 <div className="h-[500px]">
                   <AIChat />
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="mario">
+              <div className="max-w-6xl mx-auto space-y-6">
+                <MarioScene />
+                <SpriteBuilder />
               </div>
             </TabsContent>
 
