@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useKV } from '@github/spark/hooks'
 import { 
   TwitterLogo, 
@@ -17,9 +18,15 @@ import {
   PaperPlaneTilt,
   ChatCircleText,
   Clock,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Calendar,
+  ChartLine,
+  Sparkle
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { ContentCalendar, type ScheduledPost } from './ContentCalendar'
+import { BestTimeRecommender } from './BestTimeRecommender'
+import { AnalyticsDashboard } from './AnalyticsDashboard'
 
 interface PlatformConnection {
   id: string
@@ -54,12 +61,14 @@ export function SocialPoster() {
     { id: 'tiktok', name: 'TikTok', icon: TiktokLogo, connected: false, color: 'oklch(0.40 0.10 280)' }
   ])
   const [postHistory, setPostHistory] = useKV<PostHistory[]>('post-history', [])
+  const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
   const [conversationHistory, setConversationHistory] = useKV<ConversationMessage[]>('conversation-history', [])
   const [includeContext, setIncludeContext] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [postingProgress, setPostingProgress] = useState(0)
   const [showScheduler, setShowScheduler] = useState(false)
   const [scheduleTime, setScheduleTime] = useState('')
+  const [activeTab, setActiveTab] = useState('post')
 
   const detectPostEmoji = (text: string) => {
     const postEmojis = ['🤑', '📤', '🚀', '📢', '💬']
@@ -177,10 +186,94 @@ Return ONLY the enhanced post text, no explanations.`
     }
   }
 
+  const handleSchedulePost = () => {
+    if (!postContent.trim()) {
+      toast.error('Please enter some content to schedule')
+      return
+    }
+
+    if (!scheduleTime) {
+      toast.error('Please select a time to schedule')
+      return
+    }
+
+    const connectedPlatforms = (platforms || []).filter(p => p.connected)
+    if (connectedPlatforms.length === 0) {
+      toast.error('Please connect at least one platform')
+      return
+    }
+
+    const scheduledTime = new Date(scheduleTime).getTime()
+    if (scheduledTime <= Date.now()) {
+      toast.error('Please select a future time')
+      return
+    }
+
+    const newScheduledPost: ScheduledPost = {
+      id: Date.now().toString(),
+      content: postContent,
+      platforms: connectedPlatforms.map(p => p.name),
+      scheduledTime,
+      status: 'pending',
+      createdAt: Date.now(),
+      aiRecommended: false
+    }
+
+    setScheduledPosts((current = []) => [...current, newScheduledPost])
+    toast.success('Post scheduled successfully!')
+    setPostContent('')
+    setScheduleTime('')
+    setShowScheduler(false)
+  }
+
+  const handleScheduleWithAI = (time: Date, content?: string) => {
+    const connectedPlatforms = (platforms || []).filter(p => p.connected)
+    if (connectedPlatforms.length === 0) {
+      toast.error('Please connect at least one platform first')
+      return
+    }
+
+    const postText = content || postContent || 'AI-optimized post content'
+
+    const newScheduledPost: ScheduledPost = {
+      id: Date.now().toString(),
+      content: postText,
+      platforms: connectedPlatforms.map(p => p.name),
+      scheduledTime: time.getTime(),
+      status: 'pending',
+      createdAt: Date.now(),
+      aiRecommended: true
+    }
+
+    setScheduledPosts((current = []) => [...current, newScheduledPost])
+    toast.success('Post scheduled at AI-recommended time!')
+    setActiveTab('calendar')
+  }
+
   const connectedCount = (platforms || []).filter(p => p.connected).length
 
   return (
-    <div className="space-y-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <TabsList className="grid w-full grid-cols-4 bg-card/80 backdrop-blur">
+        <TabsTrigger value="post" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground">
+          <PaperPlaneTilt size={20} weight="duotone" className="mr-2" />
+          Post
+        </TabsTrigger>
+        <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground">
+          <Calendar size={20} weight="duotone" className="mr-2" />
+          Calendar
+        </TabsTrigger>
+        <TabsTrigger value="ai" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground">
+          <Sparkle size={20} weight="duotone" className="mr-2" />
+          AI Timing
+        </TabsTrigger>
+        <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground">
+          <ChartLine size={20} weight="duotone" className="mr-2" />
+          Analytics
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="post" className="space-y-6">
       <Card className="gradient-border">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -280,7 +373,9 @@ Return ONLY the enhanced post text, no explanations.`
                   onChange={(e) => setScheduleTime(e.target.value)}
                   className="flex-1 px-3 py-2 rounded-md border bg-background"
                 />
-                <Button variant="secondary">Schedule Post</Button>
+                <Button variant="secondary" onClick={handleSchedulePost}>
+                  Schedule Post
+                </Button>
               </div>
             )}
 
@@ -386,6 +481,19 @@ Return ONLY the enhanced post text, no explanations.`
           </div>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="calendar">
+        <ContentCalendar />
+      </TabsContent>
+
+      <TabsContent value="ai">
+        <BestTimeRecommender onScheduleWithAI={handleScheduleWithAI} />
+      </TabsContent>
+
+      <TabsContent value="analytics">
+        <AnalyticsDashboard />
+      </TabsContent>
+    </Tabs>
   )
 }
