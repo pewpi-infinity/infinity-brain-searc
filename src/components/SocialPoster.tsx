@@ -37,7 +37,7 @@ import { AutoBackupScheduler } from './AutoBackupScheduler'
 interface PlatformConnection {
   id: string
   name: string
-  icon: typeof TwitterLogo
+  iconName: string
   connected: boolean
   username?: string
   color: string
@@ -71,14 +71,25 @@ export function SocialPoster() {
   const [activeTab, setActiveTab] = useState('post')
   const [initialized, setInitialized] = useState(false)
 
+  const getIconComponent = (iconName: string) => {
+    const iconMap: Record<string, React.ComponentType<any>> = {
+      twitter: TwitterLogo,
+      facebook: FacebookLogo,
+      linkedin: LinkedinLogo,
+      instagram: InstagramLogo,
+      tiktok: MusicNote
+    }
+    return iconMap[iconName] || TwitterLogo
+  }
+
   useEffect(() => {
     if (!initialized && (!platforms || platforms.length === 0)) {
       const defaultPlatforms: PlatformConnection[] = [
-        { id: 'twitter', name: 'Twitter/X', icon: TwitterLogo, connected: false, color: 'oklch(0.55 0.15 220)' },
-        { id: 'facebook', name: 'Facebook', icon: FacebookLogo, connected: false, color: 'oklch(0.50 0.20 250)' },
-        { id: 'linkedin', name: 'LinkedIn', icon: LinkedinLogo, connected: false, color: 'oklch(0.45 0.15 240)' },
-        { id: 'instagram', name: 'Instagram', icon: InstagramLogo, connected: false, color: 'oklch(0.60 0.25 320)' },
-        { id: 'tiktok', name: 'TikTok', icon: MusicNote, connected: false, color: 'oklch(0.40 0.10 280)' }
+        { id: 'twitter', name: 'Twitter/X', iconName: 'twitter', connected: false, color: 'oklch(0.55 0.15 220)' },
+        { id: 'facebook', name: 'Facebook', iconName: 'facebook', connected: false, color: 'oklch(0.50 0.20 250)' },
+        { id: 'linkedin', name: 'LinkedIn', iconName: 'linkedin', connected: false, color: 'oklch(0.45 0.15 240)' },
+        { id: 'instagram', name: 'Instagram', iconName: 'instagram', connected: false, color: 'oklch(0.60 0.25 320)' },
+        { id: 'tiktok', name: 'TikTok', iconName: 'tiktok', connected: false, color: 'oklch(0.40 0.10 280)' }
       ]
       setPlatforms(defaultPlatforms)
       setInitialized(true)
@@ -172,7 +183,7 @@ Return ONLY the enhanced post text, no explanations.`
         await new Promise(resolve => setTimeout(resolve, 300))
         setPostingProgress(30 + ((i + 1) / connectedPlatforms.length) * 70)
         
-        const PlatformIcon = connectedPlatforms[i].icon
+        const PlatformIcon = getIconComponent(connectedPlatforms[i].iconName)
         toast.success(`Posted to ${connectedPlatforms[i].name}`, {
           icon: <PlatformIcon size={20} weight="fill" />
         })
@@ -382,7 +393,7 @@ Return ONLY the enhanced post text, no explanations.`
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Array.isArray(platforms) && platforms.map((platform) => {
-              const PlatformIcon = platform.icon
+              const PlatformIcon = getIconComponent(platform.iconName)
               return (
                 <Card
                   key={platform.id}
