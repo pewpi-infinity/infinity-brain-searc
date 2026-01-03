@@ -111,15 +111,14 @@ export function SocialPoster() {
   const enhanceWithAI = async (content: string) => {
     const context = includeContext ? getRecentContext() : ''
     const contextSection = context ? `Recent conversation context:\n${context}\n\n` : ''
-    const promptText = `You are a social media expert. Enhance this post for maximum engagement while keeping it authentic and concise (max 280 chars for Twitter compatibility).
+    
+    try {
+      const promptText = `You are a social media expert. Enhance this post for maximum engagement while keeping it authentic and concise (max 280 chars for Twitter compatibility).
 
 ${contextSection}Original post: ${content}
 
 Return ONLY the enhanced post text, no explanations.`
-    const prompt = window.spark.llmPrompt([promptText], '')
-    
-    try {
-      const enhanced = await window.spark.llm(prompt, 'gpt-4o-mini', false)
+      const enhanced = await window.spark.llm(promptText, 'gpt-4o-mini', false)
       return enhanced.trim()
     } catch {
       return content
