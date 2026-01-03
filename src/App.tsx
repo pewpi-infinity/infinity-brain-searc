@@ -45,15 +45,18 @@ import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
+import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService'
 import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
 import { BatchRepoAnalyzer } from '@/components/BatchRepoAnalyzer'
 import { RepoFileBuilder } from '@/components/RepoFileBuilder'
 import { GitHubInfinityScanner } from '@/components/GitHubInfinityScanner'
 import { TokenActivityMonitor } from '@/components/TokenActivityMonitor'
+import { TokenRedistributionNotifier } from '@/components/TokenRedistributionNotifier'
+import { RedistributionHistory } from '@/components/RedistributionHistory'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -116,7 +119,8 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen mesh-background">
+      <TokenRedistributionServiceProvider>
+        <div className="min-h-screen mesh-background">
         <div className="container mx-auto px-4 py-8">
           <header className="mb-8 text-center space-y-4">
             <div className="flex items-center justify-center gap-3">
@@ -167,6 +171,14 @@ function App() {
               <TabsTrigger value="activity-monitor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ArrowsClockwise size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Activity</span>
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Bell size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Alerts</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <ClockClockwise size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">History</span>
               </TabsTrigger>
               <TabsTrigger value="charts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ChartLine size={20} weight="duotone" />
@@ -325,6 +337,14 @@ function App() {
 
             <TabsContent value="activity-monitor">
               <TokenActivityMonitor />
+            </TabsContent>
+
+            <TabsContent value="notifications">
+              <TokenRedistributionNotifier />
+            </TabsContent>
+
+            <TabsContent value="history">
+              <RedistributionHistory />
             </TabsContent>
 
             <TabsContent value="charts">
@@ -526,6 +546,7 @@ function App() {
           }}
         />
       </div>
+      </TokenRedistributionServiceProvider>
     </AuthProvider>
   )
 }
