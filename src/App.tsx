@@ -18,6 +18,7 @@ import { SocialPoster } from '@/components/SocialPoster'
 import { AzureGitHubDeployer } from '@/components/AzureGitHubDeployer'
 import { HashtagTrendAnalyzer } from '@/components/HashtagTrendAnalyzer'
 import { SentimentHeatmap } from '@/components/SentimentHeatmap'
+import { SentimentForecaster } from '@/components/SentimentForecaster'
 import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -236,8 +237,9 @@ function App() {
             </TabsContent>
 
             <TabsContent value="sentiment">
-              <div className="max-w-6xl mx-auto">
+              <div className="max-w-6xl mx-auto space-y-6">
                 <SentimentHeatmap />
+                <SentimentForecaster />
               </div>
             </TabsContent>
           </Tabs>
