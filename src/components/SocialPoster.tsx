@@ -58,13 +58,7 @@ interface ConversationMessage {
 
 export function SocialPoster() {
   const [postContent, setPostContent] = useState('')
-  const [platforms, setPlatforms] = useKV<PlatformConnection[]>('social-platforms', [
-    { id: 'twitter', name: 'Twitter/X', icon: TwitterLogo, connected: false, color: 'oklch(0.55 0.15 220)' },
-    { id: 'facebook', name: 'Facebook', icon: FacebookLogo, connected: false, color: 'oklch(0.50 0.20 250)' },
-    { id: 'linkedin', name: 'LinkedIn', icon: LinkedinLogo, connected: false, color: 'oklch(0.45 0.15 240)' },
-    { id: 'instagram', name: 'Instagram', icon: InstagramLogo, connected: false, color: 'oklch(0.60 0.25 320)' },
-    { id: 'tiktok', name: 'TikTok', icon: MusicNote, connected: false, color: 'oklch(0.40 0.10 280)' }
-  ])
+  const [platforms, setPlatforms] = useKV<PlatformConnection[]>('social-platforms', [])
   const [postHistory, setPostHistory] = useKV<PostHistory[]>('post-history', [])
   const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
   const [conversationHistory, setConversationHistory] = useKV<ConversationMessage[]>('conversation-history', [])
@@ -74,6 +68,21 @@ export function SocialPoster() {
   const [showScheduler, setShowScheduler] = useState(false)
   const [scheduleTime, setScheduleTime] = useState('')
   const [activeTab, setActiveTab] = useState('post')
+  const [initialized, setInitialized] = useState(false)
+
+  useEffect(() => {
+    if (!initialized && (!platforms || platforms.length === 0)) {
+      const defaultPlatforms: PlatformConnection[] = [
+        { id: 'twitter', name: 'Twitter/X', icon: TwitterLogo, connected: false, color: 'oklch(0.55 0.15 220)' },
+        { id: 'facebook', name: 'Facebook', icon: FacebookLogo, connected: false, color: 'oklch(0.50 0.20 250)' },
+        { id: 'linkedin', name: 'LinkedIn', icon: LinkedinLogo, connected: false, color: 'oklch(0.45 0.15 240)' },
+        { id: 'instagram', name: 'Instagram', icon: InstagramLogo, connected: false, color: 'oklch(0.60 0.25 320)' },
+        { id: 'tiktok', name: 'TikTok', icon: MusicNote, connected: false, color: 'oklch(0.40 0.10 280)' }
+      ]
+      setPlatforms(defaultPlatforms)
+      setInitialized(true)
+    }
+  }, [platforms, initialized, setPlatforms])
 
   const detectPostEmoji = (text: string) => {
     const postEmojis = ['🤑', '📤', '🚀', '📢', '💬']
@@ -85,6 +94,8 @@ export function SocialPoster() {
   }
 
   useEffect(() => {
+    if (!postContent) return
+    
     if (detectPostEmoji(postContent)) {
       const cleanContent = postContent.replace(/[🤑📤🚀📢💬]/g, '').trim()
       if (cleanContent) {
@@ -98,6 +109,7 @@ export function SocialPoster() {
   }, [postContent])
 
   const togglePlatform = (platformId: string) => {
+    if (!Array.isArray(platforms)) return
     setPlatforms((currentPlatforms = []) =>
       currentPlatforms.map(p =>
         p.id === platformId ? { ...p, connected: !p.connected } : p
@@ -106,7 +118,8 @@ export function SocialPoster() {
   }
 
   const getRecentContext = () => {
-    const recent = (conversationHistory || []).slice(-3)
+    if (!Array.isArray(conversationHistory)) return ''
+    const recent = conversationHistory.slice(-3)
     return recent.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')
   }
 
@@ -134,7 +147,12 @@ Return ONLY the enhanced post text, no explanations.`
       return
     }
 
-    const connectedPlatforms = (platforms || []).filter(p => p.connected)
+    if (!Array.isArray(platforms)) {
+      toast.error('Platform configuration error. Please refresh the page.')
+      return
+    }
+
+    const connectedPlatforms = platforms.filter(p => p.connected)
     if (connectedPlatforms.length === 0) {
       toast.error('Please connect at least one platform')
       return
@@ -201,7 +219,12 @@ Return ONLY the enhanced post text, no explanations.`
       return
     }
 
-    const connectedPlatforms = (platforms || []).filter(p => p.connected)
+    if (!Array.isArray(platforms)) {
+      toast.error('Platform configuration error. Please refresh the page.')
+      return
+    }
+
+    const connectedPlatforms = platforms.filter(p => p.connected)
     if (connectedPlatforms.length === 0) {
       toast.error('Please connect at least one platform')
       return
@@ -231,7 +254,12 @@ Return ONLY the enhanced post text, no explanations.`
   }
 
   const handleScheduleWithAI = (time: Date, content?: string) => {
-    const connectedPlatforms = (platforms || []).filter(p => p.connected)
+    if (!Array.isArray(platforms)) {
+      toast.error('Platform configuration error. Please refresh the page.')
+      return
+    }
+    
+    const connectedPlatforms = platforms.filter(p => p.connected)
     if (connectedPlatforms.length === 0) {
       toast.error('Please connect at least one platform first')
       return
@@ -254,8 +282,8 @@ Return ONLY the enhanced post text, no explanations.`
     setActiveTab('calendar')
   }
 
-  const connectedCount = (platforms || []).filter(p => p.connected).length
-  const connectedPlatformNames = (platforms || []).filter(p => p.connected).map(p => p.name)
+  const connectedCount = Array.isArray(platforms) ? platforms.filter(p => p.connected).length : 0
+  const connectedPlatformNames = Array.isArray(platforms) ? platforms.filter(p => p.connected).map(p => p.name) : []
 
   const handleUseTemplate = (content: string, hashtags: string[]) => {
     setPostContent(content)
@@ -352,7 +380,7 @@ Return ONLY the enhanced post text, no explanations.`
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {(platforms || []).map((platform) => {
+            {Array.isArray(platforms) && platforms.map((platform) => {
               const PlatformIcon = platform.icon
               return (
                 <Card
@@ -472,14 +500,14 @@ Return ONLY the enhanced post text, no explanations.`
           <CardDescription>Your recent posts across all platforms</CardDescription>
         </CardHeader>
         <CardContent>
-          {(postHistory || []).length === 0 ? (
+          {!Array.isArray(postHistory) || postHistory.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <ChatCircleText size={48} weight="duotone" className="mx-auto mb-2 opacity-50" />
               <p>No posts yet. Start sharing your thoughts!</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {(postHistory || []).slice(0, 10).map((post) => (
+              {postHistory.slice(0, 10).map((post) => (
                 <Card key={post.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">

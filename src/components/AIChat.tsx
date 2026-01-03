@@ -170,8 +170,8 @@ export function AIChat() {
   }
 
   return (
-    <Card className="h-full flex flex-col gradient-border">
-      <div className="p-4 border-b border-border flex items-center justify-between">
+    <Card className="h-full flex flex-col overflow-hidden border-2 border-border rounded-lg">
+      <div className="p-4 border-b border-border flex items-center justify-between bg-card">
         <div className="flex items-center gap-2">
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>

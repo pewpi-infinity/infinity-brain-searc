@@ -39,7 +39,8 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
-  const [userProfile, setUserProfile] = useKV<UserProfile | null>('user-profile', null)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [userProfile, setUserProfile] = useKV<UserProfile | null>(userId ? `user-profile-${userId}` : 'user-profile-temp', null)
   const [allSessions, setAllSessions] = useKV<UserSession[]>('user-sessions', [])
   const [allProfiles, setAllProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
 
@@ -53,9 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('User authentication failed')
       }
       
+      const userIdString = String(user.id)
+      setUserId(userIdString)
+      
       const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       const session: UserSession = {
-        userId: String(user.id),
+        userId: userIdString,
         username: user.login,
         email: user.email,
         avatarUrl: user.avatarUrl,
@@ -69,9 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
-      if (!userProfile) {
+      const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
+      
+      if (!existingProfileData) {
         const newProfile: UserProfile = {
-          userId: String(user.id),
+          userId: userIdString,
           username: user.login,
           email: user.email,
           avatarUrl: user.avatarUrl,
@@ -85,13 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         setAllProfiles((currentProfiles) => ({
           ...(currentProfiles || {}),
-          [String(user.id)]: newProfile
+          [userIdString]: newProfile
         }))
         
         toast.success('Welcome! You received 10 free INF tokens to get started! 🎉')
       } else {
         const updatedProfile = {
-          ...userProfile,
+          ...existingProfileData,
           username: user.login,
           email: user.email,
           avatarUrl: user.avatarUrl
@@ -100,8 +106,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         setAllProfiles((currentProfiles) => ({
           ...(currentProfiles || {}),
-          [String(user.id)]: updatedProfile
+          [userIdString]: updatedProfile
         }))
+        
+        toast.success(`Welcome back, ${user.login}! 👋`)
       }
     } catch (error) {
       console.error('Login failed:', error)
