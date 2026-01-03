@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { CurrencyDollar, Coins, TrendUp, Wallet } from '@phosphor-icons/react'
+import { CurrencyDollar, Coins, TrendUp, Wallet, ArrowsClockwise } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
@@ -23,13 +23,14 @@ interface BusinessToken {
 }
 
 export function TokenMinter() {
-  const { userProfile, isAuthenticated, addTokens } = useAuth()
+  const { userProfile, isAuthenticated, addTokens, syncWallet } = useAuth()
   const [allTokens, setAllTokens] = useKV<Record<string, BusinessToken>>('business-tokens', {})
   const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
   const [tokenName, setTokenName] = useState('')
   const [tokenSymbol, setTokenSymbol] = useState('')
   const [initialSupply, setInitialSupply] = useState('')
   const [businessName, setBusinessName] = useState('')
+  const [isSyncing, setIsSyncing] = useState(false)
 
   const handleMintToken = async () => {
     if (!isAuthenticated || !userProfile) {
@@ -96,6 +97,17 @@ export function TokenMinter() {
     setTokenSymbol('')
     setInitialSupply('')
     setBusinessName('')
+  }
+
+  const handleSyncWallet = async () => {
+    setIsSyncing(true)
+    try {
+      await syncWallet()
+    } catch (error) {
+      console.error('Sync failed:', error)
+    } finally {
+      setIsSyncing(false)
+    }
   }
 
   const userTokens = userProfile?.businessTokens || {}
@@ -190,9 +202,25 @@ export function TokenMinter() {
 
         <div className="space-y-4">
           <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Wallet size={24} weight="duotone" className="text-primary" />
-              <h3 className="text-xl font-bold">Your Token Balances</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Wallet size={24} weight="duotone" className="text-primary" />
+                <h3 className="text-xl font-bold">Your Token Balances</h3>
+              </div>
+              <Button
+                onClick={handleSyncWallet}
+                disabled={isSyncing || !isAuthenticated}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <ArrowsClockwise 
+                  size={16} 
+                  weight="bold" 
+                  className={isSyncing ? 'animate-spin' : ''} 
+                />
+                {isSyncing ? 'Syncing...' : 'Sync'}
+              </Button>
             </div>
             <div className="space-y-3">
               {Object.keys(userTokens).length > 0 ? (
@@ -209,9 +237,16 @@ export function TokenMinter() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No tokens yet. Mint your first token!
-                </p>
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    No tokens yet. Mint your first token!
+                  </p>
+                  {isAuthenticated && (
+                    <p className="text-xs text-muted-foreground">
+                      If you previously minted tokens, click <strong>Sync</strong> to restore them.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </Card>

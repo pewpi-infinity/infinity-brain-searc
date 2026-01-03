@@ -3,14 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { User, SignIn, SignOut, Clock, Shield, Wallet, ArrowsLeftRight } from '@phosphor-icons/react'
+import { User, SignIn, SignOut, Clock, Shield, Wallet, ArrowsLeftRight, ArrowsClockwise } from '@phosphor-icons/react'
 import { useAuth } from '@/lib/auth'
 import { toast } from 'sonner'
 import { TokenTransfer } from './TokenTransfer'
 import { TransactionHistory } from './TransactionHistory'
+import { useState } from 'react'
 
 export function UserDashboard() {
-  const { currentUser, userProfile, isAuthenticated, login, logout } = useAuth()
+  const { currentUser, userProfile, isAuthenticated, login, logout, syncWallet } = useAuth()
+  const [isSyncing, setIsSyncing] = useState(false)
 
   const handleLogin = async () => {
     try {
@@ -24,6 +26,17 @@ export function UserDashboard() {
   const handleLogout = () => {
     logout()
     toast.success('Logged out successfully')
+  }
+
+  const handleSyncWallet = async () => {
+    setIsSyncing(true)
+    try {
+      await syncWallet()
+    } catch (error) {
+      console.error('Sync failed:', error)
+    } finally {
+      setIsSyncing(false)
+    }
   }
 
   if (!isAuthenticated || !currentUser || !userProfile) {
@@ -149,7 +162,23 @@ export function UserDashboard() {
 
         <TabsContent value="wallet">
           <Card className="p-6">
-            <h3 className="text-xl font-bold mb-4">Token Balances</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Token Balances</h3>
+              <Button
+                onClick={handleSyncWallet}
+                disabled={isSyncing}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <ArrowsClockwise 
+                  size={16} 
+                  weight="bold" 
+                  className={isSyncing ? 'animate-spin' : ''} 
+                />
+                {isSyncing ? 'Syncing...' : 'Sync Wallet'}
+              </Button>
+            </div>
             <div className="grid md:grid-cols-2 gap-3">
               {Object.entries(userProfile.businessTokens).map(([symbol, balance]) => (
                 <div
@@ -172,9 +201,25 @@ export function UserDashboard() {
               ))}
             </div>
             {Object.keys(userProfile.businessTokens).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No tokens yet. Visit the Tokens tab to mint your first token!
-              </p>
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground mb-4">
+                  No tokens yet. Visit the Tokens tab to mint your first token!
+                </p>
+                <Button
+                  onClick={handleSyncWallet}
+                  disabled={isSyncing}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <ArrowsClockwise 
+                    size={16} 
+                    weight="bold" 
+                    className={isSyncing ? 'animate-spin' : ''} 
+                  />
+                  {isSyncing ? 'Syncing...' : 'Sync Wallet'}
+                </Button>
+              </div>
             )}
           </Card>
         </TabsContent>

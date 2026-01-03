@@ -33,6 +33,7 @@ interface AuthContextType {
   addTokens: (tokenSymbol: string, amount: number) => Promise<void>
   deductTokens: (tokenSymbol: string, amount: number) => Promise<void>
   getTokenBalance: (tokenSymbol: string) => number
+  syncWallet: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -203,6 +204,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userProfile.businessTokens[tokenSymbol] || 0
   }
 
+  const syncWallet = async () => {
+    if (!currentUser || !userProfile) {
+      throw new Error('User must be logged in to sync wallet')
+    }
+
+    try {
+      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      
+      const recalculateTokenBalances = (userId: string) => {
+        const balances: Record<string, number> = { 'INF': 10 }
+        
+        for (const tx of allTransactions) {
+          if (tx.status !== 'completed') continue
+          
+          if (tx.type === 'mint' && tx.from === userId && tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.from === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) - tx.amount
+          }
+        }
+        
+        return balances
+      }
+      
+      const calculatedBalances = recalculateTokenBalances(currentUser.userId)
+      
+      const updatedProfile = {
+        ...userProfile,
+        businessTokens: calculatedBalances
+      }
+      
+      setUserProfile(updatedProfile)
+      
+      setAllProfiles((currentProfiles) => ({
+        ...(currentProfiles || {}),
+        [currentUser.userId]: updatedProfile
+      }))
+      
+      toast.success('Wallet synced successfully! All tokens restored from transaction history. ✨')
+    } catch (error) {
+      console.error('Wallet sync failed:', error)
+      toast.error('Failed to sync wallet. Please try again.')
+      throw error
+    }
+  }
+
   useEffect(() => {
     if (currentUser) {
       const interval = setInterval(() => {
@@ -235,7 +284,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         addTokens,
         deductTokens,
-        getTokenBalance
+        getTokenBalance,
+        syncWallet
       }}
     >
       {children}
