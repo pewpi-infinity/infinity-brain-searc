@@ -303,8 +303,7 @@ export function TemplateLibrary({ onUseTemplate }: TemplateLibraryProps) {
   }
 
   const handleGenerateAIHashtags = async () => {
-    const promptText = 'Generate 10 trending and relevant hashtags for social media marketing in 2024. Return as JSON with a "hashtags" array containing just the hashtag strings (including the # symbol).'
-    const prompt = window.spark.llmPrompt([promptText], '')
+    const prompt = 'Generate 10 trending and relevant hashtags for social media marketing in 2024. Return as JSON with a "hashtags" array containing just the hashtag strings (including the # symbol).'
     
     try {
       toast.info('Generating AI-powered hashtags...')
