@@ -24,6 +24,7 @@ import {
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
+import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
 
 export interface AuctionBid {
   bidId: string
@@ -34,6 +35,8 @@ export interface AuctionBid {
   amount: number
   currency?: 'INF' | 'USD'
   timestamp: number
+  paypalTransactionId?: string
+  paymentVerified?: boolean
 }
 
 export interface TokenAuction {
@@ -75,6 +78,8 @@ export function TokenAuction() {
   const [selectedAuction, setSelectedAuction] = useState<TokenAuction | null>(null)
   const [bidAmount, setBidAmount] = useState('')
   const [bidCurrency, setBidCurrency] = useState<'INF' | 'USD'>('INF')
+  const [showPayPalDialog, setShowPayPalDialog] = useState(false)
+  const [pendingBidAuction, setPendingBidAuction] = useState<TokenAuction | null>(null)
 
   const availableTokens = userProfile 
     ? Object.keys(userProfile.businessTokens).filter(
@@ -289,6 +294,12 @@ export function TokenAuction() {
       return
     }
 
+    if (bidCurrency === 'USD') {
+      setPendingBidAuction(auction)
+      setShowPayPalDialog(true)
+      return
+    }
+
     try {
       const bidEntry: AuctionBid = {
         bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -323,21 +334,68 @@ export function TokenAuction() {
         }
       }))
 
-      if (bidCurrency === 'USD') {
-        toast.success(`USD bid placed: $${bid}`, {
-          description: `Send payment to: marvaseater@gmail.com (PayPal)\nKris Watson: 808-342-9975\nInclude auction ID: ${auction.id}`,
-          duration: 10000
-        })
-      } else {
-        toast.success(`Bid placed successfully! Current bid: ${bid} ${bidCurrency}`, {
-          description: 'You will be notified if you are outbid'
-        })
-      }
+      toast.success(`Bid placed successfully! Current bid: ${bid} ${bidCurrency}`, {
+        description: 'You will be notified if you are outbid'
+      })
       
       setBidAmount('')
       setBidCurrency('INF')
     } catch (error) {
       toast.error('Failed to place bid')
+      console.error('Bid error:', error)
+    }
+  }
+
+  const handlePayPalPaymentComplete = async (transactionId: string) => {
+    if (!pendingBidAuction || !userProfile) return
+
+    const bid = parseFloat(bidAmount)
+
+    try {
+      const bidEntry: AuctionBid = {
+        bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        auctionId: pendingBidAuction.id,
+        bidderId: userProfile.userId,
+        bidderUsername: userProfile.username,
+        bidderAvatar: userProfile.avatarUrl,
+        amount: bid,
+        currency: 'USD',
+        timestamp: Date.now(),
+        paypalTransactionId: transactionId,
+        paymentVerified: false
+      }
+
+      setAuctions((currentAuctions) =>
+        (currentAuctions || []).map(a =>
+          a.id === pendingBidAuction.id
+            ? {
+                ...a,
+                currentBid: bid,
+                bids: [...a.bids, bidEntry]
+              }
+            : a
+        )
+      )
+
+      const trackingKey = `${userProfile.userId}-${pendingBidAuction.id}`
+      setUserBidTracking((current) => ({
+        ...(current || {}),
+        [trackingKey]: {
+          auctionId: pendingBidAuction.id,
+          amount: bid,
+          auctionName: pendingBidAuction.tokenName
+        }
+      }))
+
+      toast.success(`USD bid placed: $${bid}`, {
+        description: 'Your payment is being verified. Transaction ID: ' + transactionId.slice(0, 16)
+      })
+      
+      setBidAmount('')
+      setBidCurrency('INF')
+      setPendingBidAuction(null)
+    } catch (error) {
+      toast.error('Failed to record bid')
       console.error('Bid error:', error)
     }
   }
@@ -451,6 +509,17 @@ export function TokenAuction() {
 
   return (
     <div className="space-y-6">
+      {pendingBidAuction && (
+        <PayPalPaymentDialog
+          amount={parseFloat(bidAmount)}
+          auctionId={pendingBidAuction.id}
+          auctionName={pendingBidAuction.tokenName}
+          onPaymentComplete={handlePayPalPaymentComplete}
+          open={showPayPalDialog}
+          onOpenChange={setShowPayPalDialog}
+        />
+      )}
+      
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
@@ -461,6 +530,7 @@ export function TokenAuction() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <PayPalBadge />
           <Badge variant="default" className="text-lg px-4 py-2">
             <Gavel size={20} weight="duotone" className="mr-2" />
             {activeAuctions.length} Active
@@ -677,9 +747,19 @@ export function TokenAuction() {
                                         {isUserBid && isWinning && (
                                           <Crown size={12} weight="fill" className="text-accent" />
                                         )}
+                                        {bid.currency === 'USD' && !bid.paymentVerified && (
+                                          <Badge variant="outline" className="text-[8px] px-1 py-0 h-4">
+                                            Pending
+                                          </Badge>
+                                        )}
+                                        {bid.currency === 'USD' && bid.paymentVerified && (
+                                          <Badge variant="outline" className="text-[8px] px-1 py-0 h-4 bg-green-500/10 text-green-600 border-green-500/30">
+                                            Verified
+                                          </Badge>
+                                        )}
                                       </span>
                                       <span className={`font-mono ${isUserBid && isWinning ? 'font-bold text-accent' : 'font-bold'}`}>
-                                        {bid.amount.toLocaleString()} {bid.currency || 'INF'}
+                                        {bid.currency === 'USD' ? '$' : ''}{bid.amount.toLocaleString()} {bid.currency || 'INF'}
                                       </span>
                                     </div>
                                   )
@@ -752,15 +832,16 @@ export function TokenAuction() {
                                             onClick={() => setBidCurrency('INF')}
                                             className="w-full"
                                           >
+                                            <Coins size={16} className="mr-1" />
                                             INF
                                           </Button>
                                           <Button
                                             type="button"
                                             variant={bidCurrency === 'USD' ? 'default' : 'outline'}
                                             onClick={() => setBidCurrency('USD')}
-                                            className="w-full"
+                                            className="w-full bg-gradient-to-r from-[#0070ba] to-[#1546a0] data-[state=active]:text-white"
                                           >
-                                            USD
+                                            💳 USD
                                           </Button>
                                         </div>
                                       </div>
@@ -780,16 +861,12 @@ export function TokenAuction() {
                                           </p>
                                         )}
                                         {bidCurrency === 'USD' && (
-                                          <div className="p-3 rounded-lg bg-accent/10 border border-accent/30 space-y-1">
-                                            <p className="text-xs font-medium">💳 USD Payment Instructions:</p>
-                                            <p className="text-xs text-muted-foreground">
-                                              PayPal: <strong className="text-foreground">marvaseater@gmail.com</strong>
+                                          <div className="p-3 rounded-lg bg-[#0070ba]/10 border border-[#0070ba]/30 space-y-1">
+                                            <p className="text-xs font-medium flex items-center gap-1.5">
+                                              <PayPalBadge />
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                              Contact: Kris Watson - 808-342-9975
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                              Include auction ID in payment note
+                                              You'll be redirected to complete payment via PayPal
                                             </p>
                                           </div>
                                         )}
@@ -797,10 +874,13 @@ export function TokenAuction() {
 
                                       <Button
                                         onClick={() => handlePlaceBid(auction)}
-                                        className="w-full bg-gradient-to-r from-accent to-primary"
+                                        className={bidCurrency === 'USD' 
+                                          ? "w-full bg-gradient-to-r from-[#0070ba] to-[#1546a0] text-white"
+                                          : "w-full bg-gradient-to-r from-accent to-primary"
+                                        }
                                       >
                                         <TrendUp size={20} weight="bold" className="mr-2" />
-                                        Confirm Bid
+                                        {bidCurrency === 'USD' ? 'Continue to PayPal' : 'Confirm Bid'}
                                       </Button>
                                     </>
                                   )}

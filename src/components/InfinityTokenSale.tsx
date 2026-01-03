@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
+import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
 
 interface UsdBid {
   bidId: string
@@ -78,6 +79,8 @@ export function InfinityTokenSale() {
   const [earnDescription, setEarnDescription] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPayPalDialog, setShowPayPalDialog] = useState(false)
+  const [pendingPurchase, setPendingPurchase] = useState<{ usdAmount: number; infAmount: number; bonus: number } | null>(null)
 
   const INF_USD_RATE = 0.10
 
@@ -111,6 +114,12 @@ export function InfinityTokenSale() {
 
     if (!paymentMethod) {
       toast.error('Please select a payment method')
+      return
+    }
+
+    if (paymentMethod === 'PayPal') {
+      setPendingPurchase({ usdAmount, infAmount, bonus })
+      setShowPayPalDialog(true)
       return
     }
 
@@ -153,6 +162,55 @@ export function InfinityTokenSale() {
       setPaymentMethod('')
     } catch (error) {
       toast.error('Failed to submit purchase request')
+      console.error('Purchase error:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePayPalPaymentComplete = async (transactionId: string) => {
+    if (!pendingPurchase || !userProfile) return
+
+    const { usdAmount, infAmount, bonus } = pendingPurchase
+
+    setIsSubmitting(true)
+
+    try {
+      const bidId = `usd-bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      
+      const bonusTokens = bonus > 0 ? Math.floor(infAmount * (bonus / 100)) : 0
+      const totalInf = infAmount + bonusTokens
+
+      const newBid: UsdBid = {
+        bidId,
+        userId: userProfile.userId,
+        username: userProfile.username,
+        avatarUrl: userProfile.avatarUrl,
+        amountUsd: usdAmount,
+        requestedInf: totalInf,
+        pricePerToken: usdAmount / infAmount,
+        type: 'buy',
+        status: 'pending',
+        timestamp: Date.now(),
+        paymentMethod: `PayPal (${transactionId.slice(0, 16)}...)`,
+        notes: bonus > 0 ? `Includes ${bonus}% bonus (${bonusTokens} INF). PayPal TXN: ${transactionId}` : `PayPal TXN: ${transactionId}`
+      }
+
+      setUsdBids((currentBids) => [...(currentBids || []), newBid])
+
+      toast.success(
+        `Purchase request submitted! ${totalInf.toLocaleString()} INF for $${usdAmount}`,
+        {
+          description: 'Your payment is being verified',
+          duration: 6000
+        }
+      )
+
+      setCustomUsdAmount('')
+      setPaymentMethod('')
+      setPendingPurchase(null)
+    } catch (error) {
+      toast.error('Failed to record purchase')
       console.error('Purchase error:', error)
     } finally {
       setIsSubmitting(false)
@@ -257,6 +315,17 @@ export function InfinityTokenSale() {
 
   return (
     <div className="space-y-6">
+      {pendingPurchase && (
+        <PayPalPaymentDialog
+          amount={pendingPurchase.usdAmount}
+          auctionId={`INF-Purchase-${Date.now()}`}
+          auctionName={`${pendingPurchase.infAmount} INF Tokens${pendingPurchase.bonus > 0 ? ` (+${pendingPurchase.bonus}% bonus)` : ''}`}
+          onPaymentComplete={handlePayPalPaymentComplete}
+          open={showPayPalDialog}
+          onOpenChange={setShowPayPalDialog}
+        />
+      )}
+
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <Sparkle size={48} weight="duotone" className="text-accent animate-pulse" />
@@ -268,12 +337,15 @@ export function InfinityTokenSale() {
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
           Professional token sale platform. Purchase 10 INF tokens per bundle with USD. New users receive 10 free tokens on signup!
         </p>
-        {BETA_PROGRAM_ACTIVE && (
-          <Badge variant="default" className="text-sm px-4 py-2 bg-gradient-to-r from-accent to-primary">
-            <Lightning size={16} weight="fill" className="mr-2" />
-            Beta Program - Controlled Distribution to Prevent Inflation
-          </Badge>
-        )}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <PayPalBadge />
+          {BETA_PROGRAM_ACTIVE && (
+            <Badge variant="default" className="text-sm px-4 py-2 bg-gradient-to-r from-accent to-primary">
+              <Lightning size={16} weight="fill" className="mr-2" />
+              Beta Program - Controlled Distribution to Prevent Inflation
+            </Badge>
+          )}
+        </div>
       </div>
 
       <Card className="p-6 bg-gradient-to-br from-accent/5 via-primary/5 to-secondary/5 border-2 border-accent/20">
@@ -448,32 +520,48 @@ export function InfinityTokenSale() {
                               onChange={(e) => setPaymentMethod(e.target.value)}
                             >
                               <option value="">Select payment method</option>
-                              <option value="PayPal">PayPal</option>
+                              <option value="PayPal">💳 PayPal (Recommended)</option>
                               <option value="Venmo">Venmo</option>
                               <option value="Bank Transfer">Bank Transfer</option>
                               <option value="Zelle">Zelle</option>
                               <option value="Cash App">Cash App</option>
                             </select>
-                            <div className="p-3 rounded-lg bg-accent/10 border border-accent/30">
-                              <p className="text-sm font-medium mb-1">💳 Payment Instructions:</p>
-                              <p className="text-xs text-muted-foreground">
-                                PayPal: <strong className="text-foreground">marvaseater@gmail.com</strong>
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Contact: Kris Watson - 808-342-9975
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Include your username in the payment note for fast processing
-                              </p>
-                            </div>
+                            {paymentMethod === 'PayPal' && (
+                              <div className="p-3 rounded-lg bg-[#0070ba]/10 border border-[#0070ba]/30 space-y-1.5">
+                                <div className="flex items-center gap-2">
+                                  <PayPalBadge />
+                                  <span className="text-xs font-medium">Automated Payment Flow</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Click "Continue" to be redirected to PayPal for secure payment
+                                </p>
+                              </div>
+                            )}
+                            {paymentMethod && paymentMethod !== 'PayPal' && (
+                              <div className="p-3 rounded-lg bg-accent/10 border border-accent/30">
+                                <p className="text-sm font-medium mb-1">💳 Payment Instructions:</p>
+                                <p className="text-xs text-muted-foreground">
+                                  PayPal: <strong className="text-foreground">marvaseater@gmail.com</strong>
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Contact: Kris Watson - 808-342-9975
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Include your username in the payment note for fast processing
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           <Button
                             onClick={() => handleBuyWithUsd(pkg)}
-                            className="w-full bg-gradient-to-r from-accent to-primary"
+                            className={paymentMethod === 'PayPal' 
+                              ? "w-full bg-gradient-to-r from-[#0070ba] to-[#1546a0] text-white"
+                              : "w-full bg-gradient-to-r from-accent to-primary"
+                            }
                             disabled={isSubmitting || !isAuthenticated}
                           >
-                            {isSubmitting ? 'Processing...' : 'Submit Purchase Request'}
+                            {isSubmitting ? 'Processing...' : paymentMethod === 'PayPal' ? 'Continue to PayPal' : 'Submit Purchase Request'}
                           </Button>
                         </div>
                       </DialogContent>
