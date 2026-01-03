@@ -104,11 +104,11 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Success criteria: Exports complete within seconds, HTML files are valid and self-contained, all styles preserved, files work on any hosting platform, export history tracked persistently, users can re-download previous exports
 
 **Automated Platform Deployment**
-- Functionality: One-click deployment to Netlify, Vercel, and GitHub Pages with API integration or drag-and-drop workflows
-- Purpose: Enable instant deployment of exported pages to production-grade hosting platforms without leaving Infinity Brain
-- Trigger: Navigate to Export tab → Deployment Hub section
-- Progression: User views platform comparison → Selects platform (Netlify/Vercel/GitHub) → Chooses deployment method (Quick Deploy via drag-and-drop or API Deploy with token) → For API Deploy: enters API token and site/project name → Configures build settings (optional) → Clicks deploy → Platform receives files → Site goes live on global CDN → Deployment history tracked → User receives live URL
-- Success criteria: Deployments complete in under 30 seconds, sites are live with HTTPS, deployment history persists with live URLs, users can re-deploy with one click, both API and manual workflows supported, clear instructions for obtaining API tokens, deployment failures show helpful error messages
+- Functionality: One-click automated deployment to Netlify with saved API configuration, plus deployment hubs for Vercel and GitHub Pages
+- Purpose: Enable instant deployment of exported pages to production-grade hosting platforms without leaving Infinity Brain - true one-click deployment after initial setup
+- Trigger: Navigate to Deploy tab → Deployment Hub
+- Progression: User views platform comparison and features → Selects Netlify platform → Enters API token from Netlify settings → Saves configuration persistently → Clicks "One-Click Deploy 🚀" button → Progress bar shows export/upload/deployment stages → Site automatically created and deployed to Netlify CDN → Deployment completes with live HTTPS URL → History shows all deployments with "Visit" links → User can re-deploy anytime with single click → Manual download option available for drag-and-drop to Netlify Drop
+- Success criteria: First deployment completes in under 30 seconds after entering API token, subsequent deployments are truly one-click with no additional input required, sites are live with HTTPS and global CDN, deployment history persists with live URLs and timestamps, configuration saves securely between sessions, clear visual feedback during deployment process with progress indicators, deployment failures show helpful error messages with troubleshooting guidance, users can delete individual deployments from history or clear all history
 
 **Page Integration Hub**
 - Functionality: Central navigation to all connected pages and projects including infinity-facebook, infinity-twitter, infinity-ebay

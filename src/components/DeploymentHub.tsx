@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { NetlifyDeployer } from './NetlifyDeployer'
 import { VercelDeployer } from './VercelDeployer'
 import { GitHubDeployer } from './GitHubDeployer'
-import { Rocket, CloudArrowUp, Lightning, GithubLogo, Globe } from '@phosphor-icons/react'
+import { DeploymentGuide } from './DeploymentGuide'
+import { Rocket, CloudArrowUp, Lightning, GithubLogo, Globe, BookOpen } from '@phosphor-icons/react'
 
 export function DeploymentHub() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -57,7 +58,7 @@ export function DeploymentHub() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 h-auto gap-2 bg-card/80 backdrop-blur p-2">
+        <TabsList className="grid w-full grid-cols-5 h-auto gap-2 bg-card/80 backdrop-blur p-2">
           <TabsTrigger 
             value="overview" 
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-2 py-3"
@@ -85,6 +86,13 @@ export function DeploymentHub() {
           >
             <GithubLogo size={20} weight="duotone" />
             <span>GitHub</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="guide" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-2 py-3"
+          >
+            <BookOpen size={20} weight="duotone" />
+            <span>Guide</span>
           </TabsTrigger>
         </TabsList>
 
@@ -212,6 +220,10 @@ export function DeploymentHub() {
 
         <TabsContent value="github" className="mt-6">
           <GitHubDeployer />
+        </TabsContent>
+
+        <TabsContent value="guide" className="mt-6">
+          <DeploymentGuide />
         </TabsContent>
       </Tabs>
     </div>

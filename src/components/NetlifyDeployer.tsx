@@ -1,22 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { HTMLExporter } from '@/lib/htmlExporter'
-import { CloudArrowUp, CheckCircle, WarningCircle, Rocket } from '@phosphor-icons/react'
+import { CloudArrowUp, CheckCircle, WarningCircle, Rocket, Lightning, Trash } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
 interface DeploymentConfig {
   siteName: string
   apiToken: string
-  buildCommand: string
-  publishDirectory: string
   autoPublish: boolean
 }
 
@@ -25,82 +23,127 @@ interface DeploymentHistory {
   siteName: string
   url: string
   timestamp: string
-  status: 'success' | 'failed'
+  status: 'success' | 'failed' | 'deploying'
   pages: number
+  deployId?: string
 }
 
 export function NetlifyDeployer() {
   const [config, setConfig] = useState<DeploymentConfig>({
     siteName: '',
     apiToken: '',
-    buildCommand: '',
-    publishDirectory: 'dist',
     autoPublish: true
   })
   const [isDeploying, setIsDeploying] = useState(false)
+  const [deployProgress, setDeployProgress] = useState(0)
   const [deploymentHistory = [], setDeploymentHistory] = useKV<DeploymentHistory[]>('netlify-deployments', [])
+  const [savedConfig, setSavedConfig] = useKV<DeploymentConfig | null>('netlify-config', null)
   const [showApiToken, setShowApiToken] = useState(false)
 
-  const handleDeploy = async () => {
-    if (!config.siteName) {
-      toast.error('Site name is required')
-      return
+  useEffect(() => {
+    if (savedConfig) {
+      setConfig(savedConfig)
     }
+  }, [savedConfig])
 
+  const saveConfig = () => {
+    setSavedConfig(config)
+    toast.success('Configuration saved!')
+  }
+
+  const handleOneClickDeploy = async () => {
     if (!config.apiToken) {
-      toast.error('Netlify API token is required')
+      toast.error('Please configure your Netlify API token first')
       return
     }
 
     setIsDeploying(true)
+    setDeployProgress(0)
+
+    const siteName = config.siteName || `infinity-brain-${Date.now()}`
+
     try {
+      setDeployProgress(20)
       const pageExport = HTMLExporter.exportCurrentPage({
-        title: config.siteName,
-        description: 'Deployed from Infinity Brain',
+        title: siteName,
+        description: 'Deployed from Infinity Brain - Tokenized Business Ecosystem',
         includeStyles: true,
-        includeScripts: true,
-        standalone: false
+        includeScripts: false,
+        standalone: true
       })
 
-      const deploymentPackage = {
-        files: {
-          'index.html': pageExport.html,
-          'netlify.toml': generateNetlifyConfig(config)
-        }
+      setDeployProgress(40)
+
+      const files = {
+        'index.html': pageExport.html
       }
 
-      const formData = new FormData()
-      const blob = new Blob([JSON.stringify(deploymentPackage)], { type: 'application/json' })
-      formData.append('deploy', blob)
+      const filesPayload: Record<string, string> = {}
+      Object.entries(files).forEach(([path, content]) => {
+        filesPayload[`/${path}`] = content
+      })
 
-      const response = await fetch(`https://api.netlify.com/api/v1/sites`, {
+      setDeployProgress(60)
+
+      const response = await fetch('https://api.netlify.com/api/v1/sites', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify({
+          name: siteName,
+          custom_domain: null
+        })
       })
 
       if (!response.ok) {
-        throw new Error(`Netlify deployment failed: ${response.statusText}`)
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.message || `Failed to create site: ${response.statusText}`)
       }
 
-      const result = await response.json()
-      const deployUrl = result.ssl_url || result.url || `https://${config.siteName}.netlify.app`
+      const site = await response.json()
+      const siteId = site.id
+
+      setDeployProgress(80)
+
+      const deployResponse = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/deploys`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: filesPayload,
+          draft: false,
+          branch: 'main'
+        })
+      })
+
+      if (!deployResponse.ok) {
+        throw new Error(`Deployment failed: ${deployResponse.statusText}`)
+      }
+
+      const deployData = await deployResponse.json()
+      setDeployProgress(100)
+
+      const deployUrl = site.ssl_url || site.url || `https://${siteName}.netlify.app`
 
       const deployment: DeploymentHistory = {
-        id: result.id || Date.now().toString(),
-        siteName: config.siteName,
+        id: deployData.id || Date.now().toString(),
+        siteName: siteName,
         url: deployUrl,
         timestamp: new Date().toISOString(),
         status: 'success',
-        pages: 1
+        pages: 1,
+        deployId: deployData.id
       }
 
       setDeploymentHistory((current) => [deployment, ...(current || [])])
 
-      toast.success('Deployed to Netlify!', {
+      toast.success('🚀 Successfully deployed to Netlify!', {
         description: `Your site is live at ${deployUrl}`,
+        duration: 8000,
         action: {
           label: 'View Site',
           onClick: () => window.open(deployUrl, '_blank')
@@ -109,7 +152,7 @@ export function NetlifyDeployer() {
     } catch (error) {
       const failedDeployment: DeploymentHistory = {
         id: Date.now().toString(),
-        siteName: config.siteName,
+        siteName: siteName,
         url: '',
         timestamp: new Date().toISOString(),
         status: 'failed',
@@ -118,10 +161,12 @@ export function NetlifyDeployer() {
       setDeploymentHistory((current) => [failedDeployment, ...(current || [])])
 
       toast.error('Deployment failed', {
-        description: error instanceof Error ? error.message : 'Unknown error occurred'
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        duration: 6000
       })
     } finally {
       setIsDeploying(false)
+      setDeployProgress(0)
     }
   }
 
@@ -132,12 +177,9 @@ export function NetlifyDeployer() {
         title: 'Infinity Brain Site',
         description: 'Quick deployment from Infinity Brain',
         includeStyles: true,
-        includeScripts: true,
-        standalone: false
+        includeScripts: false,
+        standalone: true
       })
-
-      const blob = new Blob([pageExport.html], { type: 'text/html' })
-      const file = new File([blob], 'index.html', { type: 'text/html' })
 
       HTMLExporter.downloadHTML(pageExport)
 
@@ -154,6 +196,18 @@ export function NetlifyDeployer() {
     }
   }
 
+  const deleteDeployment = (id: string) => {
+    setDeploymentHistory((current) => 
+      (current || []).filter(d => d.id !== id)
+    )
+    toast.success('Deployment removed from history')
+  }
+
+  const clearAllHistory = () => {
+    setDeploymentHistory([])
+    toast.success('Deployment history cleared')
+  }
+
   return (
     <Card className="gradient-border">
       <CardHeader>
@@ -162,58 +216,70 @@ export function NetlifyDeployer() {
           <div>
             <CardTitle>Deploy to Netlify</CardTitle>
             <CardDescription>
-              Automated deployment to Netlify hosting platform
+              One-click automated deployment to Netlify hosting platform
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Alert>
-          <WarningCircle size={20} weight="duotone" />
+        <Alert className="border-accent/50 bg-gradient-to-r from-accent/5 to-primary/5">
+          <Lightning size={20} weight="duotone" className="text-accent" />
           <AlertDescription>
             <div className="space-y-2">
-              <p className="font-medium">Two deployment options:</p>
-              <ul className="list-disc list-inside text-sm space-y-1">
-                <li><strong>Quick Deploy:</strong> Download HTML and drag to Netlify Drop (no API token needed)</li>
-                <li><strong>API Deploy:</strong> Automated deployment with API token</li>
-              </ul>
+              <p className="font-semibold">⚡ One-Click Deployment Ready!</p>
+              <p className="text-sm">Configure your API token once, then deploy with a single click anytime.</p>
             </div>
           </AlertDescription>
         </Alert>
 
-        <div className="flex gap-3">
-          <Button
-            onClick={handleQuickDeploy}
-            disabled={isDeploying}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
-            <Rocket size={20} weight="duotone" className="mr-2" />
-            Quick Deploy (Drag & Drop)
-          </Button>
-        </div>
+        {config.apiToken && (
+          <div className="space-y-4 p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-lg">Ready to Deploy</h4>
+                <p className="text-sm text-muted-foreground">Configuration saved and active</p>
+              </div>
+              <CheckCircle size={32} weight="duotone" className="text-green-500" />
+            </div>
+            
+            <Button
+              onClick={handleOneClickDeploy}
+              disabled={isDeploying}
+              className="w-full bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90"
+              size="lg"
+            >
+              <Rocket size={24} weight="duotone" className="mr-2" />
+              {isDeploying ? 'Deploying to Netlify...' : 'One-Click Deploy 🚀'}
+            </Button>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            {isDeploying && deployProgress > 0 && (
+              <div className="space-y-2">
+                <Progress value={deployProgress} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">
+                  {deployProgress < 40 && 'Exporting your site...'}
+                  {deployProgress >= 40 && deployProgress < 60 && 'Preparing files...'}
+                  {deployProgress >= 60 && deployProgress < 80 && 'Creating site on Netlify...'}
+                  {deployProgress >= 80 && deployProgress < 100 && 'Deploying...'}
+                  {deployProgress === 100 && 'Complete!'}
+                </p>
+              </div>
+            )}
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or use API deployment</span>
-          </div>
-        </div>
+        )}
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="site-name">Site Name</Label>
+            <Label htmlFor="site-name">Site Name (Optional)</Label>
             <Input
               id="site-name"
-              placeholder="my-awesome-site"
+              placeholder="Auto-generated if empty"
               value={config.siteName}
               onChange={(e) => setConfig({ ...config, siteName: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">
-              Will be deployed to: {config.siteName || 'your-site'}.netlify.app
+              {config.siteName 
+                ? `Will deploy to: ${config.siteName}.netlify.app` 
+                : 'A unique name will be generated automatically'}
             </p>
           </div>
 
@@ -236,80 +302,106 @@ export function NetlifyDeployer() {
               onChange={(e) => setConfig({ ...config, apiToken: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">
-              Get your token from: <a href="https://app.netlify.com/user/applications#personal-access-tokens" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Netlify User Settings</a>
+              Get your token from: <a href="https://app.netlify.com/user/applications#personal-access-tokens" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-medium">Netlify User Settings</a>
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="publish-dir">Publish Directory</Label>
-            <Input
-              id="publish-dir"
-              placeholder="dist"
-              value={config.publishDirectory}
-              onChange={(e) => setConfig({ ...config, publishDirectory: e.target.value })}
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="auto-publish"
-              checked={config.autoPublish}
-              onCheckedChange={(checked) => 
-                setConfig({ ...config, autoPublish: checked as boolean })
-              }
-            />
-            <Label htmlFor="auto-publish" className="font-normal cursor-pointer">
-              Automatically publish after build
-            </Label>
-          </div>
+          {config.apiToken && (
+            <Button
+              onClick={saveConfig}
+              variant="secondary"
+              size="sm"
+              className="w-full"
+            >
+              <CheckCircle size={16} weight="duotone" className="mr-2" />
+              Save Configuration
+            </Button>
+          )}
         </div>
 
-        <Button
-          onClick={handleDeploy}
-          disabled={isDeploying || !config.siteName || !config.apiToken}
-          className="w-full"
-          size="lg"
-        >
-          <CloudArrowUp size={20} weight="duotone" className="mr-2" />
-          {isDeploying ? 'Deploying...' : 'Deploy to Netlify'}
-        </Button>
+        {!config.apiToken && (
+          <>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or use manual deployment</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleQuickDeploy}
+              disabled={isDeploying}
+              variant="secondary"
+              size="lg"
+              className="w-full"
+            >
+              <Rocket size={20} weight="duotone" className="mr-2" />
+              Download for Manual Deploy
+            </Button>
+          </>
+        )}
 
         {deploymentHistory.length > 0 && (
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="font-semibold text-sm">Recent Deployments</h4>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {deploymentHistory.slice(0, 5).map((deployment) => (
+          <div className="space-y-3 pt-6 border-t">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold">Recent Deployments</h4>
+              {deploymentHistory.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllHistory}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash size={16} weight="duotone" className="mr-1" />
+                  Clear All
+                </Button>
+              )}
+            </div>
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {deploymentHistory.map((deployment) => (
                 <div
                   key={deployment.id}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors group"
                 >
                   <div className="flex items-center gap-3 flex-1">
                     {deployment.status === 'success' ? (
-                      <CheckCircle size={20} weight="duotone" className="text-green-500" />
+                      <CheckCircle size={24} weight="duotone" className="text-green-500" />
                     ) : (
-                      <WarningCircle size={20} weight="duotone" className="text-destructive" />
+                      <WarningCircle size={24} weight="duotone" className="text-destructive" />
                     )}
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{deployment.siteName}</p>
+                      <p className="font-medium">{deployment.siteName}</p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(deployment.timestamp).toLocaleString()}
                       </p>
                     </div>
                     {deployment.status === 'success' && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
                         Live
                       </Badge>
                     )}
                   </div>
-                  {deployment.url && (
+                  <div className="flex gap-2">
+                    {deployment.url && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(deployment.url, '_blank')}
+                      >
+                        Visit
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => window.open(deployment.url, '_blank')}
+                      onClick={() => deleteDeployment(deployment.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                     >
-                      Visit
+                      <Trash size={16} weight="duotone" />
                     </Button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -317,35 +409,29 @@ export function NetlifyDeployer() {
         )}
 
         <Alert>
-          <AlertDescription className="text-xs space-y-2">
-            <p className="font-semibold">Getting Started:</p>
-            <ol className="list-decimal list-inside space-y-1">
-              <li>Create a Netlify account at netlify.com</li>
-              <li>Generate a personal access token in User Settings</li>
-              <li>Enter your token above and choose a site name</li>
-              <li>Click deploy and your site will be live in seconds!</li>
-            </ol>
+          <AlertDescription className="text-xs space-y-3">
+            <div>
+              <p className="font-semibold mb-2">🚀 Quick Start Guide:</p>
+              <ol className="list-decimal list-inside space-y-1.5 ml-1">
+                <li>Create a free Netlify account at <a href="https://netlify.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-medium">netlify.com</a></li>
+                <li>Go to User Settings → Applications → New Access Token</li>
+                <li>Copy your token and paste it above</li>
+                <li>Click "Save Configuration" to store it securely</li>
+                <li>Use "One-Click Deploy" anytime to publish your site!</li>
+              </ol>
+            </div>
+            <div className="pt-2 border-t">
+              <p className="font-semibold mb-1">✨ Features:</p>
+              <ul className="space-y-1 ml-1">
+                <li>• Free HTTPS certificates and CDN</li>
+                <li>• Instant global deployment</li>
+                <li>• Custom domain support</li>
+                <li>• Automatic deployments on updates</li>
+              </ul>
+            </div>
           </AlertDescription>
         </Alert>
       </CardContent>
     </Card>
   )
-}
-
-function generateNetlifyConfig(config: DeploymentConfig): string {
-  return `[build]
-  publish = "${config.publishDirectory}"
-  ${config.buildCommand ? `command = "${config.buildCommand}"` : ''}
-
-[build.environment]
-  NODE_VERSION = "18"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "no-referrer-when-downgrade"
-`
 }
