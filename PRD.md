@@ -33,6 +33,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Progression: User selects recipient from dropdown → Chooses token type → Enters amount → Adds optional note → Sends transfer → Balances update → Transaction recorded
 - Success criteria: Transfers complete instantly, balances sync across users, transaction history persists, insufficient balance prevented
 
+**Token Exchange Marketplace**
+- Functionality: Decentralized marketplace for trading tokens with buy/sell order books
+- Purpose: Create liquidity and enable price discovery for all business tokens in the ecosystem
+- Trigger: Navigate to Market tab
+- Progression: User selects token → Views order book (buy/sell orders) → Creates buy or sell order with price and amount → Order placed in open order book → Other users fill orders → Trade executed instantly → Balances updated → Transaction recorded
+- Success criteria: Real-time order book displays aggregated buy/sell orders, users can create/cancel orders, trades execute instantly with proper balance validation, order history tracked per user, supports multiple token pairs trading against INF
+
 **Transaction History**
 - Functionality: Comprehensive audit trail of all token transactions (mints, sends, receives)
 - Purpose: Provide transparency and tracking for world currency system
