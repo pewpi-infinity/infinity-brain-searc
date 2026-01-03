@@ -6,7 +6,8 @@ import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Upload, FileText, CheckCircle, XCircle, Calendar, Hash, Clock, MapPin, Download } from '@phosphor-icons/react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Upload, FileText, CheckCircle, XCircle, Calendar, Hash, Clock, MapPin, Download, Database } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
@@ -22,6 +23,17 @@ interface ScheduledPost {
   error?: string
 }
 
+interface BackupPost {
+  id: string
+  content: string
+  platforms: string[]
+  scheduledTime: number
+  status: 'pending' | 'posted' | 'failed'
+  createdAt: number
+  postedAt?: number
+  aiRecommended?: boolean
+}
+
 interface ImportResult {
   total: number
   successful: number
@@ -34,6 +46,8 @@ export function BulkScheduleImporter() {
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('bulk-scheduled-posts', [])
+  const [mainScheduledPosts, setMainScheduledPosts] = useKV<BackupPost[]>('scheduled-posts', [])
+  const [activeTab, setActiveTab] = useState<'new' | 'restore'>('new')
 
   const downloadTemplate = () => {
     const template = `content,platforms,date,time,hashtags,location
@@ -105,7 +119,7 @@ export function BulkScheduleImporter() {
     return rows
   }
 
-  const processCSV = async (file: File) => {
+  const processCSV = async (file: File, isBackupRestore = false) => {
     setIsImporting(true)
     setImportResult(null)
 
@@ -118,6 +132,11 @@ export function BulkScheduleImporter() {
       }
 
       const headers = rows[0].map(h => h.toLowerCase().trim())
+
+      if (isBackupRestore) {
+        return await processBackupCSV(rows, headers)
+      }
+
       const requiredHeaders = ['content', 'platforms', 'date', 'time']
       const missingHeaders = requiredHeaders.filter(h => !headers.includes(h))
 
@@ -228,6 +247,137 @@ export function BulkScheduleImporter() {
     }
   }
 
+  const processBackupCSV = async (rows: string[][], headers: string[]) => {
+    const requiredBackupHeaders = ['id', 'content', 'platforms', 'scheduled date', 'scheduled time', 'status']
+    const missingHeaders = requiredBackupHeaders.filter(h => !headers.includes(h))
+
+    if (missingHeaders.length > 0) {
+      throw new Error(`Missing required backup columns: ${missingHeaders.join(', ')}. This doesn't appear to be a valid backup file.`)
+    }
+
+    const idIdx = headers.indexOf('id')
+    const contentIdx = headers.indexOf('content')
+    const platformsIdx = headers.indexOf('platforms')
+    const scheduledDateIdx = headers.indexOf('scheduled date')
+    const scheduledTimeIdx = headers.indexOf('scheduled time')
+    const statusIdx = headers.indexOf('status')
+    const createdDateIdx = headers.indexOf('created date')
+    const postedDateIdx = headers.indexOf('posted date')
+    const aiRecommendedIdx = headers.indexOf('ai recommended')
+
+    const posts: BackupPost[] = []
+    let successful = 0
+    let failed = 0
+    let skipped = 0
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i]
+      
+      if (row.length < requiredBackupHeaders.length) {
+        continue
+      }
+
+      try {
+        const content = row[contentIdx]?.trim()
+        if (!content) {
+          throw new Error('Content is required')
+        }
+
+        const platformsStr = row[platformsIdx]?.trim()
+        if (!platformsStr) {
+          throw new Error('Platforms are required')
+        }
+        const platforms = platformsStr.split(/[,|;]/).map(p => p.trim()).filter(p => p)
+
+        const scheduledDateStr = row[scheduledDateIdx]?.trim()
+        const scheduledTimeStr = row[scheduledTimeIdx]?.trim()
+        
+        if (!scheduledDateStr || !scheduledTimeStr) {
+          throw new Error('Scheduled date and time are required')
+        }
+
+        const scheduledDateTime = new Date(`${scheduledDateStr} ${scheduledTimeStr}`)
+        if (isNaN(scheduledDateTime.getTime())) {
+          throw new Error('Invalid date/time format')
+        }
+
+        const scheduledTime = scheduledDateTime.getTime()
+        const status = row[statusIdx]?.trim().toLowerCase() as 'pending' | 'posted' | 'failed'
+
+        if (status === 'posted' && scheduledTime < Date.now()) {
+          skipped++
+          continue
+        }
+
+        const createdDateStr = row[createdDateIdx]?.trim()
+        const createdAt = createdDateStr ? new Date(createdDateStr).getTime() : Date.now()
+
+        const postedDateStr = row[postedDateIdx]?.trim()
+        const postedAt = postedDateStr ? new Date(postedDateStr).getTime() : undefined
+
+        const aiRecommendedStr = row[aiRecommendedIdx]?.trim().toLowerCase()
+        const aiRecommended = aiRecommendedStr === 'yes' || aiRecommendedStr === 'true'
+
+        const originalId = row[idIdx]?.trim()
+
+        const post: BackupPost = {
+          id: `restored-${Date.now()}-${i}`,
+          content,
+          platforms,
+          scheduledTime,
+          status: status === 'posted' ? 'pending' : status,
+          createdAt: isNaN(createdAt) ? Date.now() : createdAt,
+          postedAt: postedAt && !isNaN(postedAt) ? postedAt : undefined,
+          aiRecommended
+        }
+
+        posts.push(post)
+        successful++
+      } catch (error) {
+        failed++
+        console.error(`Error processing row ${i + 1}:`, error)
+      }
+    }
+
+    const result: ImportResult = {
+      total: rows.length - 1,
+      successful,
+      failed,
+      posts: posts.map(p => ({
+        id: p.id,
+        content: p.content,
+        platforms: p.platforms,
+        scheduledDate: new Date(p.scheduledTime).toLocaleDateString(),
+        scheduledTime: new Date(p.scheduledTime).toLocaleTimeString(),
+        hashtags: [],
+        status: 'scheduled' as const
+      }))
+    }
+
+    setImportResult(result)
+    
+    setMainScheduledPosts(current => {
+      const existing = current || []
+      const newPosts = posts.filter(newPost => 
+        !existing.some(existingPost => 
+          existingPost.content === newPost.content && 
+          Math.abs(existingPost.scheduledTime - newPost.scheduledTime) < 60000
+        )
+      )
+      return [...existing, ...newPosts]
+    })
+
+    const message = skipped > 0 
+      ? `Restored ${successful} post${successful !== 1 ? 's' : ''} (${skipped} already-posted skipped)`
+      : `Successfully restored ${successful} post${successful !== 1 ? 's' : ''}`
+    
+    toast.success(message)
+    
+    if (failed > 0) {
+      toast.error(`Failed to restore ${failed} post${failed !== 1 ? 's' : ''}`)
+    }
+  }
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -247,7 +397,8 @@ export function BulkScheduleImporter() {
     const csvFile = files.find(f => f.name.endsWith('.csv') || f.type === 'text/csv')
 
     if (csvFile) {
-      processCSV(csvFile)
+      const isBackup = csvFile.name.includes('backup') || csvFile.name.includes('scheduled-posts')
+      processCSV(csvFile, isBackup || activeTab === 'restore')
     } else {
       toast.error('Please upload a CSV file')
     }
@@ -256,7 +407,8 @@ export function BulkScheduleImporter() {
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files && files[0]) {
-      processCSV(files[0])
+      const isBackup = files[0].name.includes('backup') || files[0].name.includes('scheduled-posts')
+      processCSV(files[0], isBackup || activeTab === 'restore')
     }
   }
 
@@ -266,84 +418,185 @@ export function BulkScheduleImporter() {
 
   return (
     <div className="space-y-6">
-      <Card className="gradient-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Upload size={24} weight="duotone" className="text-accent" />
-                Bulk Schedule Import
-              </CardTitle>
-              <CardDescription>
-                Upload CSV files to schedule multiple posts at once
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              onClick={downloadTemplate}
-              className="flex items-center gap-2"
-            >
-              <Download size={20} weight="duotone" />
-              Download Template
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div
-            className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
-              dragActive
-                ? 'border-accent bg-accent/10 scale-105'
-                : 'border-border hover:border-accent/50 hover:bg-accent/5'
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <input
-              type="file"
-              id="csv-upload"
-              accept=".csv,text/csv"
-              onChange={handleFileInput}
-              className="hidden"
-              disabled={isImporting}
-            />
-            
-            {isImporting ? (
-              <div className="space-y-4">
-                <FileText size={64} weight="duotone" className="mx-auto text-accent animate-pulse" />
-                <div>
-                  <p className="text-lg font-semibold mb-2">Processing CSV file...</p>
-                  <Progress value={undefined} className="w-64 mx-auto" />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <FileText size={64} weight="duotone" className="mx-auto text-muted-foreground" />
-                <div>
-                  <p className="text-lg font-semibold mb-2">
-                    Drop your CSV file here
-                  </p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    or click to browse your files
-                  </p>
-                </div>
-                <label htmlFor="csv-upload">
-                  <Button asChild variant="default" className="cursor-pointer">
-                    <span>Choose File</span>
-                  </Button>
-                </label>
-              </div>
-            )}
-          </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'new' | 'restore')} className="space-y-6">
+        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 h-auto gap-1 bg-card/80 backdrop-blur p-2">
+          <TabsTrigger value="new" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex items-center gap-2 py-3">
+            <Upload size={20} weight="duotone" />
+            <span>New Schedule Import</span>
+          </TabsTrigger>
+          <TabsTrigger value="restore" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex items-center gap-2 py-3">
+            <Database size={20} weight="duotone" />
+            <span>Restore Backup</span>
+          </TabsTrigger>
+        </TabsList>
 
-          <Alert>
-            <AlertDescription>
-              <strong>CSV Format:</strong> Your file should include columns for content, platforms (comma-separated), date (YYYY-MM-DD), time (HH:MM), hashtags (space or comma-separated), and optionally location.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+        <TabsContent value="new" className="space-y-6">
+          <Card className="gradient-border">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Upload size={24} weight="duotone" className="text-accent" />
+                    Bulk Schedule Import
+                  </CardTitle>
+                  <CardDescription>
+                    Upload CSV files to schedule multiple posts at once
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={downloadTemplate}
+                  className="flex items-center gap-2"
+                >
+                  <Download size={20} weight="duotone" />
+                  Download Template
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
+                  dragActive
+                    ? 'border-accent bg-accent/10 scale-105'
+                    : 'border-border hover:border-accent/50 hover:bg-accent/5'
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  id="csv-upload"
+                  accept=".csv,text/csv"
+                  onChange={handleFileInput}
+                  className="hidden"
+                  disabled={isImporting}
+                />
+                
+                {isImporting ? (
+                  <div className="space-y-4">
+                    <FileText size={64} weight="duotone" className="mx-auto text-accent animate-pulse" />
+                    <div>
+                      <p className="text-lg font-semibold mb-2">Processing CSV file...</p>
+                      <Progress value={undefined} className="w-64 mx-auto" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <FileText size={64} weight="duotone" className="mx-auto text-muted-foreground" />
+                    <div>
+                      <p className="text-lg font-semibold mb-2">
+                        Drop your CSV file here
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        or click to browse your files
+                      </p>
+                    </div>
+                    <label htmlFor="csv-upload">
+                      <Button asChild variant="default" className="cursor-pointer">
+                        <span>Choose File</span>
+                      </Button>
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <Alert>
+                <AlertDescription>
+                  <strong>CSV Format:</strong> Your file should include columns for content, platforms (comma-separated), date (YYYY-MM-DD), time (HH:MM), hashtags (space or comma-separated), and optionally location.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="restore" className="space-y-6">
+          <Card className="gradient-border">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database size={24} weight="duotone" className="text-accent" />
+                    Restore Backup
+                  </CardTitle>
+                  <CardDescription>
+                    Upload a backup CSV file exported from the Content Calendar to restore your scheduled posts
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
+                  dragActive
+                    ? 'border-accent bg-accent/10 scale-105'
+                    : 'border-border hover:border-accent/50 hover:bg-accent/5'
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  id="csv-restore-upload"
+                  accept=".csv,text/csv"
+                  onChange={handleFileInput}
+                  className="hidden"
+                  disabled={isImporting}
+                />
+                
+                {isImporting ? (
+                  <div className="space-y-4">
+                    <Database size={64} weight="duotone" className="mx-auto text-accent animate-pulse" />
+                    <div>
+                      <p className="text-lg font-semibold mb-2">Restoring backup...</p>
+                      <Progress value={undefined} className="w-64 mx-auto" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <Database size={64} weight="duotone" className="mx-auto text-muted-foreground" />
+                    <div>
+                      <p className="text-lg font-semibold mb-2">
+                        Drop your backup file here
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upload a CSV file exported from the Content Calendar
+                      </p>
+                    </div>
+                    <label htmlFor="csv-restore-upload">
+                      <Button asChild variant="default" className="cursor-pointer">
+                        <span>Choose Backup File</span>
+                      </Button>
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <Alert>
+                <AlertDescription>
+                  <strong>Backup Restore:</strong> This will restore scheduled posts from a CSV backup file. Already-posted items will be skipped. Duplicate posts (same content and similar time) will also be skipped to avoid duplicates.
+                </AlertDescription>
+              </Alert>
+
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <Database size={18} weight="duotone" className="text-accent" />
+                  Expected Backup Format
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Your backup file should contain columns: ID, Content, Platforms, Scheduled Date, Scheduled Time, Status, Created Date, Posted Date, AI Recommended
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  This is the format automatically generated when you export from the Content Calendar.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {importResult && (
         <Card>

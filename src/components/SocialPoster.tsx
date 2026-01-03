@@ -278,7 +278,7 @@ Return ONLY the enhanced post text, no explanations.`
         </TabsTrigger>
         <TabsTrigger value="csv-import" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
           <UploadSimple size={20} weight="duotone" />
-          <span className="text-xs md:text-sm">CSV Import</span>
+          <span className="text-xs md:text-sm">Import</span>
         </TabsTrigger>
         <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
           <Calendar size={20} weight="duotone" />
