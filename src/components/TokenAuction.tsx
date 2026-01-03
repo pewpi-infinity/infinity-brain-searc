@@ -17,7 +17,8 @@ import {
   Copy,
   Coins,
   SignIn,
-  Crown
+  Crown,
+  Bell
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
@@ -58,6 +59,7 @@ export function TokenAuction() {
   const [auctionHistory, setAuctionHistory] = useKV<any[]>('auction-history', [])
   const [allProfiles, setAllProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [userBidTracking, setUserBidTracking] = useKV<Record<string, { auctionId: string, amount: number, auctionName: string }>>('user-bid-tracking', {})
 
   const [selectedToken, setSelectedToken] = useState('')
   const [auctionAmount, setAuctionAmount] = useState('')
@@ -122,6 +124,62 @@ export function TokenAuction() {
 
     return () => clearInterval(interval)
   }, [setAuctions, setAuctionHistory])
+
+  useEffect(() => {
+    if (!isAuthenticated || !userProfile || !auctions) return
+
+    const checkForOutbids = async () => {
+      const currentTracking = userBidTracking || {}
+      
+      for (const auction of auctions) {
+        if (auction.status !== 'active') continue
+        
+        const trackingKey = `${userProfile.userId}-${auction.id}`
+        const tracked = currentTracking[trackingKey]
+        
+        if (!tracked) continue
+
+        const userLastBid = [...auction.bids]
+          .reverse()
+          .find(bid => bid.bidderId === userProfile.userId)
+
+        if (!userLastBid) {
+          setUserBidTracking((current) => {
+            const updated = { ...(current || {}) }
+            delete updated[trackingKey]
+            return updated
+          })
+          continue
+        }
+
+        if (auction.currentBid > userLastBid.amount) {
+          const latestBidder = auction.bids[auction.bids.length - 1]
+          
+          if (latestBidder.bidderId !== userProfile.userId) {
+            toast.error(
+              `You've been outbid on ${auction.tokenName}!`,
+              {
+                description: `${latestBidder.bidderUsername} bid ${auction.currentBid.toLocaleString()} INF (Your bid: ${userLastBid.amount.toLocaleString()} INF)`,
+                duration: 8000,
+                action: {
+                  label: 'Place New Bid',
+                  onClick: () => setSelectedAuction(auction)
+                }
+              }
+            )
+
+            setUserBidTracking((current) => {
+              const updated = { ...(current || {}) }
+              delete updated[trackingKey]
+              return updated
+            })
+          }
+        }
+      }
+    }
+
+    checkForOutbids()
+  }, [auctions, isAuthenticated, userProfile, userBidTracking, setUserBidTracking])
 
   const handleCreateAuction = async () => {
     if (!isAuthenticated || !userProfile) {
@@ -256,7 +314,19 @@ export function TokenAuction() {
         )
       )
 
-      toast.success(`Bid placed successfully! Current bid: ${bid} INF`)
+      const trackingKey = `${userProfile.userId}-${auction.id}`
+      setUserBidTracking((current) => ({
+        ...(current || {}),
+        [trackingKey]: {
+          auctionId: auction.id,
+          amount: bid,
+          auctionName: auction.tokenName
+        }
+      }))
+
+      toast.success(`Bid placed successfully! Current bid: ${bid} INF`, {
+        description: 'You will be notified if you are outbid'
+      })
       setBidAmount('')
     } catch (error) {
       toast.error('Failed to place bid')
@@ -491,6 +561,12 @@ export function TokenAuction() {
                                 <Badge variant="secondary" className="font-mono">
                                   {auction.tokenSymbol}
                                 </Badge>
+                                {userProfile && userBidTracking?.[`${userProfile.userId}-${auction.id}`] && (
+                                  <Badge variant="outline" className="flex items-center gap-1 bg-accent/10 text-accent">
+                                    <Bell size={12} weight="fill" />
+                                    Watching
+                                  </Badge>
+                                )}
                               </div>
                               <p className="text-sm text-muted-foreground">
                                 by {auction.creatorUsername}
@@ -531,26 +607,41 @@ export function TokenAuction() {
                             <div className="space-y-2">
                               <p className="text-xs font-semibold text-muted-foreground">Recent Bids</p>
                               <div className="space-y-1">
-                                {auction.bids.slice(-3).reverse().map((bid) => (
-                                  <div
-                                    key={bid.bidId}
-                                    className="flex items-center justify-between text-xs p-2 rounded bg-muted/20"
-                                  >
-                                    <span className="flex items-center gap-2">
-                                      {bid.bidderAvatar && (
-                                        <img
-                                          src={bid.bidderAvatar}
-                                          alt={bid.bidderUsername}
-                                          className="w-5 h-5 rounded-full"
-                                        />
-                                      )}
-                                      {bid.bidderUsername}
-                                    </span>
-                                    <span className="font-mono font-bold">
-                                      {bid.amount.toLocaleString()} INF
-                                    </span>
-                                  </div>
-                                ))}
+                                {auction.bids.slice(-3).reverse().map((bid, idx) => {
+                                  const isUserBid = userProfile && bid.bidderId === userProfile.userId
+                                  const isWinning = idx === 0
+                                  return (
+                                    <div
+                                      key={bid.bidId}
+                                      className={`flex items-center justify-between text-xs p-2 rounded ${
+                                        isUserBid && isWinning 
+                                          ? 'bg-accent/20 border border-accent/40' 
+                                          : isUserBid 
+                                          ? 'bg-muted/40' 
+                                          : 'bg-muted/20'
+                                      }`}
+                                    >
+                                      <span className="flex items-center gap-2">
+                                        {bid.bidderAvatar && (
+                                          <img
+                                            src={bid.bidderAvatar}
+                                            alt={bid.bidderUsername}
+                                            className="w-5 h-5 rounded-full"
+                                          />
+                                        )}
+                                        <span className={isUserBid ? 'font-semibold' : ''}>
+                                          {isUserBid ? 'You' : bid.bidderUsername}
+                                        </span>
+                                        {isUserBid && isWinning && (
+                                          <Crown size={12} weight="fill" className="text-accent" />
+                                        )}
+                                      </span>
+                                      <span className={`font-mono ${isUserBid && isWinning ? 'font-bold text-accent' : 'font-bold'}`}>
+                                        {bid.amount.toLocaleString()} INF
+                                      </span>
+                                    </div>
+                                  )
+                                })}
                               </div>
                             </div>
                           )}
