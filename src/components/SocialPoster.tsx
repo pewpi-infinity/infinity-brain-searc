@@ -12,7 +12,7 @@ import {
   FacebookLogo, 
   LinkedinLogo, 
   InstagramLogo,
-  TiktokLogo,
+  MusicNote,
   Check,
   PaperPlaneTilt,
   ChatCircleText,
@@ -63,7 +63,7 @@ export function SocialPoster() {
     { id: 'facebook', name: 'Facebook', icon: FacebookLogo, connected: false, color: 'oklch(0.50 0.20 250)' },
     { id: 'linkedin', name: 'LinkedIn', icon: LinkedinLogo, connected: false, color: 'oklch(0.45 0.15 240)' },
     { id: 'instagram', name: 'Instagram', icon: InstagramLogo, connected: false, color: 'oklch(0.60 0.25 320)' },
-    { id: 'tiktok', name: 'TikTok', icon: TiktokLogo, connected: false, color: 'oklch(0.40 0.10 280)' }
+    { id: 'tiktok', name: 'TikTok', icon: MusicNote, connected: false, color: 'oklch(0.40 0.10 280)' }
   ])
   const [postHistory, setPostHistory] = useKV<PostHistory[]>('post-history', [])
   const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
