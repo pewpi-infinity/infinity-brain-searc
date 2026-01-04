@@ -5,7 +5,10 @@ import { useLocalStorage } from './useLocalStorage'
 import { storage } from './storage'
 
 // GitHub OAuth Configuration
-const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23liRuPlHDpHBHyQQq'
+const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID
+if (!GITHUB_CLIENT_ID) {
+  console.error('VITE_GITHUB_CLIENT_ID is not configured. Please add it to your .env file.')
+}
 const GITHUB_REDIRECT_URI = window.location.origin + '/auth/callback'
 const GITHUB_OAUTH_URL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=read:user user:email`
 
@@ -299,7 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     // Clear authentication data
-    localStorage.removeItem('github_token')
+    localStorage.removeItem('github_auth_code')
     localStorage.removeItem('github_user')
     
     setCurrentUser(null)
@@ -463,7 +466,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return () => clearInterval(interval)
     }
-  }, [currentUser])
+  }, [currentUser, setAllSessions])
 
   return (
     <AuthContext.Provider
