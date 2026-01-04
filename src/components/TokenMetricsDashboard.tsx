@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TrendUp, TrendDown, ChartLine, Users, Eye, CursorClick, ArrowsLeftRight, Gavel } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { 
   TokenMetric, 
@@ -24,7 +24,7 @@ interface MetricsDashboardProps {
 
 export function TokenMetricsDashboard({ tokenSymbol, showAllTokens = false }: MetricsDashboardProps) {
   const { userProfile } = useAuth()
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
   const [selectedToken, setSelectedToken] = useState(tokenSymbol || 'INF')
   const [metrics, setMetrics] = useState<TokenMetric[]>([])
   const [snapshots, setSnapshots] = useState<TokenValueSnapshot[]>([])

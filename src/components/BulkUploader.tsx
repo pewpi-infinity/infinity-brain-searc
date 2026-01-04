@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { 
   UploadSimple, 
   FileCsv,
@@ -38,7 +38,7 @@ interface BulkUploaderProps {
 }
 
 export function BulkUploader({ platforms, onScheduleBulk }: BulkUploaderProps) {
-  const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
+  const [scheduledPosts, setScheduledPosts] = useLocalStorage<ScheduledPost[]>('scheduled-posts', [])
   const [bulkPosts, setBulkPosts] = useState<BulkPost[]>([])
   const [csvContent, setCsvContent] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)

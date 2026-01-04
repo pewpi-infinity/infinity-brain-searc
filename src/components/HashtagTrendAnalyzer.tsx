@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
 import { TrendUp, TrendDown, Hash, Sparkle, Lightning, Clock, Users, Fire, ChartLine, MagnifyingGlass, ArrowsClockwise } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface HashtagTrend {
@@ -33,7 +33,7 @@ interface TrendAnalysis {
 }
 
 export function HashtagTrendAnalyzer() {
-  const [trends, setTrends] = useKV<HashtagTrend[]>('hashtag-trends', [])
+  const [trends, setTrends] = useLocalStorage<HashtagTrend[]>('hashtag-trends', [])
   const [analysis, setAnalysis] = useState<TrendAnalysis | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)

@@ -2,6 +2,28 @@
 
 A comprehensive platform for creating, managing, and trading business tokens with integrated AI capabilities, multi-source search, **automated deployment to world-class hosting platforms**, and a **revolutionary social security system**.
 
+## 🔐 **Authentication & Data Storage**
+
+This app uses **localStorage-based authentication** for quick local development and testing. All data is stored in your browser's localStorage.
+
+### Current Authentication
+- **Demo Authentication** - Simple localStorage-based login
+- **No Backend Required** - Fully client-side application
+- **Data Persistence** - All tokens, transactions, and user data stored locally
+
+### Data Storage Notes
+⚠️ **Important**: Data is stored in browser localStorage and will be lost if:
+- You clear your browser data/cache
+- You switch browsers or devices
+- You use incognito/private browsing mode
+
+💡 **Tip**: Export your data regularly to avoid loss
+
+### Future Enhancements
+- GitHub OAuth integration for real authentication
+- Optional cloud backup for data persistence
+- Cross-device sync capabilities
+
 ## 🚀 **New: Automated GitHub Pages Deployment**
 
 The app now automatically deploys to GitHub Pages on every push to main!

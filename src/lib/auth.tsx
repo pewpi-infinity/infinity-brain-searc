@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 import { toast } from 'sonner'
 import { adminProtection, restoreAdminAuctions } from './adminProtection'
 
@@ -24,14 +24,6 @@ export interface CachedAuthData {
 }
 
 export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
-
-// Troubleshooting tips for different error scenarios
-const TROUBLESHOOTING_TIPS = {
-  timeout: '• Check your internet speed\n• Try again in a few moments\n• Consider using a different network',
-  network: '• Verify your internet connection\n• Check if GitHub is accessible\n• Try disabling VPN or proxy',
-  auth: '• Ensure popups are not blocked\n• Try clearing browser cache\n• Make sure you have a GitHub account',
-  general: '• Check your internet connection\n• Ensure popups are enabled\n• Try refreshing the page'
-} as const
 
 export interface UserProfile {
   userId: string
@@ -63,10 +55,10 @@ const AuthContext = createContext<AuthContextType | null>(null)
 function AuthProviderInner({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  const [userProfile, setUserProfile] = useKV<UserProfile | null>(userId ? `user-profile-${userId}` : 'user-profile-temp', null)
-  const [allSessions, setAllSessions] = useKV<UserSession[]>('user-sessions', [])
-  const [allProfiles, setAllProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
-  const [cachedAuth, setCachedAuth] = useKV<CachedAuthData | null>('cached-auth-data', null)
+  const [userProfile, setUserProfile] = useLocalStorage<UserProfile | null>(userId ? `user-profile-${userId}` : 'user-profile-temp', null)
+  const [allSessions, setAllSessions] = useLocalStorage<UserSession[]>('user-sessions', [])
+  const [allProfiles, setAllProfiles] = useLocalStorage<Record<string, UserProfile>>('all-user-profiles', {})
+  const [cachedAuth, setCachedAuth] = useLocalStorage<CachedAuthData | null>('cached-auth-data', null)
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
 
   const isAuthenticated = currentUser !== null
@@ -95,49 +87,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     }
   }
 
-  // Check Spark API availability
-  const checkSparkAvailability = async (): Promise<boolean> => {
-    if (!window.spark) {
-      return false
-    }
-
-    // Pre-flight check to ensure Spark API is responsive
-    // Just check if the API object exists and has the expected methods
-    return typeof window.spark.user === 'function' && 
-           typeof window.spark.kv === 'object'
-  }
-
-  // Timeout wrapper for Spark user call
-  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
-      }, timeoutMs)
-
-      window.spark.user()
-        .then((user) => {
-          clearTimeout(timeoutId)
-          resolve(user)
-        })
-        .catch((error) => {
-          clearTimeout(timeoutId)
-          reject(error)
-        })
-    })
-  }
-
   const login = async () => {
     try {
       setConnectionState('connecting')
       
-      // Check if Spark is loaded
-      if (!window.spark) {
-        setConnectionState('error')
-        toast.error('Spark is not loaded yet. Please wait a moment and try again.')
-        throw new Error('Spark not initialized')
-      }
-
-      // Pre-flight checks
+      // Check network connectivity
       const isNetworkAvailable = await checkNetworkConnectivity()
       if (!isNetworkAvailable) {
         setConnectionState('error')
@@ -147,134 +101,45 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         throw new Error('NETWORK_ERROR: No network connectivity')
       }
 
-      const isSparkAvailable = await checkSparkAvailability()
-      if (!isSparkAvailable) {
-        setConnectionState('error')
-        toast.error('Spark API unavailable', {
-          description: 'The authentication service is not responding. Please try again later.'
-        })
-        throw new Error('SPARK_UNAVAILABLE: Spark API not available')
-      }
-
-      // Show loading state
+      // Simple localStorage-based authentication
+      // In a real app, this would use GitHub OAuth or similar
       toast.info('Starting authentication...', {
-        description: 'Opening GitHub OAuth window'
+        description: 'Using local authentication'
       })
 
-      // Call Spark user method with improved retry logic
-      let user = null
-      let retryCount = 0
-      const maxRetries = 5
-      const baseDelay = 1000 // 1 second base delay
-
-      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-      while (!user && retryCount < maxRetries) {
-        try {
-          const attemptedUser = await callSparkUserWithTimeout(5000)
-          
-          if (attemptedUser && attemptedUser.id) {
-            user = attemptedUser // Success - user is valid
-          } else {
-            // Invalid user data returned - this is not a retry-worthy error
-            throw new Error('INVALID_RESPONSE: Invalid user data returned from authentication')
-          }
-        } catch (error) {
-          retryCount++
-          
-          const errorMessage = error instanceof Error ? error.message : String(error)
-          const isTimeout = errorMessage.includes('TIMEOUT')
-          const isNetworkError = errorMessage.includes('NETWORK') || errorMessage.includes('fetch')
-          const isAuthFailure = errorMessage.includes('INVALID_RESPONSE')
-          
-          // Log detailed error for debugging
-          console.error(`Authentication attempt ${retryCount}/${maxRetries} failed:`, {
-            error: errorMessage,
-            type: isTimeout ? 'timeout' : isNetworkError ? 'network' : isAuthFailure ? 'auth' : 'unknown',
-            retryCount,
-            timestamp: new Date().toISOString()
-          })
-          
-          if (retryCount < maxRetries) {
-            // Exponential backoff: 1s, 2s, 4s, 8s
-            const delayMs = baseDelay * Math.pow(2, retryCount - 1)
-            
-            // Calculate estimated time remaining based on exponential backoff
-            let estimatedTimeRemaining = 0
-            for (let i = retryCount; i < maxRetries; i++) {
-              estimatedTimeRemaining += baseDelay * Math.pow(2, i - 1)
-            }
-            const estimatedSeconds = Math.ceil(estimatedTimeRemaining / 1000)
-            
-            // Show specific error type in notification
-            let retryMessage = 'Connection error, retrying...'
-            if (isTimeout) {
-              retryMessage = 'Request timed out, retrying...'
-            } else if (isNetworkError) {
-              retryMessage = 'Network error, retrying...'
-            }
-            
-            toast.info(retryMessage, {
-              description: `Attempt ${retryCount}/${maxRetries} - Next retry in ${delayMs / 1000}s (~${estimatedSeconds}s remaining)`
-            })
-            
-            await delay(delayMs)
-            
-            // Re-check network before retrying
-            if (!await checkNetworkConnectivity()) {
-              throw new Error('NETWORK_ERROR: Lost network connectivity during retry')
-            }
-          } else {
-            // All retries exhausted - provide troubleshooting tips
-            let troubleshootingTips = TROUBLESHOOTING_TIPS.general
-            if (isTimeout) {
-              troubleshootingTips = TROUBLESHOOTING_TIPS.timeout
-            } else if (isNetworkError) {
-              troubleshootingTips = TROUBLESHOOTING_TIPS.network
-            } else if (isAuthFailure) {
-              troubleshootingTips = TROUBLESHOOTING_TIPS.auth
-            }
-            
-            toast.error(`Authentication failed after ${maxRetries} attempts`, {
-              description: troubleshootingTips,
-              duration: 10000
-            })
-            
-            throw error
-          }
+      // Check if we have cached auth data
+      let user = cachedAuth
+      
+      if (!user) {
+        // Create a demo user for first-time users
+        // In production, this would redirect to GitHub OAuth
+        const demoUserId = `user-${Date.now()}`
+        const demoUsername = 'demo-user'
+        
+        user = {
+          userId: demoUserId,
+          username: demoUsername,
+          email: `${demoUsername}@example.com`,
+          avatarUrl: `https://avatars.githubusercontent.com/u/${Date.now() % 1000000}`,
+          isOwner: false,
+          cachedAt: Date.now()
         }
+        
+        // Cache the demo user
+        setCachedAuth(user)
       }
-      
-      if (!user || !user.id) {
-        setConnectionState('error')
-        toast.error('Authentication failed', {
-          description: 'Could not authenticate with GitHub. Please check if popups are blocked and try again.'
-        })
-        throw new Error('User authentication failed after retries')
-      }
-      
-      // Cache successful authentication data
-      const authCache: CachedAuthData = {
-        userId: String(user.id),
-        username: user.login,
-        email: user.email,
-        avatarUrl: user.avatarUrl,
-        isOwner: user.isOwner,
-        cachedAt: Date.now()
-      }
-      setCachedAuth(authCache)
       
       toast.success('Authentication successful!', {
         description: 'Loading your profile...'
       })
       
-      const userIdString = String(user.id)
+      const userIdString = user.userId
       setUserId(userIdString)
       
       const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       const session: UserSession = {
         userId: userIdString,
-        username: user.login,
+        username: user.username,
         email: user.email,
         avatarUrl: user.avatarUrl,
         isOwner: user.isOwner,
@@ -288,8 +153,8 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
-      const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
-      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      const existingProfileData = localStorageUtils.get<UserProfile>(`user-profile-${userIdString}`, null)
+      const allTransactions = localStorageUtils.get<any[]>('all-transactions', [])
       
       const recalculateTokenBalances = (userId: string) => {
         const balances: Record<string, number> = { 'INF': 10 }
@@ -314,7 +179,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         
         const newProfile: UserProfile = {
           userId: userIdString,
-          username: user.login,
+          username: user.username,
           email: user.email,
           avatarUrl: user.avatarUrl,
           createdAt: Date.now(),
@@ -339,7 +204,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         
         const updatedProfile = {
           ...existingProfileData,
-          username: user.login,
+          username: user.username,
           email: user.email,
           avatarUrl: user.avatarUrl,
           businessTokens: calculatedBalances
@@ -351,7 +216,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
           [userIdString]: updatedProfile
         }))
         
-        toast.success(`Welcome back, ${user.login}! 👋`)
+        toast.success(`Welcome back, ${user.username}! 👋`)
       }
     } catch (error) {
       setConnectionState('error')
@@ -362,24 +227,9 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       let errorDescription = ''
       
       if (error instanceof Error) {
-        if (error.message.includes('Spark not initialized')) {
-          errorMessage = 'System not ready'
-          errorDescription = 'Please wait a moment for the app to fully load and try again.'
-        } else if (error.message.includes('TIMEOUT')) {
-          errorMessage = 'Authentication timed out'
-          errorDescription = 'The authentication service took too long to respond. Please check your connection and try again.'
-        } else if (error.message.includes('NETWORK_ERROR')) {
+        if (error.message.includes('NETWORK_ERROR')) {
           errorMessage = 'Network error'
           errorDescription = 'Unable to connect to the authentication service. Please check your internet connection.'
-        } else if (error.message.includes('SPARK_UNAVAILABLE')) {
-          errorMessage = 'Service unavailable'
-          errorDescription = 'The authentication service is currently unavailable. Please try again later.'
-        } else if (error.message.includes('authentication failed')) {
-          errorMessage = 'GitHub authentication failed'
-          errorDescription = 'Make sure popups are enabled and you have a GitHub account.'
-        } else if (error.message.includes('popup')) {
-          errorMessage = 'Popup blocked'
-          errorDescription = 'Please allow popups for this site and try again.'
         } else {
           errorMessage = 'Login error'
           errorDescription = error.message
@@ -494,9 +344,9 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       for (const repo of reposToCheck) {
         try {
           const repoKey = `repo-${repo}-tokens-${currentUser.username}`
-          const tokens = await window.spark.kv.get<Record<string, number>>(repoKey)
+          const tokens = localStorageUtils.get<Record<string, number>>(repoKey, {})
           
-          if (tokens) {
+          if (tokens && Object.keys(tokens).length > 0) {
             for (const [symbol, amount] of Object.entries(tokens)) {
               repoTokens[symbol] = (repoTokens[symbol] || 0) + amount
             }
@@ -592,30 +442,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isReady, setIsReady] = useState(false)
-  
-  // Wait for Spark to be ready before using useKV
-  useEffect(() => {
-    const checkSparkReady = () => {
-      if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
-        setIsReady(true)
-      } else {
-        setTimeout(checkSparkReady, 100)
-      }
-    }
-    checkSparkReady()
-  }, [])
-  
-  // Don't render AuthProviderInner until Spark is ready
-  if (!isReady) {
-    return <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading Spark...</p>
-      </div>
-    </div>
-  }
-  
+  // No need to wait for Spark anymore - we use localStorage
   return <AuthProviderInner>{children}</AuthProviderInner>
 }
 

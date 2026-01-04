@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Shield, ShieldCheck } from '@phosphor-icons/react'
@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { toast } from 'sonner'
 
 export function SafeModeToggle() {
-  const [safeMode, setSafeMode] = useKV<boolean>('safe-mode-enabled', true)
+  const [safeMode, setSafeMode] = useLocalStorage<boolean>('safe-mode-enabled', true)
   
   const handleToggle = (checked: boolean) => {
     setSafeMode(checked)
@@ -53,6 +53,6 @@ export function SafeModeToggle() {
 }
 
 export function useSafeMode() {
-  const [safeMode] = useKV<boolean>('safe-mode-enabled', true)
+  const [safeMode] = useLocalStorage<boolean>('safe-mode-enabled', true)
   return safeMode
 }

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Trophy, Star, Crown, Play, Pause, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 
 interface FallingEmoji {
@@ -25,7 +25,7 @@ interface DailyProgress {
 
 export function EmojiCatcherGame() {
   const { userProfile, isAuthenticated, addTokens } = useAuth()
-  const [dailyProgress, setDailyProgress] = useKV<DailyProgress[]>('emoji-catcher-progress', [])
+  const [dailyProgress, setDailyProgress] = useLocalStorage<DailyProgress[]>('emoji-catcher-progress', [])
   
   const [isPlaying, setIsPlaying] = useState(false)
   const [score, setScore] = useState(0)

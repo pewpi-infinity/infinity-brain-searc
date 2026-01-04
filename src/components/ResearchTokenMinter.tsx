@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
+import { useAuth } from '@/lib/auth'
 import { toast } from 'sonner'
 import { Flask, Hash, FileText, Link, Sparkle, CheckCircle, Copy } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +35,8 @@ interface ResearchToken {
 }
 
 export function ResearchTokenMinter() {
-  const [tokens, setTokens] = useKV<ResearchToken[]>('research-tokens', [])
+  const { currentUser } = useAuth()
+  const [tokens, setTokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
   const [title, setTitle] = useState('')
   const [abstract, setAbstract] = useState('')
   const [content, setContent] = useState('')
@@ -124,9 +126,8 @@ export function ResearchTokenMinter() {
     setIsMinting(true)
 
     try {
-      const user = await window.spark.user()
-      if (!user) {
-        toast.error('User not authenticated')
+      if (!currentUser) {
+        toast.error('Please login to mint research tokens')
         setIsMinting(false)
         return
       }
@@ -140,8 +141,8 @@ export function ResearchTokenMinter() {
         title,
         abstract,
         content,
-        author: user.login,
-        authorGitHub: `https://github.com/${user.login}`,
+        author: currentUser.username,
+        authorGitHub: `https://github.com/${currentUser.username}`,
         timestamp,
         links: linkArray,
         citations: citationArray,
@@ -164,8 +165,8 @@ export function ResearchTokenMinter() {
       
       setTokens((currentTokens) => [newToken, ...(currentTokens || [])])
       
-      const userWalletKey = `wallet-${user.login}`
-      const userWallet = await window.spark.kv.get<any>(userWalletKey) || { balance: 0, tokens: [] }
+      const userWalletKey = `wallet-${currentUser.username}`
+      const userWallet = localStorageUtils.get<any>(userWalletKey, { balance: 0, tokens: [] })
       userWallet.balance = (userWallet.balance || 0) + value
       if (!userWallet.tokens) userWallet.tokens = []
       userWallet.tokens.push({
@@ -174,7 +175,7 @@ export function ResearchTokenMinter() {
         name: newToken.title,
         type: 'research'
       })
-      await window.spark.kv.set(userWalletKey, userWallet)
+      localStorageUtils.set(userWalletKey, userWallet)
       
       toast.success('Research token minted successfully!', {
         description: `Token value: ${value.toLocaleString()} INF`

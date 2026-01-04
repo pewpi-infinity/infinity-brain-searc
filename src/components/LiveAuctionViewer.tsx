@@ -19,7 +19,7 @@ import {
   Sparkle
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { TokenAuction as Auction, AuctionBid } from '@/components/TokenAuction'
 import { trackTokenMetric, TokenValueSnapshot } from '@/lib/tokenMetrics'
@@ -30,7 +30,7 @@ interface LiveAuctionViewerProps {
 
 export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerProps) {
   const { userProfile, isAuthenticated, login } = useAuth()
-  const [auctions, setAuctions] = useKV<Auction[]>('token-auctions', [])
+  const [auctions, setAuctions] = useLocalStorage<Auction[]>('token-auctions', [])
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({})
   const [bidCurrency, setBidCurrency] = useState<Record<string, 'INF' | 'USD'>>({})
   const [tokenSnapshots, setTokenSnapshots] = useState<Record<string, TokenValueSnapshot>>({})

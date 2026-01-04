@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowsClockwise, Warning, CheckCircle, TrendUp, UsersFour, Clock, Lightning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 
 interface TokenHolder {
   userId: string
@@ -43,7 +43,7 @@ interface RedistributionConfig {
 }
 
 export function TokenActivityMonitor() {
-  const [config, setConfig] = useKV<RedistributionConfig>('redistribution-config', {
+  const [config, setConfig] = useLocalStorage<RedistributionConfig>('redistribution-config', {
     enabled: false,
     inactivityThreshold: 30,
     dormantThreshold: 90,
@@ -52,10 +52,10 @@ export function TokenActivityMonitor() {
     checkInterval: 24
   })
   
-  const [holders, setHolders] = useKV<TokenHolder[]>('token-holders', [])
-  const [transfers, setTransfers] = useKV<TransferRecord[]>('redistribution-transfers', [])
+  const [holders, setHolders] = useLocalStorage<TokenHolder[]>('token-holders', [])
+  const [transfers, setTransfers] = useLocalStorage<TransferRecord[]>('redistribution-transfers', [])
   const [isScanning, setIsScanning] = useState(false)
-  const [lastScan, setLastScan] = useKV<number>('last-redistribution-scan', 0)
+  const [lastScan, setLastScan] = useLocalStorage<number>('last-redistribution-scan', 0)
   const [stats, setStats] = useState({
     totalHolders: 0,
     activeHolders: 0,
@@ -176,7 +176,7 @@ export function TokenActivityMonitor() {
     try {
       await scanTokenActivity()
       
-      const currentHolders = await window.spark.kv.get<TokenHolder[]>('token-holders') || []
+      const currentHolders = localStorageUtils.get<TokenHolder[]>('token-holders', [])
       const inactiveAndDormant = currentHolders.filter(h => h.status === 'inactive' || h.status === 'dormant')
       const activeTraders = currentHolders
         .filter(h => h.status === 'active')
@@ -204,12 +204,12 @@ export function TokenActivityMonitor() {
         
         const balanceKey = `balance-${holder.userId}-${holder.tokenSymbol}`
         const newBalance = holder.balance - redistributeAmount
-        await window.spark.kv.set(balanceKey, newBalance)
+        localStorageUtils.set(balanceKey, newBalance)
         
         for (const trader of activeTraders) {
           const traderBalanceKey = `balance-${trader.userId}-${trader.tokenSymbol}`
           const traderBalance = await window.spark.kv.get<number>(traderBalanceKey) || 0
-          await window.spark.kv.set(traderBalanceKey, traderBalance + amountPerTrader)
+          localStorageUtils.set(traderBalanceKey, traderBalance + amountPerTrader)
           
           newTransfers.push({
             id: `auto-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

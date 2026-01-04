@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Sparkle, Plus, Download, MagicWand } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 interface SpriteDesign {
   id: string
@@ -18,7 +18,7 @@ interface SpriteDesign {
 }
 
 export function SpriteBuilder() {
-  const [sprites, setSprites] = useKV<SpriteDesign[]>('mario-sprites', [])
+  const [sprites, setSprites] = useLocalStorage<SpriteDesign[]>('mario-sprites', [])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<SpriteDesign['category']>('character')

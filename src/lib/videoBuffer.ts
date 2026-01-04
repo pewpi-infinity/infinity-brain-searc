@@ -1,4 +1,5 @@
 import { toast } from 'sonner'
+import { localStorageUtils } from '@/hooks/useLocalStorage'
 
 /**
  * QUANTUM VIDEO BUFFER SYSTEM
@@ -211,7 +212,7 @@ export const getLast30Seconds = async (): Promise<VideoClip> => {
     magneticFieldStrength: avgMagneticStrength
   }
   
-  await window.spark.kv.set(`video-clip-${clip.id}`, clip)
+  localStorageUtils.set(`video-clip-${clip.id}`, clip)
   
   return clip
 }
