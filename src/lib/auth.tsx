@@ -25,6 +25,9 @@ export interface CachedAuthData {
 
 export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
 
+// Authentication configuration constants
+const AUTH_TIMEOUT_MS = 5000 // 5 seconds timeout for authentication requests
+
 // Troubleshooting tips for different error scenarios
 const TROUBLESHOOTING_TIPS = {
   timeout: '• Check your internet speed\n• Try again in a few moments\n• Consider using a different network',
@@ -108,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Timeout wrapper for Spark user call
-  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<SparkUser> => {
+  const callSparkUserWithTimeout = async (timeoutMs: number = AUTH_TIMEOUT_MS): Promise<SparkUser> => {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
@@ -171,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       while (!user && retryCount < maxRetries) {
         try {
-          const attemptedUser = await callSparkUserWithTimeout(5000)
+          const attemptedUser = await callSparkUserWithTimeout(AUTH_TIMEOUT_MS)
           
           if (attemptedUser && attemptedUser.id) {
             user = attemptedUser // Success - user is valid
@@ -419,6 +422,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
     }
     setCurrentUser(null)
+    setConnectionState('disconnected')
+    
+    toast.success('Logged out successfully')
   }
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
