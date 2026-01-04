@@ -5,7 +5,7 @@ import { storage } from './storage'
  * Custom hook for localStorage - NON-AUTH DATA ONLY
  * 
  * ⚠️ WARNING: DO NOT USE FOR AUTHENTICATION
- * - Authentication uses Spark's useKV hook from '@github/spark/hooks'
+ * - Authentication uses Spark's useKV hook from '@github/spark'
  * - This is only for business data like auctions, tokens, etc.
  * 
  * Provides reactive state management backed by localStorage
