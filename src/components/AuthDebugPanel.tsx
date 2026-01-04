@@ -38,7 +38,7 @@ export function AuthDebugPanel() {
     checkAuthState()
     const interval = setInterval(checkAuthState, 1000)
     return () => clearInterval(interval)
-  }, []) // Empty dependency array - only lastAuthAttempt, authStatus, errorMessage are set by user actions
+  }, []) // Only check Spark status periodically, other state changes are triggered by user actions
 
   // Toggle visibility with Ctrl+Shift+D
   useEffect(() => {

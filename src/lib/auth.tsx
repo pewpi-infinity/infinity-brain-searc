@@ -70,14 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       while (!user && retryCount < maxRetries) {
         try {
-          user = await window.spark.user()
+          const attemptedUser = await window.spark.user()
           
-          if (!user || !user.id) {
-            retryCount++
-            if (retryCount < maxRetries) {
-              toast.info(`Authentication attempt ${retryCount} failed, retrying...`)
-              await delay(1000)
-            }
+          if (attemptedUser && attemptedUser.id) {
+            user = attemptedUser // Success - user is valid
+          } else {
+            // Invalid user data returned - this is not a retry-worthy error
+            throw new Error('Invalid user data returned from authentication')
           }
         } catch (error) {
           retryCount++

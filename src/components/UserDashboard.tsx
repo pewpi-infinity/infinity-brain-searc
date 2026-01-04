@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { toast } from 'sonner'
 import { TokenTransfer } from './TokenTransfer'
 import { TransactionHistory } from './TransactionHistory'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function UserDashboard() {
   const { currentUser, userProfile, isAuthenticated, login, logout, syncWallet } = useAuth()
@@ -18,15 +18,23 @@ export function UserDashboard() {
 
   // Check if Spark is ready
   useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout> | null = null
+    
     const checkSpark = () => {
       if (window.spark) {
         setSparkReady(true)
       } else {
-        const timer = setTimeout(checkSpark, 100)
-        return () => clearTimeout(timer)
+        timerId = setTimeout(checkSpark, 100)
       }
     }
+    
     checkSpark()
+    
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId)
+      }
+    }
   }, [])
 
   const handleLogin = async () => {
