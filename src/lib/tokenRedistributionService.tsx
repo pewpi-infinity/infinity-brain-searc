@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import type { ReactNode } from 'react'
 
@@ -12,47 +12,43 @@ const INACTIVITY_THRESHOLD_DAYS = 30
 const WARNING_THRESHOLDS = [7, 3, 1]
 
 export function useTokenRedistributionService() {
-  useEffect(() => {
-    // Add browser check
-    if (typeof window === 'undefined' || !window.spark) {
-      console.log('Token redistribution requires browser environment with Spark')
-      return
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const findActiveTraders = useCallback(async (): Promise<string[]> => {
+    try {
+      if (typeof window === 'undefined' || !window.spark) return ['community-pool']
+      
+      const transactions = await window.spark.kv.get<any[]>('token-transactions') || []
+      const now = Date.now()
+      const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
+
+      const recentTransactions = transactions.filter(t => t.timestamp > thirtyDaysAgo)
+
+      const traderActivity = new Map<string, number>()
+
+      recentTransactions.forEach(tx => {
+        traderActivity.set(tx.buyer, (traderActivity.get(tx.buyer) || 0) + 1)
+        if (tx.seller) {
+          traderActivity.set(tx.seller, (traderActivity.get(tx.seller) || 0) + 1)
+        }
+      })
+
+      const activeTraders = Array.from(traderActivity.entries())
+        .filter(([, count]) => count >= 2)
+        .sort(([, a], [, b]) => b - a)
+        .map(([trader]) => trader)
+
+      return activeTraders.length > 0 ? activeTraders : ['community-pool']
+    } catch (error) {
+      console.error('Failed to find active traders:', error)
+      return ['community-pool']
     }
-    
-    const checkInterval = setInterval(async () => {
-      await checkInactiveTokens()
-    }, 3600000)
-
-    checkInactiveTokens()
-
-    return () => clearInterval(checkInterval)
   }, [])
 
-  const checkInactiveTokens = async () => {
+  const redistributeToken = useCallback(async (tokenSymbol: string, fromOwner: string) => {
     try {
       if (typeof window === 'undefined' || !window.spark) return
       
-      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
-      const now = Date.now()
-
-      for (const token of tokens) {
-        const lastActivity = token.lastActivity || token.createdAt
-        const daysSinceActivity = (now - lastActivity) / (1000 * 60 * 60 * 24)
-        const daysRemaining = INACTIVITY_THRESHOLD_DAYS - daysSinceActivity
-
-        if (daysRemaining <= 0) {
-          await redistributeToken(token.symbol, token.owner)
-        } else if (WARNING_THRESHOLDS.includes(Math.floor(daysRemaining))) {
-          await notifyOwner(token.symbol, token.owner, daysRemaining)
-        }
-      }
-    } catch (error) {
-      console.error('Token redistribution check failed:', error)
-    }
-  }
-
-  const redistributeToken = async (tokenSymbol: string, fromOwner: string) => {
-    try {
       const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
 
@@ -106,10 +102,12 @@ export function useTokenRedistributionService() {
     } catch (error) {
       console.error(`Failed to redistribute ${tokenSymbol}:`, error)
     }
-  }
+  }, [findActiveTraders])
 
-  const notifyOwner = async (tokenSymbol: string, owner: string, daysRemaining: number) => {
+  const notifyOwner = useCallback(async (tokenSymbol: string, owner: string, daysRemaining: number) => {
     try {
+      if (typeof window === 'undefined' || !window.spark) return
+      
       const user = await window.spark.user()
       
       if (!user || user.login !== owner) return
@@ -148,42 +146,64 @@ export function useTokenRedistributionService() {
       await window.spark.kv.set(notificationKey, true)
       
       setTimeout(async () => {
-        await window.spark.kv.delete(notificationKey)
+        if (typeof window !== 'undefined' && window.spark) {
+          await window.spark.kv.delete(notificationKey)
+        }
       }, 86400000)
 
     } catch (error) {
       console.error(`Failed to notify owner for ${tokenSymbol}:`, error)
     }
-  }
+  }, [])
 
-  const findActiveTraders = async (): Promise<string[]> => {
+  const checkInactiveTokens = useCallback(async () => {
     try {
-      const transactions = await window.spark.kv.get<any[]>('token-transactions') || []
+      if (typeof window === 'undefined' || !window.spark) return
+      
+      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const now = Date.now()
-      const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
 
-      const recentTransactions = transactions.filter(t => t.timestamp > thirtyDaysAgo)
+      for (const token of tokens) {
+        const lastActivity = token.lastActivity || token.createdAt
+        const daysSinceActivity = (now - lastActivity) / (1000 * 60 * 60 * 24)
+        const daysRemaining = INACTIVITY_THRESHOLD_DAYS - daysSinceActivity
 
-      const traderActivity = new Map<string, number>()
-
-      recentTransactions.forEach(tx => {
-        traderActivity.set(tx.buyer, (traderActivity.get(tx.buyer) || 0) + 1)
-        if (tx.seller) {
-          traderActivity.set(tx.seller, (traderActivity.get(tx.seller) || 0) + 1)
+        if (daysRemaining <= 0) {
+          await redistributeToken(token.symbol, token.owner)
+        } else if (WARNING_THRESHOLDS.includes(Math.floor(daysRemaining))) {
+          await notifyOwner(token.symbol, token.owner, daysRemaining)
         }
-      })
-
-      const activeTraders = Array.from(traderActivity.entries())
-        .filter(([, count]) => count >= 2)
-        .sort(([, a], [, b]) => b - a)
-        .map(([trader]) => trader)
-
-      return activeTraders.length > 0 ? activeTraders : ['community-pool']
+      }
     } catch (error) {
-      console.error('Failed to find active traders:', error)
-      return ['community-pool']
+      console.error('Token redistribution check failed:', error)
     }
-  }
+  }, [redistributeToken, notifyOwner])
+
+  useEffect(() => {
+    // Add browser check
+    if (typeof window === 'undefined' || !window.spark) {
+      console.log('Token redistribution requires browser environment with Spark')
+      return
+    }
+    
+    // Start interval checks after initial delay
+    const timeoutId = setTimeout(() => {
+      const checkInterval = setInterval(async () => {
+        await checkInactiveTokens()
+      }, 3600000)
+      
+      // Store interval ID for cleanup
+      timeoutRef.current = checkInterval
+    }, 30000) // Wait 30 seconds before starting checks
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (timeoutRef.current) {
+        clearInterval(timeoutRef.current)
+      }
+    }
+    // Empty dependency array to run only once
+  }, [])
 
   return { checkInactiveTokens, redistributeToken, notifyOwner }
 }

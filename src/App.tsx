@@ -86,13 +86,15 @@ function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      // Add delay to let Spark fully initialize
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       try {
         await restoreAdminAuctions()
         await protectAdminAuctions()
-        toast.success('Auction protection initialized successfully')
+        console.log('✅ Auction protection initialized successfully')
       } catch (error) {
         console.error('Failed to restore/protect auctions:', error)
-        toast.error('Failed to initialize auction protection. Some features may be limited.')
       }
     }
     
@@ -103,7 +105,6 @@ function App() {
         await protectAdminAuctions()
       } catch (error) {
         console.error('Protection check failed:', error)
-        toast.error('Auction protection check failed')
       }
     }, 60000)
     
