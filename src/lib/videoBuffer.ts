@@ -109,6 +109,12 @@ class MagneticFieldSimulator {
 export const initializeVideoBuffer = async () => {
   if (isRecording) return
   
+  // Add browser check
+  if (typeof window === 'undefined') {
+    console.warn('Video buffer requires browser environment')
+    return
+  }
+  
   isRecording = true
   magneticFieldSimulator = new MagneticFieldSimulator()
   
@@ -163,6 +169,11 @@ const captureFrame = async () => {
 
 const captureScreenSnapshot = async (): Promise<string> => {
   try {
+    // Add browser check
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return btoa('ssr-mode')
+    }
+    
     const pageState = {
       url: window.location.href,
       title: document.title,

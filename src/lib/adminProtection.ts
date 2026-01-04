@@ -80,6 +80,11 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
 ]
 
 export async function restoreAdminAuctions() {
+  if (typeof window === 'undefined' || !window.spark) {
+    console.warn('restoreAdminAuctions requires browser environment with Spark')
+    return
+  }
+  
   const ownerUser = await window.spark.user()
   
   if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
@@ -108,6 +113,11 @@ export async function restoreAdminAuctions() {
 }
 
 export async function protectAdminAuctions() {
+  if (typeof window === 'undefined' || !window.spark) {
+    console.warn('protectAdminAuctions requires browser environment with Spark')
+    return
+  }
+  
   const ownerUser = await window.spark.user()
   
   if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {

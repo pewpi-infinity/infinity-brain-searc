@@ -35,8 +35,14 @@ export interface SlideCoin {
 let isRecording = false
 let interactionCount = 0
 
-export const initializeSlideCoinSystem = () => {
+export const initializeSlideCoinSystem = async () => {
   if (isRecording) return
+  
+  // Add browser check
+  if (typeof window === 'undefined') {
+    console.warn('Slide Coin system requires browser environment')
+    return
+  }
   
   isRecording = true
   
@@ -146,6 +152,10 @@ const saveToWallet = async (slideCoin: SlideCoin) => {
 }
 
 const extractPageContext = (): string => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return 'SSR context'
+  }
+  
   const title = document.title
   const url = window.location.href
   const activeElement = document.activeElement?.tagName || 'BODY'

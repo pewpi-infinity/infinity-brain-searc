@@ -19,6 +19,8 @@ export interface PageExport {
 
 export class HTMLExporter {
   private static captureStyles(): string {
+    if (typeof document === 'undefined') return ''
+    
     const styles: string[] = []
     
     for (let i = 0; i < document.styleSheets.length; i++) {
@@ -86,6 +88,10 @@ export class HTMLExporter {
   }
 
   static exportCurrentPage(options: ExportOptions): PageExport {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      throw new Error('Export requires browser environment')
+    }
+    
     const root = document.getElementById('root')
     if (!root) {
       throw new Error('Root element not found')
@@ -107,6 +113,11 @@ export class HTMLExporter {
   }
 
   static downloadHTML(pageExport: PageExport): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      console.error('Download requires browser environment')
+      return
+    }
+    
     const blob = new Blob([pageExport.html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -121,6 +132,10 @@ export class HTMLExporter {
   static async exportMultiplePages(
     pages: Array<{ elementId: string; options: ExportOptions }>
   ): Promise<PageExport[]> {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return []
+    }
+    
     const exports: PageExport[] = []
     
     for (const page of pages) {
