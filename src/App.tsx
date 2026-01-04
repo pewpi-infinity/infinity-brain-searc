@@ -86,7 +86,7 @@ function App() {
         await restoreAdminAuctions()
         await protectAdminAuctions()
       } catch (error) {
-        console.error('Failed to restore auctions:', error)
+        console.error('Failed to restore/protect auctions:', error)
       }
     }
     
@@ -96,7 +96,7 @@ function App() {
       try {
         await protectAdminAuctions()
       } catch (error) {
-        console.error('Failed to protect auctions:', error)
+        console.error('Protection check failed:', error)
       }
     }, 60000)
     
@@ -109,14 +109,14 @@ function App() {
     setShowGraph(false)
 
     if (mode === 'ai') {
-      setActiveTab('chat')
+      setActiveTab('explore')
       setIsSearching(false)
       return
     }
 
     try {
-      const prompt = window.spark.llmPrompt`Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
-      const response = await window.spark.llm(prompt as string, 'gpt-4o-mini', true)
+      const promptText = `Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
+      const response = await window.spark.llm(promptText, 'gpt-4o-mini', true)
       const data = JSON.parse(response)
       
       if (data.results && Array.isArray(data.results)) {
@@ -135,7 +135,6 @@ function App() {
   return (
     <AuthProvider>
       <TokenRedistributionServiceProvider>
-        <ContinuousPageMonitor />
         <div className="min-h-screen mesh-background">
           <div className="container mx-auto px-4 py-6 max-w-7xl">
             <header className="mb-6 space-y-4">
@@ -301,6 +300,20 @@ function App() {
                             </Button>
                           </div>
                         </div>
+
+                        <div>
+                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">⚙️ Settings</h3>
+                          <div className="space-y-1">
+                            <Button 
+                              variant="ghost" 
+                              className="w-full justify-start gap-2 h-10"
+                              onClick={() => setActiveTab('theme')}
+                            >
+                              <Sparkle size={18} weight="duotone" />
+                              Theme Customizer
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </ScrollArea>
                   </SheetContent>
@@ -366,15 +379,104 @@ function App() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="home" className="space-y-6">
-                <ResearchAuctionQuickLinks onNavigate={setActiveTab} />
-                <PageHub />
-                <div className="grid lg:grid-cols-2 gap-6">
-                  <EmojiCatcherGame />
-                  <SlotMachine />
+              <TabsContent value="home" className="space-y-8">
+                <div className="bg-card/80 backdrop-blur rounded-lg p-8 border-2 border-accent/20">
+                  <div className="text-center space-y-4">
+                    <h2 className="text-3xl font-bold">Welcome to Infinity Brain</h2>
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                      Your personal AI-powered productivity hub for creating tokens, trading, building websites, and managing your digital economy.
+                    </p>
+                  </div>
                 </div>
-                <div className="h-[500px]">
-                  <AIChat />
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Button
+                    onClick={() => setActiveTab('create')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  >
+                    <CurrencyDollar size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Create Tokens</div>
+                      <div className="text-sm opacity-90">Mint & manage tokens</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('trade')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
+                  >
+                    <Storefront size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Trade & Markets</div>
+                      <div className="text-sm opacity-90">Buy, sell, and auction</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('build')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
+                  >
+                    <GitBranch size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Build & Deploy</div>
+                      <div className="text-sm opacity-90">Create websites</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('explore')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  >
+                    <Robot size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">AI Chat</div>
+                      <div className="text-sm opacity-90">Talk with AI assistant</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('user')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
+                  >
+                    <ShieldCheck size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">My Dashboard</div>
+                      <div className="text-sm opacity-90">View your assets</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('play')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
+                  >
+                    <GameController size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Play & Earn</div>
+                      <div className="text-sm opacity-90">Games and rewards</div>
+                    </div>
+                  </Button>
+                </div>
+
+                <div className="bg-card/80 backdrop-blur rounded-lg p-6 border border-border">
+                  <h3 className="text-xl font-semibold mb-4">Quick Stats</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">∞</div>
+                      <div className="text-sm text-muted-foreground">Tokens Created</div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-secondary">∞</div>
+                      <div className="text-sm text-muted-foreground">Active Auctions</div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-accent">∞</div>
+                      <div className="text-sm text-muted-foreground">Websites Built</div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">∞</div>
+                      <div className="text-sm text-muted-foreground">Community Members</div>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -491,10 +593,22 @@ function App() {
 
               <TabsContent value="play" className="space-y-6">
                 <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-                  <h2 className="text-2xl font-bold mb-4">Play & Earn</h2>
-                  <div className="grid lg:grid-cols-2 gap-6">
+                  <h2 className="text-2xl font-bold mb-6">Play & Earn</h2>
+                  <div className="grid lg:grid-cols-2 gap-6 mb-6">
                     <EmojiCatcherGame />
                     <SlotMachine />
+                  </div>
+                  <div className="mt-6">
+                    <Button
+                      onClick={() => setActiveTab('mario')}
+                      className="w-full h-20 text-lg bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
+                    >
+                      <GameController size={32} weight="duotone" className="mr-3" />
+                      <div>
+                        <div className="font-bold">Mario Scene</div>
+                        <div className="text-sm opacity-90">Interactive 8-bit world</div>
+                      </div>
+                    </Button>
                   </div>
                 </div>
               </TabsContent>
@@ -513,13 +627,17 @@ function App() {
               <TabsContent value="backup"><RepoBackupSystem /></TabsContent>
               <TabsContent value="ss-pay"><SocialSecurityDistributor /></TabsContent>
               <TabsContent value="mario"><MarioScene /></TabsContent>
+              <TabsContent value="theme">
+                <div className="bg-card/80 backdrop-blur rounded-lg p-6">
+                  <h2 className="text-2xl font-bold mb-4">Theme Customizer</h2>
+                  <ThemeCustomizer />
+                </div>
+              </TabsContent>
             </Tabs>
           </div>
 
           <IntentBasedHelper onNavigate={setActiveTab} />
-          <AIGuardian />
           <BackgroundChanger />
-          <ThemeCustomizer />
           <WelcomeFlow onNavigate={setActiveTab} />
           <SafetyFooter />
         </div>
