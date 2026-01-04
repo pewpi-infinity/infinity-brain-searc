@@ -291,7 +291,7 @@ export function SocialSecurityPlatform() {
             <div>
               <CardTitle className="text-3xl">Infinity Social Security</CardTitle>
               <CardDescription className="text-base">
-                Compassionate, decentralized support built on trust and technology
+                Compassionate, decentralized support built on trust and technology.
               </CardDescription>
             </div>
           </div>
