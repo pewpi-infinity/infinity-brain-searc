@@ -15,7 +15,7 @@ interface BismuthSignal {
   signalType: 'silver_price' | 'social_connection' | 'market_trend'
   value: any
   confidence: number
-  source: 'quantum_memory' | 'user_auth' | 'bismuth_calculation'
+  source: 'quantum_memory' | 'user_auth' | 'bismuth_calculation' | 'mongoose_os'
 }
 
 interface SocialConnection {
@@ -44,40 +44,61 @@ export function BismuthSignalReader() {
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
   const [isCalculating, setIsCalculating] = useState(false)
+  const [mongooseIntegrated, setMongooseIntegrated] = useState(false)
+
+  // Check for Mongoose.OS bismuth memory script on mount
+  useEffect(() => {
+    if ((window as any).mongoose || (window as any).bismuthMemory) {
+      setMongooseIntegrated(true)
+      toast.success('✅ Mongoose.OS bismuth memory script detected!')
+    }
+  }, [])
 
   // Bismuth Memory Calculation for Silver Price
+  // Integrates with Mongoose.OS script if available
   const calculateSilverPrice = useCallback(async () => {
     setIsCalculating(true)
     
     try {
-      // Use quantum memory and bismuth signal calculations
-      // Instead of API, we use mathematical patterns and historical data stored in memory
-      const basePrice = 24.50 // Base silver price in USD
-      const bismuthFactor = Math.sin(Date.now() / 100000) * 2 // Oscillating factor
-      const quantumNoise = (Math.random() - 0.5) * 0.5 // Random market noise
-      const memoryPattern = Math.cos(Date.now() / 50000) * 1.5 // Memory-based pattern
+      let calculatedPrice: number
+      let method: string
       
-      const calculatedPrice = basePrice + bismuthFactor + quantumNoise + memoryPattern
-      const priceChange = bismuthFactor + quantumNoise
+      // Try Mongoose.OS bismuth memory script first
+      if (mongooseIntegrated && (window as any).bismuthMemory) {
+        try {
+          const result = await (window as any).bismuthMemory.calculateSilverPrice()
+          calculatedPrice = result.price
+          method = 'Mongoose.OS Bismuth Memory Script'
+        } catch {
+          // Fallback to local calculation
+          calculatedPrice = 24.50 + Math.sin(Date.now() / 100000) * 2 + (Math.random() - 0.5) * 0.5 + Math.cos(Date.now() / 50000) * 1.5
+          method = 'Bismuth Quantum Memory Calculation (Fallback)'
+        }
+      } else {
+        // Standalone calculation
+        calculatedPrice = 24.50 + Math.sin(Date.now() / 100000) * 2 + (Math.random() - 0.5) * 0.5 + Math.cos(Date.now() / 50000) * 1.5
+        method = 'Bismuth Quantum Memory Calculation'
+      }
+      
+      const priceChange = silverPrice ? calculatedPrice - silverPrice.price : 0
       
       const priceData: SilverPriceData = {
         price: Math.max(0, parseFloat(calculatedPrice.toFixed(2))),
         change: parseFloat(priceChange.toFixed(2)),
         timestamp: Date.now(),
         unit: 'USD/oz',
-        calculationMethod: 'Bismuth Quantum Memory Calculation'
+        calculationMethod: method
       }
       
       setSilverPrice(priceData)
       
-      // Add signal
       const signal: BismuthSignal = {
         id: `signal-${Date.now()}`,
         timestamp: Date.now(),
         signalType: 'silver_price',
         value: priceData,
-        confidence: 0.85 + Math.random() * 0.15, // 85-100% confidence
-        source: 'bismuth_calculation'
+        confidence: 0.85 + Math.random() * 0.15,
+        source: mongooseIntegrated ? 'mongoose_os' : 'bismuth_calculation'
       }
       
       setSignals(prev => [signal, ...prev].slice(0, 100))
@@ -88,7 +109,7 @@ export function BismuthSignalReader() {
     } finally {
       setIsCalculating(false)
     }
-  }, [])
+  }, [silverPrice, mongooseIntegrated])
 
   // Establish Social Connection via User Auth (no API)
   const establishSocialConnection = useCallback(async () => {
@@ -199,13 +220,23 @@ export function BismuthSignalReader() {
               <Atom size={24} weight="duotone" className="text-cyan-500 animate-spin" style={{ animationDuration: '4s' }} />
               Bismuth Signal Reader
             </h3>
-            <Badge variant={isActive ? 'default' : 'secondary'} className="bg-cyan-500">
-              {isActive ? 'Active' : 'Inactive'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {mongooseIntegrated && (
+                <Badge variant="default" className="bg-green-500 text-xs">
+                  🔗 Mongoose.OS
+                </Badge>
+              )}
+              <Badge variant={isActive ? 'default' : 'secondary'} className="bg-cyan-500">
+                {isActive ? 'Active' : 'Inactive'}
+              </Badge>
+            </div>
           </div>
           
           <p className="text-xs text-muted-foreground">
-            Quantum memory calculations • No external APIs • Real-time signal reading
+            {mongooseIntegrated 
+              ? '✅ Integrated with Mongoose.OS bismuth memory script'
+              : 'Quantum memory calculations • No external APIs • Real-time signal reading'
+            }
           </p>
         </div>
 
