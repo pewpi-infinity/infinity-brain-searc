@@ -219,12 +219,12 @@ function throttle(func: Function, wait: number) {
 
 export const getUserSlideCoins = async (username: string): Promise<SlideCoin[]> => {
   try {
-    const wallet = await window.spark.kv.get<any>(`wallet-${username}`)
+    const wallet = await storage.get<any>(`wallet-${username}`)
     if (!wallet || !wallet.slideCoins) return []
     
     const slideCoins: SlideCoin[] = []
     for (const id of wallet.slideCoins) {
-      const coin = await window.spark.kv.get<SlideCoin>(`slide-${id}`)
+      const coin = await storage.get<SlideCoin>(`slide-${id}`)
       if (coin) slideCoins.push(coin)
     }
     
