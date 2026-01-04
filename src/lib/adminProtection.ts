@@ -1,6 +1,7 @@
 // Admin protection utilities for Infinity Brain
 
-const ADMIN_GITHUB_ID = 'pewpi-infinity'
+// Admin GitHub usernames (case-insensitive)
+const ADMIN_GITHUB_USERNAMES = ['pewpi', 'buotuner', 'pewpi-infinity']
 
 export interface AdminProtection {
   isAdmin: (userId: string, username: string) => boolean
@@ -11,7 +12,9 @@ export interface AdminProtection {
 
 export const adminProtection: AdminProtection = {
   isAdmin: (userId: string, username: string): boolean => {
-    return username.toLowerCase() === ADMIN_GITHUB_ID.toLowerCase()
+    return ADMIN_GITHUB_USERNAMES.some(
+      admin => admin.toLowerCase() === username.toLowerCase()
+    )
   },
 
   canSyncWallet: (userId: string, username: string): boolean => {
@@ -37,7 +40,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 50,
     reservePrice: 50,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_ID,
+    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,
@@ -54,7 +57,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 10,
     reservePrice: 10,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_ID,
+    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,
@@ -71,7 +74,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 100,
     reservePrice: 100,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_ID,
+    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,

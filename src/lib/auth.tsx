@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Timeout wrapper for Spark user call
-  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<any> => {
+  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<SparkUser> => {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
@@ -288,8 +288,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
-      const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
-      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      let existingProfileData: UserProfile | null = null
+      let allTransactions: any[] = []
+      
+      try {
+        existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
+        allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      } catch (error) {
+        console.error('Failed to load user profile or transactions:', error)
+        // Continue with defaults if KV operations fail
+        allTransactions = []
+      }
       
       const recalculateTokenBalances = (userId: string) => {
         const balances: Record<string, number> = { 'INF': 10 }

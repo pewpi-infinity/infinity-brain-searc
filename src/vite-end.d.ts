@@ -1,11 +1,19 @@
 /// <reference types="vite/client" />
 
 // Spark API type definitions
+/**
+ * GitHub user information from Spark authentication
+ */
 interface SparkUser {
+  /** GitHub user ID */
   id: number
+  /** GitHub username/login */
   login: string
+  /** User's email address */
   email: string
+  /** URL to user's avatar image */
   avatarUrl: string
+  /** True if user is the repository owner */
   isOwner: boolean
 }
 
