@@ -17,7 +17,7 @@ export function useTokenRedistributionService() {
   
   const findActiveTraders = useCallback(async (): Promise<string[]> => {
     try {
-      if (typeof window === 'undefined' || !window.spark) return ['community-pool']
+      if (typeof window === 'undefined') return ['community-pool']
       
       const transactions = localStorageUtils.get<any[]>('token-transactions', [])
       const now = Date.now()
@@ -48,7 +48,7 @@ export function useTokenRedistributionService() {
 
   const redistributeToken = useCallback(async (tokenSymbol: string, fromOwner: string) => {
     try {
-      if (typeof window === 'undefined' || !window.spark) return
+      if (typeof window === 'undefined') return
       
       const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
       const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
@@ -84,20 +84,7 @@ export function useTokenRedistributionService() {
       tokens[tokenIndex].previousOwners = [...(token.previousOwners || []), fromOwner]
       localStorageUtils.set('minted-tokens', tokens)
 
-      if (user && user.login === fromOwner) {
-        toast.error(`Token ${tokenSymbol} Redistributed`, {
-          description: `Due to inactivity, your tokens have been redistributed to active traders`,
-          duration: 10000
-        })
-      }
-
-      if (user && user.login === randomTrader) {
-        toast.success(`New Tokens Received!`, {
-          description: `You received ${token.supply} ${tokenSymbol} tokens from an inactive holder`,
-          duration: 10000
-        })
-      }
-
+      // Log the redistribution
       console.log(`Redistributed ${tokenSymbol} from ${fromOwner} to ${randomTrader}`)
     } catch (error) {
       console.error(`Failed to redistribute ${tokenSymbol}:`, error)
@@ -106,13 +93,13 @@ export function useTokenRedistributionService() {
 
   const notifyOwner = useCallback(async (tokenSymbol: string, owner: string, daysRemaining: number) => {
     try {
-      if (typeof window === 'undefined' || !window.spark) return
+      if (typeof window === 'undefined') return
       
       
       if (!user || user.login !== owner) return
 
       const notificationKey = `notified-${tokenSymbol}-${Math.floor(daysRemaining)}`
-      const alreadyNotified = await window.spark.kv.get<boolean>(notificationKey)
+      const alreadyNotified = localStorageUtils.get<boolean>(notificationKey)
 
       if (alreadyNotified) return
 
@@ -146,7 +133,7 @@ export function useTokenRedistributionService() {
       
       setTimeout(async () => {
         if (true) {
-          await window.spark.kv.delete(notificationKey)
+          localStorageUtils.remove(notificationKey)
         }
       }, 86400000)
 
@@ -157,7 +144,7 @@ export function useTokenRedistributionService() {
 
   const checkInactiveTokens = useCallback(async () => {
     try {
-      if (typeof window === 'undefined' || !window.spark) return
+      if (typeof window === 'undefined') return
       
       const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
       const now = Date.now()
