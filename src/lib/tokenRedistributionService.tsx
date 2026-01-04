@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import type { ReactNode } from 'react'
-import { localStorageUtils } from '@/hooks/useLocalStorage'
 
 interface TokenRedistributionService {
   checkInactiveTokens: () => Promise<void>
@@ -17,9 +16,9 @@ export function useTokenRedistributionService() {
   
   const findActiveTraders = useCallback(async (): Promise<string[]> => {
     try {
-      if (typeof window === 'undefined') return ['community-pool']
+      if (typeof window === 'undefined' || !window.spark) return ['community-pool']
       
-      const transactions = localStorageUtils.get<any[]>('token-transactions', [])
+      const transactions = await window.spark.kv.get<any[]>('token-transactions') || []
       const now = Date.now()
       const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
 
@@ -48,9 +47,9 @@ export function useTokenRedistributionService() {
 
   const redistributeToken = useCallback(async (tokenSymbol: string, fromOwner: string) => {
     try {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined' || !window.spark) return
       
-      const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
+      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
 
       if (tokenIndex === -1) return
@@ -75,16 +74,30 @@ export function useTokenRedistributionService() {
         reason: 'inactivity'
       }
 
-      const redistributions = localStorageUtils.get<any[]>('token-redistributions', [])
+      const redistributions = await window.spark.kv.get<any[]>('token-redistributions') || []
       redistributions.push(redistributionRecord)
-      localStorageUtils.set('token-redistributions', redistributions)
+      await window.spark.kv.set('token-redistributions', redistributions)
 
       tokens[tokenIndex].owner = randomTrader
       tokens[tokenIndex].lastActivity = Date.now()
       tokens[tokenIndex].previousOwners = [...(token.previousOwners || []), fromOwner]
-      localStorageUtils.set('minted-tokens', tokens)
+      await window.spark.kv.set('minted-tokens', tokens)
 
-      // Log the redistribution
+      const user = await window.spark.user()
+      if (user && user.login === fromOwner) {
+        toast.error(`Token ${tokenSymbol} Redistributed`, {
+          description: `Due to inactivity, your tokens have been redistributed to active traders`,
+          duration: 10000
+        })
+      }
+
+      if (user && user.login === randomTrader) {
+        toast.success(`New Tokens Received!`, {
+          description: `You received ${token.supply} ${tokenSymbol} tokens from an inactive holder`,
+          duration: 10000
+        })
+      }
+
       console.log(`Redistributed ${tokenSymbol} from ${fromOwner} to ${randomTrader}`)
     } catch (error) {
       console.error(`Failed to redistribute ${tokenSymbol}:`, error)
@@ -93,13 +106,14 @@ export function useTokenRedistributionService() {
 
   const notifyOwner = useCallback(async (tokenSymbol: string, owner: string, daysRemaining: number) => {
     try {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined' || !window.spark) return
       
+      const user = await window.spark.user()
       
       if (!user || user.login !== owner) return
 
       const notificationKey = `notified-${tokenSymbol}-${Math.floor(daysRemaining)}`
-      const alreadyNotified = localStorageUtils.get<boolean>(notificationKey)
+      const alreadyNotified = await window.spark.kv.get<boolean>(notificationKey)
 
       if (alreadyNotified) return
 
@@ -129,11 +143,11 @@ export function useTokenRedistributionService() {
         })
       }
 
-      localStorageUtils.set(notificationKey, true)
+      await window.spark.kv.set(notificationKey, true)
       
       setTimeout(async () => {
-        if (true) {
-          localStorageUtils.remove(notificationKey)
+        if (typeof window !== 'undefined' && window.spark) {
+          await window.spark.kv.delete(notificationKey)
         }
       }, 86400000)
 
@@ -144,9 +158,9 @@ export function useTokenRedistributionService() {
 
   const checkInactiveTokens = useCallback(async () => {
     try {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined' || !window.spark) return
       
-      const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
+      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const now = Date.now()
 
       for (const token of tokens) {

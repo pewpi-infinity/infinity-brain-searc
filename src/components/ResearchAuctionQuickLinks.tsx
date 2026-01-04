@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Flask, Gavel, Sparkle, TrendUp, Fire, Eye, ShareNetwork, CurrencyDollar, Lightning } from '@phosphor-icons/react'
-import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { useState } from 'react'
 
@@ -49,8 +49,8 @@ interface ResearchAuctionQuickLinksProps {
 }
 
 export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLinksProps) {
-  const [researchTokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
-  const [auctions] = useLocalStorage<Auction[]>('token-auctions', [])
+  const [researchTokens] = useKV<ResearchToken[]>('research-tokens', [])
+  const [auctions] = useKV<Auction[]>('token-auctions', [])
   const [isSuggesting, setIsSuggesting] = useState(false)
 
   const researchAuctions = (auctions || []).filter(a => 
@@ -106,7 +106,7 @@ export function ResearchAuctionQuickLinks({ onNavigate }: ResearchAuctionQuickLi
         }
       }
 
-      localStorageUtils.set('social-suggestions', suggestions)
+      await window.spark.kv.set('social-suggestions', suggestions)
       
       toast.success('🤑 Suggestions ready for social posting!', {
         description: `${suggestions.length} research items suggested for maximum views`

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { GitBranch, Download, Flask, CheckCircle, Sparkle, FolderOpen, FileCode, Star } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -53,7 +53,7 @@ interface GitHubRepo {
 }
 
 export function GitHubRepoImporter() {
-  const [tokens, setTokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
+  const [tokens, setTokens] = useKV<ResearchToken[]>('research-tokens', [])
   const [githubUsername, setGithubUsername] = useState('')
   const [specificRepoUrl, setSpecificRepoUrl] = useState('')
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
@@ -244,6 +244,7 @@ export function GitHubRepoImporter() {
     setImportProgress(0)
 
     try {
+      const user = await window.spark.user()
       if (!user) {
         toast.error('User not authenticated')
         setIsImporting(false)
@@ -319,7 +320,7 @@ export function GitHubRepoImporter() {
         })
       })
       
-      localStorageUtils.set(userWalletKey, userWallet)
+      await window.spark.kv.set(userWalletKey, userWallet)
 
       toast.success(`Successfully imported ${newTokens.length} repositories!`, {
         description: `Total value: ${totalValue.toLocaleString()} INF added to your wallet`

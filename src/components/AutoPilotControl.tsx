@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,9 +28,9 @@ const DEFAULT_SECTIONS: AutoPilotSection[] = [
 ]
 
 export function AutoPilotControl() {
-  const [sections, setSections] = useLocalStorage<AutoPilotSection[]>('autopilot-sections', DEFAULT_SECTIONS)
-  const [globalSpeed, setGlobalSpeed] = useLocalStorage<number>('autopilot-speed', 50)
-  const [raceMode, setRaceMode] = useLocalStorage<boolean>('race-mode-enabled', false)
+  const [sections, setSections] = useKV<AutoPilotSection[]>('autopilot-sections', DEFAULT_SECTIONS)
+  const [globalSpeed, setGlobalSpeed] = useKV<number>('autopilot-speed', 50)
+  const [raceMode, setRaceMode] = useKV<boolean>('race-mode-enabled', false)
 
   const handleToggleSection = (id: string) => {
     setSections((current) =>

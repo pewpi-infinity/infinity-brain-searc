@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { GitBranch, Pencil, Rocket, MagnifyingGlass, Plus, Folder, FileCode, Question, Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -53,6 +53,7 @@ export function RepoManagementHub() {
   const fetchPewpiInfinityRepos = async () => {
     setLoading(true)
     try {
+      const user = await window.spark.user()
       
       const mockRepos: Repo[] = [
         {

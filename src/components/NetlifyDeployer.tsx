@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { HTMLExporter } from '@/lib/htmlExporter'
 import { CloudArrowUp, CheckCircle, WarningCircle, Rocket, Lightning, Trash, Flask, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface DeploymentConfig {
   siteName: string
@@ -44,8 +44,8 @@ export function NetlifyDeployer() {
   })
   const [isDeploying, setIsDeploying] = useState(false)
   const [deployProgress, setDeployProgress] = useState(0)
-  const [deploymentHistory = [], setDeploymentHistory] = useLocalStorage<DeploymentHistory[]>('netlify-deployments', [])
-  const [savedConfig, setSavedConfig] = useLocalStorage<DeploymentConfig | null>('netlify-config', null)
+  const [deploymentHistory = [], setDeploymentHistory] = useKV<DeploymentHistory[]>('netlify-deployments', [])
+  const [savedConfig, setSavedConfig] = useKV<DeploymentConfig | null>('netlify-config', null)
   const [showApiToken, setShowApiToken] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [testResults, setTestResults] = useState<TestResult[]>([])

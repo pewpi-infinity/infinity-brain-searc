@@ -3,25 +3,25 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Bug, CheckCircle, XCircle, Clock } from '@phosphor-icons/react'
-import { useAuth } from '@/lib/auth'
 
 interface AuthState {
-  isAuthenticated: boolean
+  sparkLoaded: boolean
+  sparkUserAvailable: boolean
   lastAuthAttempt: string | null
   authStatus: 'idle' | 'loading' | 'success' | 'error'
   errorMessage: string | null
-  username: string | null
+  appId: string | null
 }
 
 export function AuthDebugPanel() {
   const [isVisible, setIsVisible] = useState(false)
-  const auth = useAuth()
   const [authState, setAuthState] = useState<AuthState>({
-    isAuthenticated: false,
+    sparkLoaded: false,
+    sparkUserAvailable: false,
     lastAuthAttempt: null,
     authStatus: 'idle',
     errorMessage: null,
-    username: null
+    appId: null
   })
 
   // Check auth state periodically
@@ -29,15 +29,16 @@ export function AuthDebugPanel() {
     const checkAuthState = () => {
       setAuthState(prev => ({
         ...prev,
-        isAuthenticated: auth.isAuthenticated,
-        username: auth.currentUser?.username || null
+        sparkLoaded: !!window.spark,
+        sparkUserAvailable: !!(window.spark && typeof window.spark.user === 'function'),
+        appId: document.querySelector('meta[name="spark:app"]')?.getAttribute('content') || null
       }))
     }
 
     checkAuthState()
     const interval = setInterval(checkAuthState, 1000)
     return () => clearInterval(interval)
-  }, [auth.isAuthenticated, auth.currentUser])
+  }, []) // Only check Spark status periodically, other state changes are triggered by user actions
 
   // Toggle visibility with Ctrl+Shift+D
   useEffect(() => {
@@ -63,17 +64,19 @@ export function AuthDebugPanel() {
     }))
 
     try {
-      await auth.login()
+      if (!window.spark) {
+        throw new Error('Spark not loaded')
+      }
+
+      const user = await window.spark.user()
       
       setAuthState(prev => ({
         ...prev,
         authStatus: 'success',
-        errorMessage: null,
-        isAuthenticated: true,
-        username: auth.currentUser?.username || null
+        errorMessage: null
       }))
 
-      console.log('Auth test successful')
+      console.log('Auth test successful:', user)
     } catch (error) {
       setAuthState(prev => ({
         ...prev,
@@ -119,8 +122,8 @@ export function AuthDebugPanel() {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Authenticated:</span>
-            {authState.isAuthenticated ? (
+            <span className="text-muted-foreground">Spark Loaded:</span>
+            {authState.sparkLoaded ? (
               <CheckCircle size={20} weight="fill" className="text-green-500" />
             ) : (
               <XCircle size={20} weight="fill" className="text-red-500" />
@@ -128,9 +131,18 @@ export function AuthDebugPanel() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Username:</span>
+            <span className="text-muted-foreground">Spark.user() Available:</span>
+            {authState.sparkUserAvailable ? (
+              <CheckCircle size={20} weight="fill" className="text-green-500" />
+            ) : (
+              <XCircle size={20} weight="fill" className="text-red-500" />
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">App ID:</span>
             <code className="text-xs bg-muted px-2 py-1 rounded">
-              {authState.username || 'Not logged in'}
+              {authState.appId || 'Not found'}
             </code>
           </div>
 
@@ -144,19 +156,6 @@ export function AuthDebugPanel() {
               }
             >
               {authState.authStatus}
-            </Badge>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Connection:</span>
-            <Badge 
-              variant={
-                auth.connectionState === 'connected' ? 'default' :
-                auth.connectionState === 'error' ? 'destructive' :
-                auth.connectionState === 'connecting' ? 'secondary' : 'outline'
-              }
-            >
-              {auth.connectionState}
             </Badge>
           </div>
 

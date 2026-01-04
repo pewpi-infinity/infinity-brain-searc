@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Slider } from '@/components/ui/slider'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { Radio, Play, Pause, SkipForward, SkipBack, MagnifyingGlass, CaretRight, Users } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -27,8 +27,8 @@ export function TwitterSpacesRadio() {
   const [currentSpaceIndex, setCurrentSpaceIndex] = useState(0)
   const [volume, setVolume] = useState([70])
   const [searchQuery, setSearchQuery] = useState('')
-  const [spaces, setSpaces] = useLocalStorage<TwitterSpace[]>('twitter-spaces-feed', [])
-  const [favorites, setFavorites] = useLocalStorage<string[]>('favorite-spaces', [])
+  const [spaces, setSpaces] = useKV<TwitterSpace[]>('twitter-spaces-feed', [])
+  const [favorites, setFavorites] = useKV<string[]>('favorite-spaces', [])
 
   useEffect(() => {
     const initializeSpaces = async () => {

@@ -1,6 +1,5 @@
 import { SlideCoin } from './slideCoinSystem'
 import { toast } from 'sonner'
-import { localStorageUtils } from '@/hooks/useLocalStorage'
 
 export interface Product {
   id: string
@@ -189,7 +188,7 @@ const searchOpportunities = async (
 }
 
 const findSimilarUsers = async (embedding: number[]): Promise<string[]> => {
-  const allSlideCoins = localStorageUtils.get<string[]>('all-slide-coins', [])
+  const allSlideCoins = await window.spark.kv.get<string[]>('all-slide-coins') || []
   const similarUsers: Map<string, number> = new Map()
   
   for (const coinId of allSlideCoins.slice(0, 100)) {
@@ -270,7 +269,7 @@ export const suggestMatchesForCoin = async (slideCoin: SlideCoin) => {
     })
   }
   
-  localStorageUtils.set(`quantum-match-${slideCoin.id}`, matches)
+  await window.spark.kv.set(`quantum-match-${slideCoin.id}`, matches)
   
   return matches
 }
