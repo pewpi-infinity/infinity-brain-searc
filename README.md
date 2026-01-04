@@ -1,32 +1,48 @@
 # Infinity Brain - Tokenized Business Ecosystem Platform
 
-A comprehensive platform for creating, managing, and trading business tokens with integrated AI capabilities, multi-source search, and **automated deployment to world-class hosting platforms**.
+A comprehensive platform for creating, managing, and trading business tokens with integrated AI capabilities, multi-source search, **automated deployment to world-class hosting platforms**, and a **revolutionary social security system**.
 
-## 🚀 **New: Automated Deployment**
+## 🚀 **New: Automated GitHub Pages Deployment**
 
-Deploy your Infinity Brain sites to production with one click!
-
-### Supported Platforms
-- **🌊 Netlify** - Continuous deployment with instant rollbacks
-- **⚡ Vercel** - Edge network deployment with zero configuration
-- **🐙 GitHub Pages** - Simple static hosting with Git integration
+The app now automatically deploys to GitHub Pages on every push to main!
 
 ### Deployment Features
-✅ **Quick Deploy** - No API tokens needed, drag-and-drop deployment  
-✅ **API Deploy** - One-click automated deployment from the app  
-✅ **Deployment History** - Track all deployments with live URLs  
-✅ **Platform Comparison** - Choose the best platform for your needs  
-✅ **Deployment Stats** - Monitor deployment distribution and success rates  
-✅ **Interactive Guide** - Built-in deployment guide with pro tips  
+✅ **Automated CI/CD** - GitHub Actions workflow for continuous deployment  
+✅ **Zero Configuration** - Works out of the box  
+✅ **Global CDN** - Fast loading via GitHub's CDN  
+✅ **Free HTTPS** - Automatic SSL certificates  
+✅ **Manual Trigger** - Run workflow manually from GitHub Actions tab  
 
-### How to Deploy
-1. Navigate to the **Export** tab in Infinity Brain
-2. Choose **Deployment Hub** for platform comparison
-3. Select your platform (Netlify, Vercel, or GitHub)
-4. Use **Quick Deploy** (no token) or **API Deploy** (automated)
-5. Your site goes live in seconds with HTTPS and global CDN!
+### Live Site
+🌐 **https://pewpi-infinity.github.io/infinity-brain-searc/**
 
-📖 **[Full Deployment Guide](./DEPLOYMENT-GUIDE.md)**
+### Additional Deployment Options
+- **🌊 Netlify** - One-click deployment with instant rollbacks
+- **⚡ Vercel** - Edge network deployment with zero configuration
+
+📖 **[Full Deployment Guide](./DEPLOYMENT.md)**
+
+---
+
+## 🤝 **New: Infinity Social Security Platform**
+
+A compassionate, decentralized social security system that provides universal basic support without bureaucratic barriers.
+
+### Key Features
+✨ **Simple Application** - Just name, age, and support needs  
+⚡ **Instant Approval** - Most applications approved in < 1 second  
+🛡️ **Smart Fraud Detection** - Intelligent verification without gatekeeping  
+💰 **Token-Based Benefits** - Monthly support in INF tokens ($2,000-3,000/month)  
+🌐 **Ecosystem Integration** - Use benefits across wallet, marketplace, and resources  
+🤗 **Community Support** - Forum, peer matching, and shared resources  
+
+### Philosophy
+- **Trust first**, verify only when needed
+- **Bias toward approval**, not denial
+- **No bureaucracy**, just compassion
+- **Immediate assistance** for those in need
+
+📖 **[Social Security Guide](./SOCIAL-SECURITY-GUIDE.md)**
 
 ---
 
