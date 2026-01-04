@@ -86,8 +86,10 @@ function App() {
       try {
         await restoreAdminAuctions()
         await protectAdminAuctions()
+        toast.success('Auction protection initialized successfully')
       } catch (error) {
         console.error('Failed to restore/protect auctions:', error)
+        toast.error('Failed to initialize auction protection. Some features may be limited.')
       }
     }
     
@@ -98,6 +100,7 @@ function App() {
         await protectAdminAuctions()
       } catch (error) {
         console.error('Protection check failed:', error)
+        toast.error('Auction protection check failed')
       }
     }, 60000)
     
@@ -118,12 +121,31 @@ function App() {
     try {
       const promptText = `Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
       const response = await window.spark.llm(promptText, 'gpt-4o-mini', true)
-      const data = JSON.parse(response)
+      
+      // Validate response before parsing
+      if (!response || typeof response !== 'string') {
+        throw new Error('Invalid response from API')
+      }
+      
+      let data
+      try {
+        data = JSON.parse(response)
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError)
+        throw new Error('Failed to parse API response')
+      }
+      
+      // Validate data structure
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid data structure received')
+      }
       
       if (data.results && Array.isArray(data.results)) {
         setSearchResults(data.results)
         setActiveTab('explore')
         toast.success(`Found ${data.results.length} results for "${query}"`)
+      } else {
+        throw new Error('Invalid results format')
       }
     } catch (error) {
       toast.error('Search failed. Please try again.')
