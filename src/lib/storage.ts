@@ -1,7 +1,12 @@
 /**
- * Storage abstraction layer
+ * Storage abstraction layer - NON-AUTH DATA ONLY
+ * 
+ * ⚠️ WARNING: DO NOT USE FOR AUTHENTICATION
+ * - Authentication uses Spark's native APIs (window.spark.user, useKV)
+ * - This is only for business data like auctions, tokens, etc.
+ * 
  * Provides a consistent API for data persistence using localStorage
- * This replaces the Spark KV storage system
+ * for components that need localStorage for non-critical business data.
  */
 
 export interface StorageAdapter {
