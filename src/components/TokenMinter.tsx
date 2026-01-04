@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { CurrencyDollar, Coins, TrendUp, Wallet, ArrowsClockwise } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
@@ -26,8 +26,8 @@ interface BusinessToken {
 
 export function TokenMinter() {
   const { userProfile, isAuthenticated, addTokens, syncWallet } = useAuth()
-  const [allTokens, setAllTokens] = useKV<Record<string, BusinessToken>>('business-tokens', {})
-  const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
+  const [allTokens, setAllTokens] = useLocalStorage<Record<string, BusinessToken>>('business-tokens', {})
+  const [allTransactions, setAllTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
   const [tokenName, setTokenName] = useState('')
   const [tokenSymbol, setTokenSymbol] = useState('')
   const [initialSupply, setInitialSupply] = useState('')

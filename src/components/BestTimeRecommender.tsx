@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { 
   Sparkle, 
   Clock,
@@ -34,7 +34,7 @@ interface BestTimeRecommenderProps {
 }
 
 export function BestTimeRecommender({ onScheduleWithAI }: BestTimeRecommenderProps) {
-  const [recommendations, setRecommendations] = useKV<AIRecommendation | null>('ai-recommendations', null)
+  const [recommendations, setRecommendations] = useLocalStorage<AIRecommendation | null>('ai-recommendations', null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
 

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sparkle, TrendUp, Lightning, ChartLine, Robot, Cpu, Target, CheckCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 interface PricingConfig {
   enabled: boolean
@@ -49,7 +49,7 @@ interface AuctionAutoPricing {
 }
 
 export function AutoPricingAlgorithm() {
-  const [config, setConfig] = useKV<PricingConfig>('auto-pricing-config', {
+  const [config, setConfig] = useLocalStorage<PricingConfig>('auto-pricing-config', {
     enabled: false,
     baseMultiplier: 1.0,
     qualityWeight: 0.4,
@@ -62,8 +62,8 @@ export function AutoPricingAlgorithm() {
     updateInterval: 300000
   })
 
-  const [tokenPricings, setTokenPricings] = useKV<TokenPricing[]>('token-pricings', [])
-  const [auctionPricings, setAuctionPricings] = useKV<AuctionAutoPricing[]>('auction-auto-pricings', [])
+  const [tokenPricings, setTokenPricings] = useLocalStorage<TokenPricing[]>('token-pricings', [])
+  const [auctionPricings, setAuctionPricings] = useLocalStorage<AuctionAutoPricing[]>('auction-auto-pricings', [])
   const [isCalculating, setIsCalculating] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [algorithmStatus, setAlgorithmStatus] = useState<'idle' | 'running' | 'paused'>('idle')

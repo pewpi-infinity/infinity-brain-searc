@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Upload, FileText, CheckCircle, XCircle, Calendar, Hash, Clock, MapPin, Download, Database } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 interface ScheduledPost {
   id: string
@@ -45,8 +45,8 @@ export function BulkScheduleImporter() {
   const [isImporting, setIsImporting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('bulk-scheduled-posts', [])
-  const [mainScheduledPosts, setMainScheduledPosts] = useKV<BackupPost[]>('scheduled-posts', [])
+  const [scheduledPosts, setScheduledPosts] = useLocalStorage<ScheduledPost[]>('bulk-scheduled-posts', [])
+  const [mainScheduledPosts, setMainScheduledPosts] = useLocalStorage<BackupPost[]>('scheduled-posts', [])
   const [activeTab, setActiveTab] = useState<'new' | 'restore'>('new')
 
   const downloadTemplate = () => {

@@ -23,7 +23,7 @@ import {
   X
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
 import { ActionPreview, ACTION_PREVIEWS } from '@/components/ActionPreview'
@@ -71,8 +71,8 @@ const TOKEN_PACKAGES: TokenPackage[] = [
 
 export function InfinityTokenSale() {
   const { userProfile, isAuthenticated, login, addTokens } = useAuth()
-  const [usdBids, setUsdBids] = useKV<UsdBid[]>('usd-bids', [])
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [usdBids, setUsdBids] = useLocalStorage<UsdBid[]>('usd-bids', [])
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
   
   const [buyAmount, setBuyAmount] = useState('')
   const [customUsdAmount, setCustomUsdAmount] = useState('')

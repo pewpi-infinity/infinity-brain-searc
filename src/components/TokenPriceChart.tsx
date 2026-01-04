@@ -14,7 +14,7 @@ import {
   ChartBar,
   ArrowsOutLineHorizontal
 } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { Transaction } from './TransactionHistory'
 import { MarketOrder } from './TokenMarketplace'
 
@@ -37,9 +37,9 @@ export function TokenPriceChart({ tokenSymbol: initialToken }: TokenPriceChartPr
   const volumeChartRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const [allTransactions] = useKV<Transaction[]>('all-transactions', [])
-  const [marketOrders] = useKV<MarketOrder[]>('market-orders', [])
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [allTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
+  const [marketOrders] = useLocalStorage<MarketOrder[]>('market-orders', [])
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
   
   const [selectedToken, setSelectedToken] = useState(initialToken || '')
   const [timeRange, setTimeRange] = useState<'1H' | '24H' | '7D' | '30D' | 'ALL'>('24H')

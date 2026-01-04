@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ArrowUp, ArrowDown, ArrowsLeftRight, Clock, CheckCircle, XCircle } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 
 export interface Transaction {
@@ -22,7 +22,7 @@ export interface Transaction {
 
 export function TransactionHistory() {
   const { userProfile } = useAuth()
-  const [allTransactions] = useKV<Transaction[]>('all-transactions', [])
+  const [allTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
 
   if (!userProfile) {
     return (

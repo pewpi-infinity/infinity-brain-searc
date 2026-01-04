@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -30,9 +30,9 @@ const DEFAULT_JOBS: BatchJob[] = [
 ]
 
 export function BatchAutomation() {
-  const [jobs, setJobs] = useKV<BatchJob[]>('batch-automation-jobs', DEFAULT_JOBS)
-  const [globalSpeed, setGlobalSpeed] = useKV<number>('batch-automation-speed', 50)
-  const [masterSwitch, setMasterSwitch] = useKV<boolean>('batch-automation-enabled', false)
+  const [jobs, setJobs] = useLocalStorage<BatchJob[]>('batch-automation-jobs', DEFAULT_JOBS)
+  const [globalSpeed, setGlobalSpeed] = useLocalStorage<number>('batch-automation-speed', 50)
+  const [masterSwitch, setMasterSwitch] = useLocalStorage<boolean>('batch-automation-enabled', false)
 
   const toggleJob = (id: string) => {
     setJobs((current) =>

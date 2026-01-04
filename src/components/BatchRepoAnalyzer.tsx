@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { GitBranch, Sparkle, TrendUp, CheckCircle, Warning, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 interface BatchRepoScore {
   repoUrl: string
@@ -31,7 +31,7 @@ export function BatchRepoAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [batchResults, setBatchResults] = useState<BatchRepoScore[]>([])
   const [progress, setProgress] = useState(0)
-  const [batchHistory, setBatchHistory] = useKV<BatchRepoScore[]>('batch-repo-analysis', [])
+  const [batchHistory, setBatchHistory] = useLocalStorage<BatchRepoScore[]>('batch-repo-analysis', [])
 
   const parseRepoUrls = (text: string): string[] => {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0)

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { GitBranch, Star, GitFork, Code, FileText, TrendUp, Coins, CheckCircle, XCircle, Info, Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 interface QualityScore {
   overall: number
@@ -50,7 +50,7 @@ export function RepoQualityScorer() {
   const [repoUrl, setRepoUrl] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentScore, setCurrentScore] = useState<QualityScore | null>(null)
-  const [scoringHistory, setScoringHistory] = useKV<QualityScore[]>('repo-quality-scores', [])
+  const [scoringHistory, setScoringHistory] = useLocalStorage<QualityScore[]>('repo-quality-scores', [])
 
   const analyzeRepository = async () => {
     if (!repoUrl.trim()) {

@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Sparkle, Robot, Lightning, TrendUp, CheckCircle, Gavel, Coins, Clock, Target, ArrowRight } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { TokenAuction } from '@/components/TokenAuction'
 
@@ -29,10 +29,10 @@ interface AuctionAutoPricing {
 
 export function AutoPricedAuctionCreator() {
   const { userProfile, isAuthenticated, login } = useAuth()
-  const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
-  const [auctionPricings, setAuctionPricings] = useKV<AuctionAutoPricing[]>('auction-auto-pricings', [])
-  const [businessTokens] = useKV<any[]>('business-tokens', [])
-  const [researchTokens] = useKV<any[]>('research-tokens', [])
+  const [auctions, setAuctions] = useLocalStorage<TokenAuction[]>('token-auctions', [])
+  const [auctionPricings, setAuctionPricings] = useLocalStorage<AuctionAutoPricing[]>('auction-auto-pricings', [])
+  const [businessTokens] = useLocalStorage<any[]>('business-tokens', [])
+  const [researchTokens] = useLocalStorage<any[]>('research-tokens', [])
   
   const [selectedToken, setSelectedToken] = useState<string>('')
   const [tokenAmount, setTokenAmount] = useState<string>('1')

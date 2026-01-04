@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { TrendUp, TrendDown, ChartLine, Plus } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -28,7 +28,7 @@ interface TokenMetrics {
 }
 
 export function InteractiveTokenChart() {
-  const [tokenMetrics, setTokenMetrics] = useKV<Record<string, TokenMetrics>>('token-metrics-advanced', {})
+  const [tokenMetrics, setTokenMetrics] = useLocalStorage<Record<string, TokenMetrics>>('token-metrics-advanced', {})
   const [selectedToken, setSelectedToken] = useState<string>('INF')
   const [chartType, setChartType] = useState<'line' | 'area'>('area')
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h')

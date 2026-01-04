@@ -15,7 +15,7 @@ import {
   GitBranch
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 
 interface BackupRecord {
@@ -31,13 +31,13 @@ interface BackupRecord {
 
 export function RepoBackupSystem() {
   const { userProfile, isAuthenticated, currentUser } = useAuth()
-  const [backups, setBackups] = useKV<BackupRecord[]>('user-backups', [])
+  const [backups, setBackups] = useLocalStorage<BackupRecord[]>('user-backups', [])
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [backupProgress, setBackupProgress] = useState(0)
   
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
-  const [auctions] = useKV<any[]>('token-auctions', [])
-  const [transactions] = useKV<any[]>('transaction-history', [])
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
+  const [auctions] = useLocalStorage<any[]>('token-auctions', [])
+  const [transactions] = useLocalStorage<any[]>('transaction-history', [])
 
   const userBackups = backups?.filter(b => b.userId === userProfile?.userId) || []
 

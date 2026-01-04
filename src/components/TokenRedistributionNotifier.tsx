@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,16 +28,16 @@ interface NotificationSettings {
 }
 
 export function TokenRedistributionNotifier() {
-  const [holdings, setHoldings] = useKV<TokenHolding[]>('user-token-holdings', [])
-  const [notifications, setNotifications] = useKV<NotificationSettings>('notification-settings', {
+  const [holdings, setHoldings] = useLocalStorage<TokenHolding[]>('user-token-holdings', [])
+  const [notifications, setNotifications] = useLocalStorage<NotificationSettings>('notification-settings', {
     enabled: true,
     emailNotifications: false,
     pushNotifications: true,
     warningThreshold: 7
   })
-  const [dismissedWarnings, setDismissedWarnings] = useKV<string[]>('dismissed-warnings', [])
+  const [dismissedWarnings, setDismissedWarnings] = useLocalStorage<string[]>('dismissed-warnings', [])
   const [activeWarnings, setActiveWarnings] = useState<TokenHolding[]>([])
-  const [lastCheck, setLastCheck] = useKV<number>('last-notification-check', Date.now())
+  const [lastCheck, setLastCheck] = useLocalStorage<number>('last-notification-check', Date.now())
 
   useEffect(() => {
     checkTokenActivity()
