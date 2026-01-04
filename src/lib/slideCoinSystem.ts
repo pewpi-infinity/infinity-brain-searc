@@ -1,4 +1,5 @@
 import { toast } from 'sonner'
+// Note: storage abstraction is kept for non-auth data
 import { storage } from './storage'
 
 export interface SlideCoin {
@@ -70,11 +71,11 @@ const handleInteraction = async (event: Event) => {
 
 export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> => {
   try {
-    // Get user from localStorage instead of Spark
-    const userDataStr = localStorage.getItem('github_user')
-    if (!userDataStr) return null
+    // Get user from Spark API
+    if (!window.spark) return null
     
-    const user = JSON.parse(userDataStr)
+    const user = await window.spark.user()
+    if (!user) return null
     
     const timestamp = Date.now()
     const mouseEvent = event as MouseEvent

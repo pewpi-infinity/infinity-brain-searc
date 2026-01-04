@@ -2,8 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { storage } from './storage'
 
 /**
- * Custom hook to replace Spark's useKV hook
+ * Custom hook for localStorage - NON-AUTH DATA ONLY
+ * 
+ * ⚠️ WARNING: DO NOT USE FOR AUTHENTICATION
+ * - Authentication uses Spark's useKV hook from '@github/spark/hooks'
+ * - This is only for business data like auctions, tokens, etc.
+ * 
  * Provides reactive state management backed by localStorage
+ * for components that need localStorage for non-critical business data.
  */
 export function useLocalStorage<T>(
   key: string,
