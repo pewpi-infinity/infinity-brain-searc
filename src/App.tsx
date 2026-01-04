@@ -74,6 +74,7 @@ import { LiveRepoManager } from '@/components/LiveRepoManager'
 import { AIPageRepair } from '@/components/AIPageRepair'
 import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
 import { AuthDebugPanel } from '@/components/AuthDebugPanel'
+import { AIDebugger } from '@/components/AIDebugger'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -685,6 +686,7 @@ function App() {
           <WelcomeFlow onNavigate={setActiveTab} />
           <SafetyFooter />
           <AuthDebugPanel />
+          <AIDebugger />
         </div>
       </TokenRedistributionServiceProvider>
     </AuthProvider>
