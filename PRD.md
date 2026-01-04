@@ -12,6 +12,13 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 
 ## Essential Features
 
+**Hierarchical Navigation System with Sub-Categories**
+- Functionality: Multi-level navigation structure with main sections (Home, Create, Trade, Build, Connect, Explore, Play) each containing organized sub-categories that group related features - hamburger menu organized into 8 major categories (Account & Identity, Token Economy with Trading/Auction sub-groups, Automation & AI with Control Systems/Token Automation sub-groups, Analytics & Monitoring with Real-Time/Alerts sub-groups, Development Tools with Repository/Code sub-groups, Publishing & Deploy, Social & Content, Special Systems)
+- Purpose: Reduce cognitive load and decision paralysis by organizing 80+ features into logical hierarchies - users can understand relationships between features, find tools faster, and navigate with confidence knowing where to look for specific functionality
+- Trigger: Always visible in main tab navigation and hamburger menu
+- Progression: User scans main 7 tabs → Selects primary section (e.g., Trade) → Views 4 sub-category tabs with icons (Marketplace, Auctions, Market Data, Analytics) → Clicks sub-category → Accesses focused feature set → Or opens hamburger menu → Sees 8 major categories with emoji headers → Expands category to see sub-groups with indented items → Navigates directly to specific tool
+- Success criteria: Main navigation shows 7 primary tabs with clear icons, each primary tab contains 2-4 sub-category tabs with icons and concise labels, hamburger menu organizes all advanced features into 8 categories, sub-groups within categories use visual indentation (pl-6) and smaller icons (size 18), category headers use emoji for quick visual scanning, no more than 5 items per sub-group to prevent overwhelm, smooth animations between navigation levels, mobile-responsive layout collapses gracefully, users report improved feature discoverability in testing
+
 **Safety Promise & Trust Building**
 - Functionality: Prominent safety promise displayed at the top of every page stating users will never be asked for secret keys, terminal commands, or code - if something can be done safely, it will be done for them
 - Purpose: Immediately lower anxiety for non-technical users, establish trust before any interaction, and differentiate from technical platforms that expect users to adapt to software complexity

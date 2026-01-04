@@ -165,7 +165,7 @@ function App() {
                   <div className="mt-6 space-y-6">
                     
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Account</h3>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">👤 Account & Identity</h3>
                       <div className="space-y-1">
                         <Button 
                           variant="ghost" 
@@ -183,28 +183,6 @@ function App() {
                           <ShieldCheck size={20} weight="duotone" />
                           Admin Controls
                         </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Trading Tools</h3>
-                      <div className="space-y-1">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('templates')}
-                        >
-                          <ClockClockwise size={20} weight="duotone" />
-                          Auction Templates
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('watchlist')}
-                        >
-                          <Eye size={20} weight="duotone" />
-                          Watch List
-                        </Button>
                         <Button 
                           variant="ghost" 
                           className="w-full justify-start gap-2"
@@ -213,141 +191,207 @@ function App() {
                           <Coin size={20} weight="duotone" />
                           Buy INF Tokens
                         </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">💰 Token Economy</h3>
+                      <div className="space-y-1">
+                        <div className="pl-2 mb-1">
+                          <p className="text-xs text-muted-foreground/70">Trading</p>
+                        </div>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
+                          className="w-full justify-start gap-2 pl-6"
                           onClick={() => setActiveTab('charts')}
                         >
-                          <ChartLine size={20} weight="duotone" />
+                          <ChartLine size={18} weight="duotone" />
                           Token Charts
                         </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Automation</h3>
-                      <div className="space-y-1">
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('autopilot')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('blockchain')}
                         >
-                          <Gauge size={20} weight="duotone" />
-                          Auto-Pilot Rules
+                          <CurrencyDollar size={18} weight="duotone" />
+                          Live Blockchain
+                        </Button>
+                        
+                        <div className="pl-2 mb-1 mt-3">
+                          <p className="text-xs text-muted-foreground/70">Auctions</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('templates')}
+                        >
+                          <ClockClockwise size={18} weight="duotone" />
+                          Auction Templates
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('auto-auction')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('watchlist')}
                         >
-                          <Robot size={20} weight="duotone" />
-                          Auto Auction
+                          <Eye size={18} weight="duotone" />
+                          Watch List
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('auto-pricing')}
-                        >
-                          <Robot size={20} weight="duotone" />
-                          Auto-Pricing
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('batch-automation')}
-                        >
-                          <Lightning size={20} weight="duotone" />
-                          Batch Automation
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('create-auto-auction')}
-                        >
-                          <Lightning size={20} weight="duotone" />
-                          Create Auto-Auction
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Monitoring</h3>
-                      <div className="space-y-1">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('notifications')}
-                        >
-                          <Bell size={20} weight="duotone" />
-                          Alerts & Notifications
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('activity-monitor')}
-                        >
-                          <ArrowsClockwise size={20} weight="duotone" />
-                          Activity Monitor
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('page-health')}
-                        >
-                          <Eye size={20} weight="duotone" />
-                          System Health
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
+                          className="w-full justify-start gap-2 pl-6"
                           onClick={() => setActiveTab('auction-analytics')}
                         >
-                          <ChartBar size={20} weight="duotone" />
+                          <ChartBar size={18} weight="duotone" />
                           Auction Analytics
                         </Button>
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Development</h3>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">🤖 Automation & AI</h3>
                       <div className="space-y-1">
+                        <div className="pl-2 mb-1">
+                          <p className="text-xs text-muted-foreground/70">Control Systems</p>
+                        </div>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('batch-analyzer')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('autopilot')}
                         >
-                          <GitBranch size={20} weight="duotone" />
-                          Batch Repo Analyzer
+                          <Gauge size={18} weight="duotone" />
+                          Auto-Pilot Dashboard
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('file-builder')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('batch-automation')}
                         >
-                          <Code size={20} weight="duotone" />
-                          File Builder
+                          <Lightning size={18} weight="duotone" />
+                          Batch Automation
+                        </Button>
+                        
+                        <div className="pl-2 mb-1 mt-3">
+                          <p className="text-xs text-muted-foreground/70">Token Automation</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('auto-auction')}
+                        >
+                          <Robot size={18} weight="duotone" />
+                          Auto Auction System
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('scanner')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('auto-pricing')}
                         >
-                          <FolderOpen size={20} weight="duotone" />
-                          GitHub Scanner
+                          <Robot size={18} weight="duotone" />
+                          Auto-Pricing Engine
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('backup')}
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('create-auto-auction')}
                         >
-                          <Database size={20} weight="duotone" />
-                          Backup & Restore
+                          <Lightning size={18} weight="duotone" />
+                          Create Auto-Auction
                         </Button>
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Publishing</h3>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">📊 Analytics & Monitoring</h3>
+                      <div className="space-y-1">
+                        <div className="pl-2 mb-1">
+                          <p className="text-xs text-muted-foreground/70">Real-Time Monitoring</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('activity-monitor')}
+                        >
+                          <ArrowsClockwise size={18} weight="duotone" />
+                          Activity Monitor
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('page-health')}
+                        >
+                          <Eye size={18} weight="duotone" />
+                          System Health
+                        </Button>
+                        
+                        <div className="pl-2 mb-1 mt-3">
+                          <p className="text-xs text-muted-foreground/70">Alerts & History</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('notifications')}
+                        >
+                          <Bell size={18} weight="duotone" />
+                          Alert Center
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('history')}
+                        >
+                          <ClockClockwise size={18} weight="duotone" />
+                          Token History
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">💻 Development Tools</h3>
+                      <div className="space-y-1">
+                        <div className="pl-2 mb-1">
+                          <p className="text-xs text-muted-foreground/70">Repository Management</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('scanner')}
+                        >
+                          <FolderOpen size={18} weight="duotone" />
+                          GitHub Scanner
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('batch-analyzer')}
+                        >
+                          <GitBranch size={18} weight="duotone" />
+                          Batch Analyzer
+                        </Button>
+                        
+                        <div className="pl-2 mb-1 mt-3">
+                          <p className="text-xs text-muted-foreground/70">Code & Files</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('file-builder')}
+                        >
+                          <Code size={18} weight="duotone" />
+                          File Builder
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2 pl-6"
+                          onClick={() => setActiveTab('backup')}
+                        >
+                          <Database size={18} weight="duotone" />
+                          Backup System
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">🚀 Publishing & Deploy</h3>
                       <div className="space-y-1">
                         <Button 
                           variant="ghost" 
@@ -369,7 +413,7 @@ function App() {
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Social & Media</h3>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">📱 Social & Content</h3>
                       <div className="space-y-1">
                         <Button 
                           variant="ghost" 
@@ -393,27 +437,13 @@ function App() {
                           onClick={() => setActiveTab('emoji')}
                         >
                           <Smiley size={20} weight="duotone" />
-                          Emoji Features
+                          Emoji Hub
                         </Button>
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">History & Data</h3>
-                      <div className="space-y-1">
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('history')}
-                        >
-                          <ClockClockwise size={20} weight="duotone" />
-                          Redistribution History
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Special Features</h3>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">⚡ Special Systems</h3>
                       <div className="space-y-1">
                         <Button 
                           variant="ghost" 
@@ -422,14 +452,6 @@ function App() {
                         >
                           <HandCoins size={20} weight="duotone" />
                           Social Security Pay
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start gap-2"
-                          onClick={() => setActiveTab('blockchain')}
-                        >
-                          <CurrencyDollar size={20} weight="duotone" />
-                          Blockchain Integration
                         </Button>
                       </div>
                     </div>
@@ -534,9 +556,18 @@ function App() {
                 
                 <Tabs defaultValue="mint" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="mint">Mint Tokens</TabsTrigger>
-                    <TabsTrigger value="research">Research</TabsTrigger>
-                    <TabsTrigger value="quality">Quality Score</TabsTrigger>
+                    <TabsTrigger value="mint" className="flex flex-col items-center gap-1 py-2">
+                      <Coin size={20} weight="duotone" />
+                      <span className="text-xs">Mint Tokens</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="research" className="flex flex-col items-center gap-1 py-2">
+                      <Flask size={20} weight="duotone" />
+                      <span className="text-xs">Research</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="quality" className="flex flex-col items-center gap-1 py-2">
+                      <ChartBar size={20} weight="duotone" />
+                      <span className="text-xs">Quality Score</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="mint">
@@ -659,9 +690,18 @@ function App() {
                 
                 <Tabs defaultValue="search" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="search">Web Search</TabsTrigger>
-                    <TabsTrigger value="chat">AI Chat</TabsTrigger>
-                    <TabsTrigger value="modules">Add Abilities</TabsTrigger>
+                    <TabsTrigger value="search" className="flex flex-col items-center gap-1 py-2">
+                      <MagnifyingGlass size={20} weight="duotone" />
+                      <span className="text-xs">Web Search</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="chat" className="flex flex-col items-center gap-1 py-2">
+                      <Robot size={20} weight="duotone" />
+                      <span className="text-xs">AI Chat</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="modules" className="flex flex-col items-center gap-1 py-2">
+                      <Package size={20} weight="duotone" />
+                      <span className="text-xs">Add Abilities</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="search">
@@ -715,10 +755,22 @@ function App() {
                 
                 <Tabs defaultValue="marketplace" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 mb-6">
-                    <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-                    <TabsTrigger value="auction">Auctions</TabsTrigger>
-                    <TabsTrigger value="markets">Market Data</TabsTrigger>
-                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                    <TabsTrigger value="marketplace" className="flex flex-col items-center gap-1 py-2">
+                      <Storefront size={20} weight="duotone" />
+                      <span className="text-xs">Marketplace</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="auction" className="flex flex-col items-center gap-1 py-2">
+                      <Gavel size={20} weight="duotone" />
+                      <span className="text-xs">Auctions</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="markets" className="flex flex-col items-center gap-1 py-2">
+                      <ChartLine size={20} weight="duotone" />
+                      <span className="text-xs">Market Data</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics" className="flex flex-col items-center gap-1 py-2">
+                      <ChartBar size={20} weight="duotone" />
+                      <span className="text-xs">Analytics</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="marketplace">
@@ -772,18 +824,35 @@ function App() {
                 </h2>
                 <p className="text-muted-foreground mb-6">Play games, build sprites, and earn bonus tokens.</p>
                 
-                <div className="grid lg:grid-cols-2 gap-6">
-                  <EmojiCatcherGame />
-                  <SlotMachine />
-                </div>
-                
-                <div className="mt-6">
-                  <MarioScene />
-                </div>
-                
-                <div className="mt-6">
-                  <SpriteBuilder />
-                </div>
+                <Tabs defaultValue="games" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="games" className="flex flex-col items-center gap-1 py-2">
+                      <GameController size={20} weight="duotone" />
+                      <span className="text-xs">Games</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="builder" className="flex flex-col items-center gap-1 py-2">
+                      <Sparkle size={20} weight="duotone" />
+                      <span className="text-xs">Sprite Builder</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="games">
+                    <div className="space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <EmojiCatcherGame />
+                        <SlotMachine />
+                      </div>
+                      
+                      <div className="mt-6">
+                        <MarioScene />
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="builder">
+                    <SpriteBuilder />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
@@ -831,10 +900,22 @@ function App() {
                 
                 <Tabs defaultValue="social" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 mb-6">
-                    <TabsTrigger value="social">Social Poster</TabsTrigger>
-                    <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
-                    <TabsTrigger value="trends">Trends</TabsTrigger>
-                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                    <TabsTrigger value="social" className="flex flex-col items-center gap-1 py-2">
+                      <ShareNetwork size={20} weight="duotone" />
+                      <span className="text-xs">Social Poster</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="sentiment" className="flex flex-col items-center gap-1 py-2">
+                      <Heart size={20} weight="duotone" />
+                      <span className="text-xs">Sentiment</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="trends" className="flex flex-col items-center gap-1 py-2">
+                      <Hash size={20} weight="duotone" />
+                      <span className="text-xs">Trends</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics" className="flex flex-col items-center gap-1 py-2">
+                      <ChartBar size={20} weight="duotone" />
+                      <span className="text-xs">Analytics</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="social">
@@ -882,10 +963,22 @@ function App() {
                 
                 <Tabs defaultValue="repos" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 mb-6">
-                    <TabsTrigger value="repos">My Repos</TabsTrigger>
-                    <TabsTrigger value="live">Live Sites</TabsTrigger>
-                    <TabsTrigger value="deploy">Deploy</TabsTrigger>
-                    <TabsTrigger value="repair">AI Repair</TabsTrigger>
+                    <TabsTrigger value="repos" className="flex flex-col items-center gap-1 py-2">
+                      <GitBranch size={20} weight="duotone" />
+                      <span className="text-xs">My Repos</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="live" className="flex flex-col items-center gap-1 py-2">
+                      <Rocket size={20} weight="duotone" />
+                      <span className="text-xs">Live Sites</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="deploy" className="flex flex-col items-center gap-1 py-2">
+                      <Cloud size={20} weight="duotone" />
+                      <span className="text-xs">Deploy</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="repair" className="flex flex-col items-center gap-1 py-2">
+                      <Robot size={20} weight="duotone" />
+                      <span className="text-xs">AI Repair</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="repos">
