@@ -66,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let retryCount = 0
       const maxRetries = 3
 
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
       while (!user && retryCount < maxRetries) {
         try {
           user = await window.spark.user()
@@ -74,14 +76,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             retryCount++
             if (retryCount < maxRetries) {
               toast.info(`Authentication attempt ${retryCount} failed, retrying...`)
-              await new Promise(resolve => setTimeout(resolve, 1000))
+              await delay(1000)
             }
           }
         } catch (error) {
           retryCount++
           if (retryCount < maxRetries) {
             toast.info(`Connection error, retrying... (${retryCount}/${maxRetries})`)
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            await delay(1000)
           } else {
             throw error
           }

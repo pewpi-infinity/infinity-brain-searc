@@ -17,16 +17,17 @@ export function UserDashboard() {
   const [sparkReady, setSparkReady] = useState(false)
 
   // Check if Spark is ready
-  useState(() => {
+  useEffect(() => {
     const checkSpark = () => {
       if (window.spark) {
         setSparkReady(true)
       } else {
-        setTimeout(checkSpark, 100)
+        const timer = setTimeout(checkSpark, 100)
+        return () => clearTimeout(timer)
       }
     }
     checkSpark()
-  })
+  }, [])
 
   const handleLogin = async () => {
     if (!sparkReady) {

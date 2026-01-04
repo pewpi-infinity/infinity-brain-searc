@@ -27,20 +27,18 @@ export function AuthDebugPanel() {
   // Check auth state periodically
   useEffect(() => {
     const checkAuthState = () => {
-      setAuthState({
+      setAuthState(prev => ({
+        ...prev,
         sparkLoaded: !!window.spark,
         sparkUserAvailable: !!(window.spark && typeof window.spark.user === 'function'),
-        lastAuthAttempt: authState.lastAuthAttempt,
-        authStatus: authState.authStatus,
-        errorMessage: authState.errorMessage,
         appId: document.querySelector('meta[name="spark:app"]')?.getAttribute('content') || null
-      })
+      }))
     }
 
     checkAuthState()
     const interval = setInterval(checkAuthState, 1000)
     return () => clearInterval(interval)
-  }, [authState.lastAuthAttempt, authState.authStatus, authState.errorMessage])
+  }, []) // Empty dependency array - only lastAuthAttempt, authStatus, errorMessage are set by user actions
 
   // Toggle visibility with Ctrl+Shift+D
   useEffect(() => {
