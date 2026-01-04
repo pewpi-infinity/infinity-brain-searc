@@ -8,6 +8,13 @@ import { SearchGraph } from '@/components/SearchGraph'
 import { PageHub } from '@/components/PageHub'
 import { HelpLegend } from '@/components/HelpLegend'
 import { ModuleBrowser } from '@/components/ModuleBrowser'
+import { SafetyPromise } from '@/components/SafetyPromise'
+import { SafeModeToggle } from '@/components/SafeModeToggle'
+import { AutoPilotControl } from '@/components/AutoPilotControl'
+import { ComprehensiveAuctionAnalytics } from '@/components/ComprehensiveAuctionAnalytics'
+import { SafetyFooter } from '@/components/SafetyFooter'
+import { IntentBasedHelper } from '@/components/IntentBasedHelper'
+import { AIGuardian } from '@/components/AIGuardian'
 import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
 import { TokenAuction } from '@/components/TokenAuction'
@@ -45,7 +52,7 @@ import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell, Lightning } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell, Lightning, Gauge } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
@@ -134,6 +141,12 @@ function App() {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Comprehensive tokenized business infrastructure ecosystem. Buy INF with USD or earn through contributions!
             </p>
+            
+            <SafetyPromise />
+            
+            <div className="max-w-md mx-auto">
+              <SafeModeToggle />
+            </div>
           </header>
 
           <div className="mb-8">
@@ -156,15 +169,19 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="batch-analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <GitBranch size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Batch</span>
+                <span className="text-xs md:text-sm">Do Many</span>
               </TabsTrigger>
               <TabsTrigger value="file-builder" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Code size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Builder</span>
+                <span className="text-xs md:text-sm">Create</span>
               </TabsTrigger>
               <TabsTrigger value="scanner" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <FolderOpen size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Scanner</span>
+                <span className="text-xs md:text-sm">Recognize</span>
+              </TabsTrigger>
+              <TabsTrigger value="autopilot" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Gauge size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Auto-Pilot</span>
               </TabsTrigger>
               <TabsTrigger value="auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Robot size={20} weight="duotone" />
@@ -228,11 +245,11 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="modules" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Package size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Modules</span>
+                <span className="text-xs md:text-sm">Add Abilities</span>
               </TabsTrigger>
               <TabsTrigger value="tokens" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <CurrencyDollar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Mint</span>
+                <span className="text-xs md:text-sm">Create Value</span>
               </TabsTrigger>
               <TabsTrigger value="markets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <ChartLine size={20} weight="duotone" />
@@ -272,11 +289,11 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="export" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <FileHtml size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Export</span>
+                <span className="text-xs md:text-sm">Take With Me</span>
               </TabsTrigger>
               <TabsTrigger value="deploy" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Rocket size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Deploy</span>
+                <span className="text-xs md:text-sm">Publish</span>
               </TabsTrigger>
               <TabsTrigger value="azure" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
                 <Cloud size={20} weight="duotone" />
@@ -292,7 +309,11 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ShieldCheck size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Admin</span>
+                <span className="text-xs md:text-sm">My Controls</span>
+              </TabsTrigger>
+              <TabsTrigger value="auction-analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <ChartBar size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Auction Data</span>
               </TabsTrigger>
               <TabsTrigger value="auto-pricing" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Robot size={20} weight="duotone" />
@@ -339,6 +360,10 @@ function App() {
 
             <TabsContent value="scanner">
               <GitHubInfinityScanner />
+            </TabsContent>
+
+            <TabsContent value="autopilot">
+              <AutoPilotControl />
             </TabsContent>
 
             <TabsContent value="auto-auction">
@@ -542,9 +567,17 @@ function App() {
                 <AutoPricedAuctionCreator />
               </div>
             </TabsContent>
+
+            <TabsContent value="auction-analytics">
+              <div className="max-w-7xl mx-auto">
+                <ComprehensiveAuctionAnalytics />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
 
+        <IntentBasedHelper onNavigate={setActiveTab} />
+        <AIGuardian />
         <HelpLegend />
         <BackgroundChanger />
         <ThemeCustomizer />
@@ -567,6 +600,7 @@ function App() {
             })
           }}
         />
+        <SafetyFooter />
       </div>
       </TokenRedistributionServiceProvider>
     </AuthProvider>

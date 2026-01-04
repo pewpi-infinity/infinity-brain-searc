@@ -1,14 +1,71 @@
 # Planning Guide
 
-A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales, real-time value tracking based on user engagement metrics, and earning opportunities, with silver-backed tokens and a planned Summer 2026 major distribution event.
+A comprehensive tokenized business ecosystem platform that provides infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales, real-time value tracking based on user engagement metrics, earning opportunities, racing game-style auto-pilot controls, comprehensive auction analytics, and safety-first UX that protects non-technical users while empowering advanced users.
 
 **Experience Qualities**:
-1. **Empowering** - Users can create their own business tokens, buy INF with USD, or earn tokens through contributions with full transparency and control, while watching token values grow based on real engagement
-2. **Comprehensive** - A complete module registry system tracking all infrastructure components from data management to AI to commerce, including real-world backed assets like silver tokens and real-time metrics dashboards
-3. **Secure & Persistent** - All user sessions, logins, token balances, USD purchases, transactions, and engagement metrics are permanently stored with audit trails for global currency launch
+1. **Safe & Protective** - Users are shielded from technical complexity with explicit safety promises, safe mode toggle, AI guardian notifications, and plain-language interfaces - never asked for secret keys, terminal commands, or confusing code
+2. **Empowering & Autonomous** - Racing game-style auto-pilot system lets users shift between manual control and automation for auctions, trading, pricing, and analytics - like shifting gears in a race car, users can take control for 1-8 hour "shifts" then let AI resume
+3. **Comprehensive & Transparent** - Complete analytics dashboards, real-time metrics, intent-based navigation, and human-friendly labels ("Create" not "Mint", "Publish" not "Deploy") make complex operations accessible to everyone
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a multi-feature ecosystem platform integrating user authentication, token minting, real-time value tracking, USD token sales, comprehensive module registry, AI capabilities, search, visualization, and persistent session management - designed to be the foundation for a world currency system with real-world asset backing, transparent value metrics, and beta program pricing.
+This is a multi-feature ecosystem platform integrating user authentication, token minting, real-time value tracking, USD token sales, comprehensive module registry, AI capabilities, search, visualization, persistent session management, racing-style automation controls, and comprehensive auction analytics - designed to be the foundation for a world currency system with real-world asset backing, transparent value metrics, beta program pricing, and safety-first UX that translates complex systems into human cognition.
+
+## Essential Features
+
+**Safety Promise & Trust Building**
+- Functionality: Prominent safety promise displayed at the top of every page stating users will never be asked for secret keys, terminal commands, or code - if something can be done safely, it will be done for them
+- Purpose: Immediately lower anxiety for non-technical users, establish trust before any interaction, and differentiate from technical platforms that expect users to adapt to software complexity
+- Trigger: Automatically visible on page load in header area
+- Progression: User lands on page → Sees green shield icon with safety promise card → Reads explicit guarantee about no technical requirements → Feels safe to explore → AI Guardian notification appears confirming protection → Footer reinforces "no action can break computer or cost money" → User confidently navigates knowing system protects them
+- Success criteria: Safety promise visible above fold, uses friendly green color scheme with shield icon, text is plain-language without jargon, promise persists across sessions, users report feeling safer in feedback, bounce rate decreases for non-technical users
+
+**Safe Mode Toggle**
+- Functionality: Prominent toggle switch that enables/disables safe mode - when ON, hides advanced options, prevents irreversible actions, and disables anything involving money, deployment, or publishing until user explicitly disables safe mode
+- Purpose: Protect parents, kids, tired users, and stressed users from making mistakes by creating a protective buffer layer - tells users "the system is protecting me" and allows confident exploration without fear
+- Trigger: Toggle visible in header area below safety promise, defaults to ON for new users
+- Progression: User sees "🔒 Safe Mode (On)" toggle → Advanced tabs like Deploy, Admin, Buy INF are hidden or preview-only → Destructive actions show explanations instead of executing → User gains confidence → When ready, user disables safe mode → Toast notification warns about increased access → All features become available → User can re-enable anytime
+- Success criteria: Toggle persists across sessions using useKV, safe mode ON hides minimum 6 advanced features, shows clear "What happens next" previews for hidden actions, toast notifications confirm state changes, mobile-responsive design, color-coded states (green=safe, yellow=unlocked), users report feeling protected
+
+**Racing Game Auto-Pilot Control System**
+- Functionality: Sega-style racing game interface for automation control with 6 sections (Auctions, Trading, Pricing, Redistribution, Analytics, Quality Scoring) - each can be toggled between auto-pilot (AI controlled) and manual mode with 1-8 hour "shift" timers for temporary manual control
+- Purpose: Give users the thrill and mental model of a racing game where they shift gears between manual and automatic transmission - empowers users to automate complex tasks while maintaining control, creates engaging gamified experience, and allows users to "take the wheel" when they want hands-on control
+- Trigger: Navigate to Auto-Pilot tab in main navigation
+- Progression: User opens Auto-Pilot Control Center → Sees 6 automation sections with toggle switches → Each section shows current state (Robot icon=auto, User icon=manual) → User enables auto-pilot for desired sections (e.g., Auctions, Trading) → For active auto-pilot, user can set "manual shift" timer (1h, 2h, 4h, 8h buttons) → During manual shift, badge shows countdown timer → AI operations pause for that section → User performs manual operations → Timer expires, auto-pilot automatically resumes → Global speed slider controls automation intensity (10-100% throttle) → Race Mode toggle adds visual flourish and faster operations → Dashboard shows real-time counts of auto vs manual sections
+- Success criteria: All 6 sections independently toggleable, manual shift timers persist and countdown in real-time, auto-pilot operations actually pause during manual shifts, global speed slider affects operation frequency, race mode adds performance boost, visual feedback with icons and badges, statistics dashboard updates live, mobile-responsive with touch-friendly buttons, smooth animations for state changes, toast notifications for all mode changes
+
+**Comprehensive Auction Analytics Dashboard**
+- Functionality: Real-time analytics dashboard showing auction performance metrics including total volume, active/ended auctions, unique bidders, average duration, volume charts, performance trends, status distribution pie charts, and AI-generated insights
+- Purpose: Provide transparent, data-driven insights into auction ecosystem health and performance - help users optimize auction strategies, understand market dynamics, and make informed decisions about pricing and timing
+- Trigger: Navigate to Auction Data tab in main navigation
+- Progression: User opens dashboard → Selects time range (24h, 7d, 30d, All) → Metrics calculate from auction history → 4 stat cards show key numbers (volume, total auctions, unique bidders, avg duration) → Volume bar chart shows top 10 auctions by final bid → Performance area chart shows trends over time (volume, bids, views) → Status pie chart shows active vs ended distribution → Insights panel displays AI recommendations → Refresh button recalculates metrics → All data updates in real-time as new auctions complete
+- Success criteria: Metrics calculate in under 1 second, supports filtering by time range, visualizations use recharts library, color-coded with meaningful palette, AI insights provide actionable recommendations, mobile-responsive layout, all charts animated, handles empty state gracefully, data persists and accumulates over time, export functionality for reports
+
+**Intent-Based Helper Dialog**
+- Functionality: Floating "Help me choose" button that opens dialog asking user's intent (Build, Learn, Trade, Automate) then routes them to the appropriate section with plain-language choices
+- Trigger: Floating button in bottom-right, always visible
+- Progression: User clicks "Help me choose" → Dialog opens with 4 intent cards → User selects intent (e.g., "Trade & Earn") → Shows 3 destination options relevant to that intent with clear labels → User clicks destination → Navigates to correct tab → Dialog closes → User lands in right place without guessing
+- Success criteria: Button visible on all pages, dialog mobile-friendly, 4 intent categories with 3 destinations each, smooth navigation, prevents users from feeling lost, reduces incorrect tab clicks, animated transitions
+
+**AI Guardian Notification**
+- Functionality: Fixed notification card in top-right showing AI is watching for mistakes and will stop to explain if something looks unsafe or confusing
+- Purpose: Frame AI as guardian, translator, and buffer between human and system - not a black box but a protective presence that prevents errors
+- Trigger: Appears automatically on page load, persists while browsing
+- Progression: User lands on page → AI Guardian card fades in → Shows robot icon with pulse animation → Message explains AI protection → User feels reassured → Card stays visible but unobtrusive → If user attempts risky action, AI can show warning
+- Success criteria: Card positioned top-right without blocking content, uses friendly blue/purple gradient, robot icon pulses subtly, dismissible but reappears on next session, mobile-responsive positioning, text is reassuring not threatening
+
+**Safety Footer**
+- Functionality: Footer bar at bottom of every page stating "No action here can break your computer, steal your account, or cost money without clear confirmation"
+- Purpose: Final reassurance that reinforces trust and safety - addresses common fears that prevent non-technical users from exploring
+- Trigger: Always visible at bottom of page
+- Progression: User scrolls to bottom → Sees shield icon and safety statement → Feels final layer of confidence → Can explore features without fear
+- Success criteria: Always at page bottom, uses shield icon, bold text for key message, persists across all tabs, mobile-responsive
+
+**Human-Friendly Tab Labels**
+- Functionality: Tab labels redesigned to use plain language that expresses intent rather than technical jargon - "Create" instead of "Builder", "Do Many" instead of "Batch", "Take With Me" instead of "Export", "Publish" instead of "Deploy", "My Controls" instead of "Admin", "Add Abilities" instead of "Modules", "Create Value" instead of "Mint", "Recognize" instead of "Scanner"
+- Purpose: Reduce cognitive load by using language non-technical users understand - enables users to point and say "that makes sense" without asking for help
+- Trigger: Visible in all tab navigation
+- Progression: User scans tab bar → Sees familiar, intent-based words → Understands what each tab does without hovering or clicking → Confidently navigates to desired location → Reduces analysis paralysis
+- Success criteria: All 36+ tabs use human-friendly labels, maintains consistency in phrasing, preserves iconography for visual learners, no technical acronyms or jargon, user testing shows improved comprehension
 
 ## Essential Features
 

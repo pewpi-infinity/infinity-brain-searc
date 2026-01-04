@@ -26,6 +26,7 @@ import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
+import { ActionPreview, ACTION_PREVIEWS } from '@/components/ActionPreview'
 
 interface UsdBid {
   bidId: string
@@ -388,6 +389,11 @@ export function InfinityTokenSale() {
           </div>
         </div>
       </Card>
+
+      <ActionPreview 
+        action="buyInf"
+        description={ACTION_PREVIEWS.buyInf}
+      />
 
       <Tabs defaultValue="buy" className="space-y-6">
         <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">

@@ -7,6 +7,7 @@ import { VercelDeployer } from './VercelDeployer'
 import { GitHubDeployer } from './GitHubDeployer'
 import { DeploymentGuide } from './DeploymentGuide'
 import { Rocket, CloudArrowUp, Lightning, GithubLogo, Globe, BookOpen } from '@phosphor-icons/react'
+import { ActionPreview, ACTION_PREVIEWS } from '@/components/ActionPreview'
 
 export function DeploymentHub() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -56,6 +57,11 @@ export function DeploymentHub() {
           </div>
         </CardHeader>
       </Card>
+
+      <ActionPreview 
+        action="deploy"
+        description={ACTION_PREVIEWS.deploy}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5 h-auto gap-2 bg-card/80 backdrop-blur p-2">
