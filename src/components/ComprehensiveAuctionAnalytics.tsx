@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -43,7 +43,7 @@ interface MarketForecast {
 }
 
 export function ComprehensiveAuctionAnalytics() {
-  const [auctions] = useKV<Auction[]>('auctions', [])
+  const [auctions] = useLocalStorage<Auction[]>('auctions', [])
   const [metrics, setMetrics] = useState<AuctionMetrics | null>(null)
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('7d')
   const [refreshing, setRefreshing] = useState(false)

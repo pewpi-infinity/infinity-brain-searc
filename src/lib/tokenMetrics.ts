@@ -168,7 +168,7 @@ export async function trackTokenMetric(
     metrics.splice(0, metrics.length - maxMetrics)
   }
   
-  await window.spark.kv.set(`token-metrics-${tokenSymbol}`, metrics)
+  localStorageUtils.set(`token-metrics-${tokenSymbol}`, metrics)
   
   await updateTokenValueSnapshot(tokenSymbol, metrics)
 }
@@ -188,5 +188,5 @@ async function updateTokenValueSnapshot(tokenSymbol: string, metrics: TokenMetri
     snapshots.splice(0, snapshots.length - maxSnapshots)
   }
   
-  await window.spark.kv.set(`token-snapshots-${tokenSymbol}`, snapshots)
+  localStorageUtils.set(`token-snapshots-${tokenSymbol}`, snapshots)
 }

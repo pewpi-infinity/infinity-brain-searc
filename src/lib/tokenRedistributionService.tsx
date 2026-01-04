@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import type { ReactNode } from 'react'
+import { localStorageUtils } from '@/hooks/useLocalStorage'
 
 interface TokenRedistributionService {
   checkInactiveTokens: () => Promise<void>
@@ -18,7 +19,7 @@ export function useTokenRedistributionService() {
     try {
       if (typeof window === 'undefined' || !window.spark) return ['community-pool']
       
-      const transactions = await window.spark.kv.get<any[]>('token-transactions') || []
+      const transactions = localStorageUtils.get<any[]>('token-transactions', [])
       const now = Date.now()
       const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
 
@@ -49,7 +50,7 @@ export function useTokenRedistributionService() {
     try {
       if (typeof window === 'undefined' || !window.spark) return
       
-      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
+      const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
       const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
 
       if (tokenIndex === -1) return
@@ -74,16 +75,17 @@ export function useTokenRedistributionService() {
         reason: 'inactivity'
       }
 
-      const redistributions = await window.spark.kv.get<any[]>('token-redistributions') || []
+      const redistributions = localStorageUtils.get<any[]>('token-redistributions', [])
       redistributions.push(redistributionRecord)
-      await window.spark.kv.set('token-redistributions', redistributions)
+      localStorageUtils.set('token-redistributions', redistributions)
 
       tokens[tokenIndex].owner = randomTrader
       tokens[tokenIndex].lastActivity = Date.now()
       tokens[tokenIndex].previousOwners = [...(token.previousOwners || []), fromOwner]
-      await window.spark.kv.set('minted-tokens', tokens)
+      localStorageUtils.set('minted-tokens', tokens)
 
-      const user = await window.spark.user()
+      // TODO: Remove Spark user() call - use auth context instead
+      // const user = await window.spark.user()
       if (user && user.login === fromOwner) {
         toast.error(`Token ${tokenSymbol} Redistributed`, {
           description: `Due to inactivity, your tokens have been redistributed to active traders`,
@@ -108,7 +110,8 @@ export function useTokenRedistributionService() {
     try {
       if (typeof window === 'undefined' || !window.spark) return
       
-      const user = await window.spark.user()
+      // TODO: Remove Spark user() call - use auth context instead
+      // const user = await window.spark.user()
       
       if (!user || user.login !== owner) return
 
@@ -143,10 +146,10 @@ export function useTokenRedistributionService() {
         })
       }
 
-      await window.spark.kv.set(notificationKey, true)
+      localStorageUtils.set(notificationKey, true)
       
       setTimeout(async () => {
-        if (typeof window !== 'undefined' && window.spark) {
+        if (true) {
           await window.spark.kv.delete(notificationKey)
         }
       }, 86400000)
@@ -160,7 +163,7 @@ export function useTokenRedistributionService() {
     try {
       if (typeof window === 'undefined' || !window.spark) return
       
-      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
+      const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
       const now = Date.now()
 
       for (const token of tokens) {

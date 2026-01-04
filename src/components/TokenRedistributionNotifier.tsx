@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,16 +28,16 @@ interface NotificationSettings {
 }
 
 export function TokenRedistributionNotifier() {
-  const [holdings, setHoldings] = useKV<TokenHolding[]>('user-token-holdings', [])
-  const [notifications, setNotifications] = useKV<NotificationSettings>('notification-settings', {
+  const [holdings, setHoldings] = useLocalStorage<TokenHolding[]>('user-token-holdings', [])
+  const [notifications, setNotifications] = useLocalStorage<NotificationSettings>('notification-settings', {
     enabled: true,
     emailNotifications: false,
     pushNotifications: true,
     warningThreshold: 7
   })
-  const [dismissedWarnings, setDismissedWarnings] = useKV<string[]>('dismissed-warnings', [])
+  const [dismissedWarnings, setDismissedWarnings] = useLocalStorage<string[]>('dismissed-warnings', [])
   const [activeWarnings, setActiveWarnings] = useState<TokenHolding[]>([])
-  const [lastCheck, setLastCheck] = useKV<number>('last-notification-check', Date.now())
+  const [lastCheck, setLastCheck] = useLocalStorage<number>('last-notification-check', Date.now())
 
   useEffect(() => {
     checkTokenActivity()
@@ -82,7 +82,7 @@ export function TokenRedistributionNotifier() {
   }
 
   const calculateTokenActivity = async (tokenSymbol: string) => {
-    const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
+    const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
     const token = tokens.find(t => t.symbol === tokenSymbol)
     
     if (token) {
@@ -110,8 +110,9 @@ export function TokenRedistributionNotifier() {
   }
 
   const refreshHoldings = async () => {
-    const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
-    const user = await window.spark.user()
+    const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
+    // TODO: Remove Spark user() call - use auth context instead
+    // const user = await window.spark.user()
     if (!user) return
     const userTokens = tokens.filter(t => t.owner === user.login)
 
@@ -124,12 +125,12 @@ export function TokenRedistributionNotifier() {
   }
 
   const takeActivity = async (tokenSymbol: string) => {
-    const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
+    const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
     const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
 
     if (tokenIndex !== -1) {
       tokens[tokenIndex].lastActivity = Date.now()
-      await window.spark.kv.set('minted-tokens', tokens)
+      localStorageUtils.set('minted-tokens', tokens)
       
       await refreshHoldings()
       

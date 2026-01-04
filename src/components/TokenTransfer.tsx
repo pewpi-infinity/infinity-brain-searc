@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { PaperPlaneTilt, User, Coins } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { trackTokenMetric } from '@/lib/tokenMetrics'
@@ -23,9 +23,9 @@ interface UserProfile {
 
 export function TokenTransfer() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [allProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
-  const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
-  const [userProfiles, setUserProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
+  const [allProfiles] = useLocalStorage<Record<string, UserProfile>>('all-user-profiles', {})
+  const [allTransactions, setAllTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
+  const [userProfiles, setUserProfiles] = useLocalStorage<Record<string, UserProfile>>('all-user-profiles', {})
   
   const [recipientId, setRecipientId] = useState('')
   const [tokenSymbol, setTokenSymbol] = useState('')

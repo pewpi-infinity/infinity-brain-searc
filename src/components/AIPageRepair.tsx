@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkle, UploadSimple, Bug, CheckCircle, Lightning, Eye, Image } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 interface PageIssue {
   id: string
@@ -34,8 +34,8 @@ export function AIPageRepair() {
   const [isScanning, setIsScanning] = useState(false)
   const [isRepairing, setIsRepairing] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
-  const [issues, setIssues] = useKV<PageIssue[]>('page-issues', [])
-  const [sessions, setSessions] = useKV<RepairSession[]>('repair-sessions', [])
+  const [issues, setIssues] = useLocalStorage<PageIssue[]>('page-issues', [])
+  const [sessions, setSessions] = useLocalStorage<RepairSession[]>('repair-sessions', [])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

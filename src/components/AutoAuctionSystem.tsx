@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Gavel, Robot, Clock, Coins, TrendUp, Sparkle, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 
 interface AutoAuctionRule {
@@ -42,11 +42,11 @@ interface StaleToken {
 
 export function AutoAuctionSystem() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [rules, setRules] = useKV<AutoAuctionRule[]>('auto-auction-rules', [])
+  const [rules, setRules] = useLocalStorage<AutoAuctionRule[]>('auto-auction-rules', [])
   const [staleTokens, setStaleTokens] = useState<StaleToken[]>([])
-  const [autoEnabled, setAutoEnabled] = useKV<boolean>('auto-auction-enabled', false)
-  const [allProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [autoEnabled, setAutoEnabled] = useLocalStorage<boolean>('auto-auction-enabled', false)
+  const [allProfiles] = useLocalStorage<Record<string, any>>('all-user-profiles', {})
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
   
   const [newRuleToken, setNewRuleToken] = useState('')
   const [newRuleTrigger, setNewRuleTrigger] = useState<'stale' | 'inactive' | 'threshold' | 'scheduled'>('stale')
@@ -169,8 +169,8 @@ export function AutoAuctionSystem() {
       description: `Auto-listed: Stale token (${staleToken.daysSinceActivity} days inactive) from holder ${staleToken.holder}. Gets tokens back into circulation!`
     }
 
-    const currentAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
-    await window.spark.kv.set('token-auctions', [...currentAuctions, auction])
+    const currentAuctions = localStorageUtils.get<any[]>('token-auctions', [])
+    localStorageUtils.set('token-auctions', [...currentAuctions, auction])
 
     toast.success(`Auto-auction created for ${rule.tokenSymbol}`, {
       description: `Starting bid: ${rule.minBid} INF`
@@ -236,8 +236,8 @@ export function AutoAuctionSystem() {
       description: `Manually listed stale token (${token.daysSinceActivity} days inactive) to increase circulation`
     }
 
-    const currentAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
-    await window.spark.kv.set('token-auctions', [...currentAuctions, auction])
+    const currentAuctions = localStorageUtils.get<any[]>('token-auctions', [])
+    localStorageUtils.set('token-auctions', [...currentAuctions, auction])
 
     toast.success(`Auction created for ${token.symbol}`, {
       description: `Starting bid: ${token.suggestedStartBid} INF`

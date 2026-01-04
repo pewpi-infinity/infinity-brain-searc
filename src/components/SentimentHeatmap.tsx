@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { toast } from 'sonner'
 import { ChartBar, Plus, Trash, Download, Sparkle, ArrowsLeftRight, TrendUp, Calendar } from '@phosphor-icons/react'
 import * as d3 from 'd3'
@@ -33,7 +33,7 @@ interface HeatmapData {
 }
 
 export function SentimentHeatmap() {
-  const [entries, setEntries] = useKV<SentimentEntry[]>('sentiment-entries', [])
+  const [entries, setEntries] = useLocalStorage<SentimentEntry[]>('sentiment-entries', [])
   const [inputText, setInputText] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [viewMode, setViewMode] = useState<'overall' | 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'love'>('overall')

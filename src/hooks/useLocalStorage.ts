@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react'
 
 /**
- * A hook that mimics the API of Spark's useKV but uses localStorage instead
+ * A hook that mimics the API of Spark's useLocalStorage but uses localStorage instead
  * This allows for a drop-in replacement with minimal code changes
  */
 export function useLocalStorage<T>(

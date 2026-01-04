@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { CurrencyCircleDollar, TrendUp, TrendDown, ArrowsLeftRight, ChartLine, Lightning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -40,10 +40,10 @@ interface TradeOrder {
 }
 
 export function BlockchainIntegration() {
-  const [connections, setConnections] = useKV<BlockchainConnection[]>('blockchain-connections', [])
+  const [connections, setConnections] = useLocalStorage<BlockchainConnection[]>('blockchain-connections', [])
   const [livePrices, setLivePrices] = useState<LivePrice[]>([])
-  const [autoTradeEnabled, setAutoTradeEnabled] = useKV<boolean>('auto-trade-enabled', false)
-  const [tradeHistory, setTradeHistory] = useKV<TradeOrder[]>('trade-history', [])
+  const [autoTradeEnabled, setAutoTradeEnabled] = useLocalStorage<boolean>('auto-trade-enabled', false)
+  const [tradeHistory, setTradeHistory] = useLocalStorage<TradeOrder[]>('trade-history', [])
   const [selectedExchange, setSelectedExchange] = useState<string>('simulated')
   const [priceUpdateInterval, setPriceUpdateInterval] = useState<number>(5000)
 
