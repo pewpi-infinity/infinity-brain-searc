@@ -1,16 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { adminProtection, restoreAdminAuctions } from './adminProtection'
-import { useLocalStorage } from './useLocalStorage'
-import { storage } from './storage'
-
-// GitHub OAuth Configuration
-const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID
-if (!GITHUB_CLIENT_ID) {
-  console.error('VITE_GITHUB_CLIENT_ID is not configured. Please add it to your .env file.')
-}
-const GITHUB_REDIRECT_URI = window.location.origin + '/auth/callback'
-const GITHUB_OAUTH_URL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=read:user user:email`
 
 export interface UserSession {
   userId: string
@@ -33,6 +24,14 @@ export interface CachedAuthData {
 }
 
 export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
+
+// Troubleshooting tips for different error scenarios
+const TROUBLESHOOTING_TIPS = {
+  timeout: '• Check your internet speed\n• Try again in a few moments\n• Consider using a different network',
+  network: '• Verify your internet connection\n• Check if GitHub is accessible\n• Try disabling VPN or proxy',
+  auth: '• Ensure popups are not blocked\n• Try clearing browser cache\n• Make sure you have a GitHub account',
+  general: '• Check your internet connection\n• Ensure popups are enabled\n• Try refreshing the page'
+} as const
 
 export interface UserProfile {
   userId: string
@@ -57,7 +56,6 @@ interface AuthContextType {
   getTokenBalance: (tokenSymbol: string) => number
   syncWallet: () => Promise<void>
   retryConnection: () => Promise<void>
-  handleOAuthCallback: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -65,231 +63,342 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  const [userProfile, setUserProfile] = useLocalStorage<UserProfile | null>(
-    userId ? `user-profile-${userId}` : 'user-profile-temp',
-    null
-  )
-  const [allSessions, setAllSessions] = useLocalStorage<UserSession[]>('user-sessions', [])
-  const [allProfiles, setAllProfiles] = useLocalStorage<Record<string, UserProfile>>('all-user-profiles', {})
-  const [cachedAuth, setCachedAuth] = useLocalStorage<CachedAuthData | null>('cached-auth-data', null)
+  const [userProfile, setUserProfile] = useKV<UserProfile | null>(userId ? `user-profile-${userId}` : 'user-profile-temp', null)
+  const [allSessions, setAllSessions] = useKV<UserSession[]>('user-sessions', [])
+  const [allProfiles, setAllProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
+  const [cachedAuth, setCachedAuth] = useKV<CachedAuthData | null>('cached-auth-data', null)
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
 
   const isAuthenticated = currentUser !== null
 
-  // Check for existing session on mount
-  useEffect(() => {
-    const checkExistingSession = async () => {
-      const token = localStorage.getItem('github_token')
-      const userDataStr = localStorage.getItem('github_user')
-      
-      if (token && userDataStr) {
-        try {
-          const userData = JSON.parse(userDataStr)
-          await restoreUserSession(userData, token)
-        } catch (error) {
-          console.error('Failed to restore session:', error)
-          // Clear invalid session data
-          localStorage.removeItem('github_token')
-          localStorage.removeItem('github_user')
-        }
-      }
-    }
-
-    checkExistingSession()
-  }, [])
-
-  const restoreUserSession = async (userData: any, token: string) => {
-    const userIdString = String(userData.id)
-    setUserId(userIdString)
-    
-    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    const session: UserSession = {
-      userId: userIdString,
-      username: userData.login,
-      email: userData.email || '',
-      avatarUrl: userData.avatar_url || '',
-      isOwner: userData.login === 'pewpi' || userData.login === 'buotuner',
-      loginTime: Date.now(),
-      lastActive: Date.now(),
-      sessionId
-    }
-
-    setCurrentUser(session)
-    setConnectionState('connected')
-
-    // Load or create user profile
-    const existingProfileData = await storage.get<UserProfile>(`user-profile-${userIdString}`)
-    const allTransactions = await storage.get<any[]>('all-transactions') || []
-    
-    const recalculateTokenBalances = (userId: string) => {
-      const balances: Record<string, number> = { 'INF': 10 }
-      
-      for (const tx of allTransactions) {
-        if (tx.status !== 'completed') continue
-        
-        if (tx.type === 'mint' && tx.from === userId && tx.to === userId) {
-          balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
-        } else if (tx.to === userId) {
-          balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
-        } else if (tx.from === userId) {
-          balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) - tx.amount
-        }
-      }
-      
-      return balances
+  // Network connectivity check
+  const checkNetworkConnectivity = async (): Promise<boolean> => {
+    if (!navigator.onLine) {
+      return false
     }
     
-    if (!existingProfileData) {
-      const calculatedBalances = recalculateTokenBalances(userIdString)
+    try {
+      // Try to fetch GitHub API to verify actual connectivity
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000)
       
-      const newProfile: UserProfile = {
-        userId: userIdString,
-        username: userData.login,
-        email: userData.email || '',
-        avatarUrl: userData.avatar_url || '',
-        createdAt: Date.now(),
-        businessTokens: calculatedBalances,
-        preferences: {}
-      }
-      setUserProfile(newProfile)
+      await fetch('https://api.github.com', {
+        method: 'HEAD',
+        cache: 'no-cache',
+        signal: controller.signal
+      })
       
-      setAllProfiles((currentProfiles) => ({
-        ...(currentProfiles || {}),
-        [userIdString]: newProfile
-      }))
-    } else {
-      const calculatedBalances = recalculateTokenBalances(userIdString)
-      
-      const updatedProfile = {
-        ...existingProfileData,
-        username: userData.login,
-        email: userData.email || '',
-        avatarUrl: userData.avatar_url || '',
-        businessTokens: calculatedBalances
-      }
-      setUserProfile(updatedProfile)
-      
-      setAllProfiles((currentProfiles) => ({
-        ...(currentProfiles || {}),
-        [userIdString]: updatedProfile
-      }))
+      clearTimeout(timeoutId)
+      return true
+    } catch {
+      return false
     }
+  }
+
+  // Check Spark API availability
+  const checkSparkAvailability = async (): Promise<boolean> => {
+    if (!window.spark) {
+      return false
+    }
+
+    // Pre-flight check to ensure Spark API is responsive
+    // Just check if the API object exists and has the expected methods
+    return typeof window.spark.user === 'function' && 
+           typeof window.spark.kv === 'object'
+  }
+
+  // Timeout wrapper for Spark user call
+  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
+      }, timeoutMs)
+
+      window.spark.user()
+        .then((user) => {
+          clearTimeout(timeoutId)
+          resolve(user)
+        })
+        .catch((error) => {
+          clearTimeout(timeoutId)
+          reject(error)
+        })
+    })
   }
 
   const login = async () => {
     try {
       setConnectionState('connecting')
       
-      toast.info('Redirecting to GitHub...', {
-        description: 'Please sign in with your GitHub account'
+      // Check if Spark is loaded
+      if (!window.spark) {
+        setConnectionState('error')
+        toast.error('Spark is not loaded yet. Please wait a moment and try again.')
+        throw new Error('Spark not initialized')
+      }
+
+      // Pre-flight checks
+      const isNetworkAvailable = await checkNetworkConnectivity()
+      if (!isNetworkAvailable) {
+        setConnectionState('error')
+        toast.error('No network connection', {
+          description: 'Please check your internet connection and try again.'
+        })
+        throw new Error('NETWORK_ERROR: No network connectivity')
+      }
+
+      const isSparkAvailable = await checkSparkAvailability()
+      if (!isSparkAvailable) {
+        setConnectionState('error')
+        toast.error('Spark API unavailable', {
+          description: 'The authentication service is not responding. Please try again later.'
+        })
+        throw new Error('SPARK_UNAVAILABLE: Spark API not available')
+      }
+
+      // Show loading state
+      toast.info('Starting authentication...', {
+        description: 'Opening GitHub OAuth window'
+      })
+
+      // Call Spark user method with improved retry logic
+      let user = null
+      let retryCount = 0
+      const maxRetries = 5
+      const baseDelay = 1000 // 1 second base delay
+
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+      while (!user && retryCount < maxRetries) {
+        try {
+          const attemptedUser = await callSparkUserWithTimeout(5000)
+          
+          if (attemptedUser && attemptedUser.id) {
+            user = attemptedUser // Success - user is valid
+          } else {
+            // Invalid user data returned - this is not a retry-worthy error
+            throw new Error('INVALID_RESPONSE: Invalid user data returned from authentication')
+          }
+        } catch (error) {
+          retryCount++
+          
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          const isTimeout = errorMessage.includes('TIMEOUT')
+          const isNetworkError = errorMessage.includes('NETWORK') || errorMessage.includes('fetch')
+          const isAuthFailure = errorMessage.includes('INVALID_RESPONSE')
+          
+          // Log detailed error for debugging
+          console.error(`Authentication attempt ${retryCount}/${maxRetries} failed:`, {
+            error: errorMessage,
+            type: isTimeout ? 'timeout' : isNetworkError ? 'network' : isAuthFailure ? 'auth' : 'unknown',
+            retryCount,
+            timestamp: new Date().toISOString()
+          })
+          
+          if (retryCount < maxRetries) {
+            // Exponential backoff: 1s, 2s, 4s, 8s
+            const delayMs = baseDelay * Math.pow(2, retryCount - 1)
+            
+            // Calculate estimated time remaining based on exponential backoff
+            let estimatedTimeRemaining = 0
+            for (let i = retryCount; i < maxRetries; i++) {
+              estimatedTimeRemaining += baseDelay * Math.pow(2, i - 1)
+            }
+            const estimatedSeconds = Math.ceil(estimatedTimeRemaining / 1000)
+            
+            // Show specific error type in notification
+            let retryMessage = 'Connection error, retrying...'
+            if (isTimeout) {
+              retryMessage = 'Request timed out, retrying...'
+            } else if (isNetworkError) {
+              retryMessage = 'Network error, retrying...'
+            }
+            
+            toast.info(retryMessage, {
+              description: `Attempt ${retryCount}/${maxRetries} - Next retry in ${delayMs / 1000}s (~${estimatedSeconds}s remaining)`
+            })
+            
+            await delay(delayMs)
+            
+            // Re-check network before retrying
+            if (!await checkNetworkConnectivity()) {
+              throw new Error('NETWORK_ERROR: Lost network connectivity during retry')
+            }
+          } else {
+            // All retries exhausted - provide troubleshooting tips
+            let troubleshootingTips = TROUBLESHOOTING_TIPS.general
+            if (isTimeout) {
+              troubleshootingTips = TROUBLESHOOTING_TIPS.timeout
+            } else if (isNetworkError) {
+              troubleshootingTips = TROUBLESHOOTING_TIPS.network
+            } else if (isAuthFailure) {
+              troubleshootingTips = TROUBLESHOOTING_TIPS.auth
+            }
+            
+            toast.error(`Authentication failed after ${maxRetries} attempts`, {
+              description: troubleshootingTips,
+              duration: 10000
+            })
+            
+            throw error
+          }
+        }
+      }
+      
+      if (!user || !user.id) {
+        setConnectionState('error')
+        toast.error('Authentication failed', {
+          description: 'Could not authenticate with GitHub. Please check if popups are blocked and try again.'
+        })
+        throw new Error('User authentication failed after retries')
+      }
+      
+      // Cache successful authentication data
+      const authCache: CachedAuthData = {
+        userId: String(user.id),
+        username: user.login,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        isOwner: user.isOwner,
+        cachedAt: Date.now()
+      }
+      setCachedAuth(authCache)
+      
+      toast.success('Authentication successful!', {
+        description: 'Loading your profile...'
       })
       
-      // Redirect to GitHub OAuth
-      window.location.href = GITHUB_OAUTH_URL
+      const userIdString = String(user.id)
+      setUserId(userIdString)
+      
+      const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const session: UserSession = {
+        userId: userIdString,
+        username: user.login,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        isOwner: user.isOwner,
+        loginTime: Date.now(),
+        lastActive: Date.now(),
+        sessionId
+      }
+
+      setCurrentUser(session)
+      setConnectionState('connected')
+
+      setAllSessions((currentSessions) => [...(currentSessions || []), session])
+
+      const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
+      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
+      
+      const recalculateTokenBalances = (userId: string) => {
+        const balances: Record<string, number> = { 'INF': 10 }
+        
+        for (const tx of allTransactions) {
+          if (tx.status !== 'completed') continue
+          
+          if (tx.type === 'mint' && tx.from === userId && tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.to === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) + tx.amount
+          } else if (tx.from === userId) {
+            balances[tx.tokenSymbol] = (balances[tx.tokenSymbol] || 0) - tx.amount
+          }
+        }
+        
+        return balances
+      }
+      
+      if (!existingProfileData) {
+        const calculatedBalances = recalculateTokenBalances(userIdString)
+        
+        const newProfile: UserProfile = {
+          userId: userIdString,
+          username: user.login,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
+          createdAt: Date.now(),
+          businessTokens: calculatedBalances,
+          preferences: {}
+        }
+        setUserProfile(newProfile)
+        
+        setAllProfiles((currentProfiles) => ({
+          ...(currentProfiles || {}),
+          [userIdString]: newProfile
+        }))
+        
+        const hasTokens = Object.keys(calculatedBalances).length > 1 || calculatedBalances['INF'] > 10
+        if (hasTokens) {
+          toast.success('Welcome back! Your tokens have been restored from transaction history! 🎉')
+        } else {
+          toast.success('Welcome! You received 10 free INF tokens to get started! 🎉')
+        }
+      } else {
+        const calculatedBalances = recalculateTokenBalances(userIdString)
+        
+        const updatedProfile = {
+          ...existingProfileData,
+          username: user.login,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
+          businessTokens: calculatedBalances
+        }
+        setUserProfile(updatedProfile)
+        
+        setAllProfiles((currentProfiles) => ({
+          ...(currentProfiles || {}),
+          [userIdString]: updatedProfile
+        }))
+        
+        toast.success(`Welcome back, ${user.login}! 👋`)
+      }
     } catch (error) {
       setConnectionState('error')
       console.error('Login failed:', error)
       
-      toast.error('Login failed', {
-        description: 'Could not initiate GitHub authentication. Please try again.'
+      // Provide detailed error information
+      let errorMessage = 'Login failed. Please try again.'
+      let errorDescription = ''
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Spark not initialized')) {
+          errorMessage = 'System not ready'
+          errorDescription = 'Please wait a moment for the app to fully load and try again.'
+        } else if (error.message.includes('TIMEOUT')) {
+          errorMessage = 'Authentication timed out'
+          errorDescription = 'The authentication service took too long to respond. Please check your connection and try again.'
+        } else if (error.message.includes('NETWORK_ERROR')) {
+          errorMessage = 'Network error'
+          errorDescription = 'Unable to connect to the authentication service. Please check your internet connection.'
+        } else if (error.message.includes('SPARK_UNAVAILABLE')) {
+          errorMessage = 'Service unavailable'
+          errorDescription = 'The authentication service is currently unavailable. Please try again later.'
+        } else if (error.message.includes('authentication failed')) {
+          errorMessage = 'GitHub authentication failed'
+          errorDescription = 'Make sure popups are enabled and you have a GitHub account.'
+        } else if (error.message.includes('popup')) {
+          errorMessage = 'Popup blocked'
+          errorDescription = 'Please allow popups for this site and try again.'
+        } else {
+          errorMessage = 'Login error'
+          errorDescription = error.message
+        }
+      }
+      
+      toast.error(errorMessage, {
+        description: errorDescription,
+        duration: 5000
       })
       
       throw error
     }
   }
 
-  const handleOAuthCallback = async () => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search)
-      const code = urlParams.get('code')
-      
-      if (!code) {
-        throw new Error('No authorization code received')
-      }
-
-      setConnectionState('connecting')
-      toast.info('Completing authentication...', {
-        description: 'Fetching your GitHub profile'
-      })
-
-      // Note: In production, token exchange should happen on backend
-      // For now, we'll use the code to fetch user data directly
-      // This is a client-side only implementation as specified in requirements
-      
-      // Fetch user data using a personal access token approach
-      // Since we can't exchange code without a backend, we'll use GitHub API with the code
-      // This is a limitation - ideally need backend proxy
-      
-      // For demo purposes, try to get user data with fetch
-      let userData
-      try {
-        // Try using GitHub device flow or fetch user with code
-        // Since we can't complete OAuth flow client-side, we'll redirect user to complete it
-        // and store a flag to fetch on next load
-        
-        // Attempt to fetch user data (this will fail without proper token exchange)
-        // For MVP, we'll use a workaround: store the code and fetch on backend later
-        
-        // WORKAROUND: Use GitHub API without auth for public data
-        // This is limited but works for MVP demo
-        const response = await fetch('https://api.github.com/user', {
-          headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            // Note: This won't work without a token, but structure is here for backend integration
-          }
-        })
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data')
-        }
-        
-        userData = await response.json()
-      } catch (error) {
-        // Fallback: use mock data for demo or show error
-        console.error('Failed to fetch user data:', error)
-        toast.error('Authentication incomplete', {
-          description: 'GitHub OAuth requires a backend server for token exchange. Using fallback authentication.',
-          duration: 7000
-        })
-        
-        // For demo purposes, create a mock user based on the code presence
-        userData = {
-          id: Date.now(),
-          login: 'github-user',
-          email: 'user@example.com',
-          avatar_url: 'https://avatars.githubusercontent.com/u/0?v=4',
-          name: 'GitHub User'
-        }
-      }
-
-      // Store token and user data
-      localStorage.setItem('github_token', code) // In production, this would be the access token
-      localStorage.setItem('github_user', JSON.stringify(userData))
-
-      // Restore session
-      await restoreUserSession(userData, code)
-
-      // Clear URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname)
-
-      toast.success('Authentication successful!', {
-        description: `Welcome, ${userData.login}!`
-      })
-    } catch (error) {
-      setConnectionState('error')
-      console.error('OAuth callback failed:', error)
-      
-      toast.error('Authentication failed', {
-        description: error instanceof Error ? error.message : 'Please try again.'
-      })
-      
-      throw error
-    }
-  }
-
+  // Manual retry function for connection issues
   const retryConnection = async () => {
     toast.info('Retrying connection...', {
-      description: 'Attempting to authenticate with GitHub'
+      description: 'Checking network and authentication service'
     })
     await login()
   }
@@ -300,15 +409,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (currentSessions || []).filter(s => s.sessionId !== currentUser.sessionId)
       )
     }
-    
-    // Clear authentication data
-    localStorage.removeItem('github_auth_code')
-    localStorage.removeItem('github_user')
-    
     setCurrentUser(null)
-    setConnectionState('disconnected')
-    
-    toast.success('Logged out successfully')
   }
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -393,7 +494,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       for (const repo of reposToCheck) {
         try {
           const repoKey = `repo-${repo}-tokens-${currentUser.username}`
-          const tokens = await storage.get<Record<string, number>>(repoKey)
+          const tokens = await window.spark.kv.get<Record<string, number>>(repoKey)
           
           if (tokens) {
             for (const [symbol, amount] of Object.entries(tokens)) {
@@ -482,8 +583,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         deductTokens,
         getTokenBalance,
         syncWallet,
-        retryConnection,
-        handleOAuthCallback
+        retryConnection
       }}
     >
       {children}

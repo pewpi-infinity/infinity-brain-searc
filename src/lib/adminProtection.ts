@@ -1,4 +1,4 @@
-import { storage } from './storage'
+// Admin protection utilities for Infinity Brain
 
 const ADMIN_GITHUB_ID = 'pewpi-infinity'
 
@@ -82,62 +82,68 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
 ]
 
 export async function restoreAdminAuctions() {
-  // Get user from localStorage instead of Spark
-  const userDataStr = localStorage.getItem('github_user')
-  if (!userDataStr) return
+  // Use Spark API to get user
+  if (!window.spark) return
   
-  const ownerUser = JSON.parse(userDataStr)
-  
-  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
-    return
+  try {
+    const ownerUser = await window.spark.user()
+    
+    if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
+      return
+    }
+
+    const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+    
+    const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
+    const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
+    
+    if (hasAdminAuctions) {
+      return
+    }
+
+    const mergedAuctions = [
+      ...ADMIN_AUCTIONS_TEMPLATE.map(auction => ({
+        ...auction,
+        creatorId: String(ownerUser.id),
+        creatorUsername: ownerUser.login
+      })),
+      ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
+    ]
+
+    await window.spark.kv.set('token-auctions', mergedAuctions)
+  } catch (error) {
+    console.error('Failed to restore admin auctions:', error)
   }
-
-  const existingAuctions = await storage.get<any[]>('token-auctions') || []
-  
-  const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
-  const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
-  
-  if (hasAdminAuctions) {
-    return
-  }
-
-  const mergedAuctions = [
-    ...ADMIN_AUCTIONS_TEMPLATE.map(auction => ({
-      ...auction,
-      creatorId: String(ownerUser.id),
-      creatorUsername: ownerUser.login
-    })),
-    ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
-  ]
-
-  await storage.set('token-auctions', mergedAuctions)
 }
 
 export async function protectAdminAuctions() {
-  // Get user from localStorage instead of Spark
-  const userDataStr = localStorage.getItem('github_user')
-  if (!userDataStr) return
+  // Use Spark API to get user
+  if (!window.spark) return
   
-  const ownerUser = JSON.parse(userDataStr)
-  
-  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
-    return
-  }
-
-  const existingAuctions = await storage.get<any[]>('token-auctions') || []
-  const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
-  
-  const protectedAuctions = existingAuctions.map(auction => {
-    if (adminAuctionIds.includes(auction.id) && auction.creatorId !== String(ownerUser.id)) {
-      return {
-        ...ADMIN_AUCTIONS_TEMPLATE.find(a => a.id === auction.id),
-        creatorId: String(ownerUser.id),
-        creatorUsername: ownerUser.login,
-        bids: auction.bids || []
-      }
+  try {
+    const ownerUser = await window.spark.user()
+    
+    if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
+      return
     }
-    return auction
-  })
 
-  await storage.set('token-auctions', protectedAuctions)
+    const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+    const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
+    
+    const protectedAuctions = existingAuctions.map(auction => {
+      if (adminAuctionIds.includes(auction.id) && auction.creatorId !== String(ownerUser.id)) {
+        return {
+          ...ADMIN_AUCTIONS_TEMPLATE.find(a => a.id === auction.id),
+          creatorId: String(ownerUser.id),
+          creatorUsername: ownerUser.login,
+          bids: auction.bids || []
+        }
+      }
+      return auction
+    })
+
+    await window.spark.kv.set('token-auctions', protectedAuctions)
+  } catch (error) {
+    console.error('Failed to protect admin auctions:', error)
+  }
 }
