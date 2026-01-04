@@ -162,263 +162,277 @@ function App() {
                       Advanced Controls
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 space-y-2">
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('admin')}
-                    >
-                      <ShieldCheck size={20} weight="duotone" />
-                      My Controls
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('autopilot')}
-                    >
-                      <Gauge size={20} weight="duotone" />
-                      Auto-Pilot Rules
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('batch-automation')}
-                    >
-                      <Lightning size={20} weight="duotone" />
-                      Batch Automation
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('notifications')}
-                    >
-                      <Bell size={20} weight="duotone" />
-                      Alerts & History
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('history')}
-                    >
-                      <ClockClockwise size={20} weight="duotone" />
-                      Redistribution History
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('user')}
-                    >
-                      <User size={20} weight="duotone" />
-                      Account & Identity
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('buy-inf')}
-                    >
-                      <Coin size={20} weight="duotone" />
-                      Payments & Tokens
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('page-health')}
-                    >
-                      <Eye size={20} weight="duotone" />
-                      System Health
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('backup')}
-                    >
-                      <Database size={20} weight="duotone" />
-                      Backup & Restore
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('export')}
-                    >
-                      <FileHtml size={20} weight="duotone" />
-                      Export Pages
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('deploy')}
-                    >
-                      <Rocket size={20} weight="duotone" />
-                      Deploy Sites
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('activity-monitor')}
-                    >
-                      <ArrowsClockwise size={20} weight="duotone" />
-                      Activity Monitor
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('auto-pricing')}
-                    >
-                      <Robot size={20} weight="duotone" />
-                      Auto-Pricing
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('templates')}
-                    >
-                      <ClockClockwise size={20} weight="duotone" />
-                      Auction Templates
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('watchlist')}
-                    >
-                      <Eye size={20} weight="duotone" />
-                      Watch List
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('batch-analyzer')}
-                    >
-                      <GitBranch size={20} weight="duotone" />
-                      Batch Repo Analyzer
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('file-builder')}
-                    >
-                      <Code size={20} weight="duotone" />
-                      File Builder
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('scanner')}
-                    >
-                      <FolderOpen size={20} weight="duotone" />
-                      GitHub Scanner
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('auto-auction')}
-                    >
-                      <Robot size={20} weight="duotone" />
-                      Auto Auction
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('charts')}
-                    >
-                      <ChartLine size={20} weight="duotone" />
-                      Token Charts
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('media')}
-                    >
-                      <UploadSimple size={20} weight="duotone" />
-                      Media Upload
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('spaces')}
-                    >
-                      <Radio size={20} weight="duotone" />
-                      Twitter Spaces
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('analytics')}
-                    >
-                      <ChartBar size={20} weight="duotone" />
-                      Engagement Analytics
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('metrics')}
-                    >
-                      <ChartLine size={20} weight="duotone" />
-                      Token Metrics
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('ss-pay')}
-                    >
-                      <HandCoins size={20} weight="duotone" />
-                      Social Security Pay
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('emoji')}
-                    >
-                      <Smiley size={20} weight="duotone" />
-                      Emoji Features
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('trends')}
-                    >
-                      <Hash size={20} weight="duotone" />
-                      Hashtag Trends
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('azure')}
-                    >
-                      <Cloud size={20} weight="duotone" />
-                      Azure Deploy
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('sentiment')}
-                    >
-                      <Heart size={20} weight="duotone" />
-                      Sentiment Analysis
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('alerts')}
-                    >
-                      <BellRinging size={20} weight="duotone" />
-                      Sentiment Alerts
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('auction-analytics')}
-                    >
-                      <ChartBar size={20} weight="duotone" />
-                      Auction Analytics
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start gap-2"
-                      onClick={() => setActiveTab('create-auto-auction')}
-                    >
-                      <Lightning size={20} weight="duotone" />
-                      Create Auto-Auction
-                    </Button>
+                  <div className="mt-6 space-y-6">
+                    
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Account</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('user')}
+                        >
+                          <User size={20} weight="duotone" />
+                          My Dashboard
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('admin')}
+                        >
+                          <ShieldCheck size={20} weight="duotone" />
+                          Admin Controls
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Trading Tools</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('templates')}
+                        >
+                          <ClockClockwise size={20} weight="duotone" />
+                          Auction Templates
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('watchlist')}
+                        >
+                          <Eye size={20} weight="duotone" />
+                          Watch List
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('buy-inf')}
+                        >
+                          <Coin size={20} weight="duotone" />
+                          Buy INF Tokens
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('charts')}
+                        >
+                          <ChartLine size={20} weight="duotone" />
+                          Token Charts
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Automation</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('autopilot')}
+                        >
+                          <Gauge size={20} weight="duotone" />
+                          Auto-Pilot Rules
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('auto-auction')}
+                        >
+                          <Robot size={20} weight="duotone" />
+                          Auto Auction
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('auto-pricing')}
+                        >
+                          <Robot size={20} weight="duotone" />
+                          Auto-Pricing
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('batch-automation')}
+                        >
+                          <Lightning size={20} weight="duotone" />
+                          Batch Automation
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('create-auto-auction')}
+                        >
+                          <Lightning size={20} weight="duotone" />
+                          Create Auto-Auction
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Monitoring</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('notifications')}
+                        >
+                          <Bell size={20} weight="duotone" />
+                          Alerts & Notifications
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('activity-monitor')}
+                        >
+                          <ArrowsClockwise size={20} weight="duotone" />
+                          Activity Monitor
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('page-health')}
+                        >
+                          <Eye size={20} weight="duotone" />
+                          System Health
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('auction-analytics')}
+                        >
+                          <ChartBar size={20} weight="duotone" />
+                          Auction Analytics
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Development</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('batch-analyzer')}
+                        >
+                          <GitBranch size={20} weight="duotone" />
+                          Batch Repo Analyzer
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('file-builder')}
+                        >
+                          <Code size={20} weight="duotone" />
+                          File Builder
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('scanner')}
+                        >
+                          <FolderOpen size={20} weight="duotone" />
+                          GitHub Scanner
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('backup')}
+                        >
+                          <Database size={20} weight="duotone" />
+                          Backup & Restore
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Publishing</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('export')}
+                        >
+                          <FileHtml size={20} weight="duotone" />
+                          Export Pages
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('azure')}
+                        >
+                          <Cloud size={20} weight="duotone" />
+                          Azure Deploy
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Social & Media</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('media')}
+                        >
+                          <UploadSimple size={20} weight="duotone" />
+                          Media Upload
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('spaces')}
+                        >
+                          <Radio size={20} weight="duotone" />
+                          Twitter Spaces
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('emoji')}
+                        >
+                          <Smiley size={20} weight="duotone" />
+                          Emoji Features
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">History & Data</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('history')}
+                        >
+                          <ClockClockwise size={20} weight="duotone" />
+                          Redistribution History
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">Special Features</h3>
+                      <div className="space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('ss-pay')}
+                        >
+                          <HandCoins size={20} weight="duotone" />
+                          Social Security Pay
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveTab('blockchain')}
+                        >
+                          <CurrencyDollar size={20} weight="duotone" />
+                          Blockchain Integration
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -462,70 +476,34 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-3 md:grid-cols-5 lg:grid-cols-8 h-auto gap-2 bg-card/80 backdrop-blur p-3">
+            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto gap-2 bg-card/80 backdrop-blur p-3">
               <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
-                <House size={24} weight="duotone" />
-                <span className="text-sm font-medium">Home</span>
+                <House size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Home</span>
               </TabsTrigger>
-              <TabsTrigger value="research" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <Flask size={24} weight="duotone" />
-                <span className="text-sm font-medium">Research</span>
+              <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <CurrencyDollar size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Create</span>
               </TabsTrigger>
-              <TabsTrigger value="quality" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <Sparkle size={24} weight="duotone" />
-                <span className="text-sm font-medium">Quality AI</span>
+              <TabsTrigger value="trade" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <Storefront size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Trade</span>
               </TabsTrigger>
-              <TabsTrigger value="tokens" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
-                <CurrencyDollar size={24} weight="duotone" />
-                <span className="text-sm font-medium">Create Value</span>
+              <TabsTrigger value="build" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <GitBranch size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Build</span>
               </TabsTrigger>
-              <TabsTrigger value="marketplace" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
-                <Storefront size={24} weight="duotone" />
-                <span className="text-sm font-medium">Trade</span>
+              <TabsTrigger value="connect" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <ShareNetwork size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Connect</span>
               </TabsTrigger>
-              <TabsTrigger value="auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
-                <Gavel size={24} weight="duotone" />
-                <span className="text-sm font-medium">Auction</span>
+              <TabsTrigger value="explore" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <MagnifyingGlass size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Explore</span>
               </TabsTrigger>
-              <TabsTrigger value="markets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
-                <ChartLine size={24} weight="duotone" />
-                <span className="text-sm font-medium">Markets</span>
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
-                <Robot size={24} weight="duotone" />
-                <span className="text-sm font-medium">AI Chat</span>
-              </TabsTrigger>
-              <TabsTrigger value="social" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
-                <ShareNetwork size={24} weight="duotone" />
-                <span className="text-sm font-medium">Social</span>
-              </TabsTrigger>
-              <TabsTrigger value="repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <GitBranch size={24} weight="duotone" />
-                <span className="text-sm font-medium">My Repos</span>
-              </TabsTrigger>
-              <TabsTrigger value="live-repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <GitBranch size={24} weight="duotone" />
-                <span className="text-sm font-medium">Live Sites</span>
-              </TabsTrigger>
-              <TabsTrigger value="blockchain" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <CurrencyDollar size={24} weight="duotone" />
-                <span className="text-sm font-medium">Blockchain</span>
-              </TabsTrigger>
-              <TabsTrigger value="ai-repair" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
-                <Sparkle size={24} weight="duotone" />
-                <span className="text-sm font-medium">AI Repair</span>
-              </TabsTrigger>
-              <TabsTrigger value="mario" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
-                <GameController size={24} weight="duotone" />
-                <span className="text-sm font-medium">🍄 Games</span>
-              </TabsTrigger>
-              <TabsTrigger value="modules" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
-                <Package size={24} weight="duotone" />
-                <span className="text-sm font-medium">Add Abilities</span>
-              </TabsTrigger>
-              <TabsTrigger value="search" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
-                <MagnifyingGlass size={24} weight="duotone" />
-                <span className="text-sm font-medium">Search</span>
+              <TabsTrigger value="play" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <GameController size={28} weight="duotone" />
+                <span className="text-sm font-semibold">Play</span>
               </TabsTrigger>
             </TabsList>
 
@@ -546,12 +524,37 @@ function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="research">
-              <RepoQualityScorer />
-            </TabsContent>
-
-            <TabsContent value="quality">
-              <ResearchTokenMinter />
+            <TabsContent value="create" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <CurrencyDollar size={32} weight="duotone" className="text-accent" />
+                  Create Value
+                </h2>
+                <p className="text-muted-foreground mb-6">Mint tokens, create auctions, and generate research-backed value.</p>
+                
+                <Tabs defaultValue="mint" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                    <TabsTrigger value="mint">Mint Tokens</TabsTrigger>
+                    <TabsTrigger value="research">Research</TabsTrigger>
+                    <TabsTrigger value="quality">Quality Score</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="mint">
+                    <div className="flex justify-end mb-4">
+                      <HelpMeChoose category="tokens" onNavigate={setActiveTab} />
+                    </div>
+                    <TokenMinter />
+                  </TabsContent>
+                  
+                  <TabsContent value="research">
+                    <ResearchTokenMinter />
+                  </TabsContent>
+                  
+                  <TabsContent value="quality">
+                    <RepoQualityScorer />
+                  </TabsContent>
+                </Tabs>
+              </div>
             </TabsContent>
 
             <TabsContent value="batch-analyzer">
@@ -646,46 +649,108 @@ function App() {
               <UserDashboard />
             </TabsContent>
 
-            <TabsContent value="modules">
-              <ModuleBrowser />
-            </TabsContent>
-
-            <TabsContent value="tokens">
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <HelpMeChoose category="tokens" onNavigate={setActiveTab} />
-                </div>
-                <TokenMinter />
+            <TabsContent value="explore" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <MagnifyingGlass size={32} weight="duotone" className="text-accent" />
+                  Explore & Discover
+                </h2>
+                <p className="text-muted-foreground mb-6">Search the web, chat with AI, and discover new possibilities.</p>
+                
+                <Tabs defaultValue="search" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                    <TabsTrigger value="search">Web Search</TabsTrigger>
+                    <TabsTrigger value="chat">AI Chat</TabsTrigger>
+                    <TabsTrigger value="modules">Add Abilities</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="search">
+                    {searchResults.length > 0 ? (
+                      <div className="space-y-6">
+                        {showGraph ? (
+                          <SearchGraph
+                            results={searchResults}
+                            query={searchQuery}
+                            onClose={() => setShowGraph(false)}
+                          />
+                        ) : (
+                          <SearchResults
+                            results={searchResults}
+                            query={searchQuery}
+                            onVisualize={() => setShowGraph(true)}
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-16">
+                        <MagnifyingGlass size={64} weight="duotone" className="mx-auto mb-4 text-muted-foreground" />
+                        <h3 className="text-2xl font-semibold mb-2">Start Searching</h3>
+                        <p className="text-muted-foreground">
+                          Enter a query above to begin exploring the web
+                        </p>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="chat">
+                    <div className="h-[600px]">
+                      <AIChat />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="modules">
+                    <ModuleBrowser />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
-            <TabsContent value="markets">
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
-                </div>
-                <MarketOverview onTokenSelect={(symbol) => {
-                  setActiveTab('marketplace')
-                }} />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="marketplace">
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
-                </div>
-                <TokenMarketplace />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="auction">
-              <div className="space-y-6">
-                <div className="flex justify-end">
-                  <HelpMeChoose category="auction" onNavigate={setActiveTab} />
-                </div>
-                <LiveAuctionViewer showCreateForm={true} />
-                <TokenAuction />
+            <TabsContent value="trade" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Storefront size={32} weight="duotone" className="text-accent" />
+                  Trade & Markets
+                </h2>
+                <p className="text-muted-foreground mb-6">Buy, sell, auction, and track token markets.</p>
+                
+                <Tabs defaultValue="marketplace" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                    <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+                    <TabsTrigger value="auction">Auctions</TabsTrigger>
+                    <TabsTrigger value="markets">Market Data</TabsTrigger>
+                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="marketplace">
+                    <div className="flex justify-end mb-4">
+                      <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
+                    </div>
+                    <TokenMarketplace />
+                  </TabsContent>
+                  
+                  <TabsContent value="auction">
+                    <div className="flex justify-end mb-4">
+                      <HelpMeChoose category="auction" onNavigate={setActiveTab} />
+                    </div>
+                    <LiveAuctionViewer showCreateForm={true} />
+                    <div className="mt-6">
+                      <TokenAuction />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="markets">
+                    <div className="flex justify-end mb-4">
+                      <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
+                    </div>
+                    <MarketOverview onTokenSelect={(symbol) => {
+                      setActiveTab('trade')
+                    }} />
+                  </TabsContent>
+                  
+                  <TabsContent value="analytics">
+                    <TokenMetricsDashboard showAllTokens={true} />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
@@ -696,6 +761,29 @@ function App() {
             <TabsContent value="watchlist">
               <div className="max-w-7xl mx-auto">
                 <AuctionWatchList />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="play" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <GameController size={32} weight="duotone" className="text-accent" />
+                  Play & Earn
+                </h2>
+                <p className="text-muted-foreground mb-6">Play games, build sprites, and earn bonus tokens.</p>
+                
+                <div className="grid lg:grid-cols-2 gap-6">
+                  <EmojiCatcherGame />
+                  <SlotMachine />
+                </div>
+                
+                <div className="mt-6">
+                  <MarioScene />
+                </div>
+                
+                <div className="mt-6">
+                  <SpriteBuilder />
+                </div>
               </div>
             </TabsContent>
 
@@ -733,15 +821,42 @@ function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="social">
-              <div className="max-w-5xl mx-auto">
-                <SocialPoster />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="trends">
-              <div className="max-w-6xl mx-auto">
-                <HashtagTrendAnalyzer />
+            <TabsContent value="connect" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <ShareNetwork size={32} weight="duotone" className="text-accent" />
+                  Connect & Share
+                </h2>
+                <p className="text-muted-foreground mb-6">Post to social platforms, track sentiment, and analyze engagement.</p>
+                
+                <Tabs defaultValue="social" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                    <TabsTrigger value="social">Social Poster</TabsTrigger>
+                    <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
+                    <TabsTrigger value="trends">Trends</TabsTrigger>
+                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="social">
+                    <SocialPoster />
+                  </TabsContent>
+                  
+                  <TabsContent value="sentiment">
+                    <div className="space-y-6">
+                      <SentimentHeatmap />
+                      <SentimentForecaster />
+                      <SentimentAlertSystem />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="trends">
+                    <HashtagTrendAnalyzer />
+                  </TabsContent>
+                  
+                  <TabsContent value="analytics">
+                    <EngagementAnalytics />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
@@ -751,28 +866,54 @@ function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="deploy">
-              <div className="max-w-6xl mx-auto">
-                <DeploymentHub />
-              </div>
-            </TabsContent>
-
             <TabsContent value="azure">
               <div className="max-w-5xl mx-auto">
                 <AzureGitHubDeployer />
               </div>
             </TabsContent>
 
-            <TabsContent value="sentiment">
-              <div className="max-w-6xl mx-auto space-y-6">
-                <SentimentHeatmap />
-                <SentimentForecaster />
+            <TabsContent value="build" className="space-y-8">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <GitBranch size={32} weight="duotone" className="text-accent" />
+                  Build & Deploy
+                </h2>
+                <p className="text-muted-foreground mb-6">Manage repositories, build sites, and deploy to live platforms.</p>
+                
+                <Tabs defaultValue="repos" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                    <TabsTrigger value="repos">My Repos</TabsTrigger>
+                    <TabsTrigger value="live">Live Sites</TabsTrigger>
+                    <TabsTrigger value="deploy">Deploy</TabsTrigger>
+                    <TabsTrigger value="repair">AI Repair</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="repos">
+                    <RepoManagementHub />
+                  </TabsContent>
+                  
+                  <TabsContent value="live">
+                    <LiveRepoManager />
+                  </TabsContent>
+                  
+                  <TabsContent value="deploy">
+                    <DeploymentHub />
+                  </TabsContent>
+                  
+                  <TabsContent value="repair">
+                    <AIPageRepair />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
-            <TabsContent value="alerts">
-              <div className="max-w-6xl mx-auto">
-                <SentimentAlertSystem />
+            <TabsContent value="templates">
+              <AuctionTemplates />
+            </TabsContent>
+
+            <TabsContent value="watchlist">
+              <div className="max-w-7xl mx-auto">
+                <AuctionWatchList />
               </div>
             </TabsContent>
 
@@ -782,15 +923,41 @@ function App() {
               </div>
             </TabsContent>
 
+            <TabsContent value="autopilot">
+              <AutoPilotControl />
+            </TabsContent>
+
+            <TabsContent value="auto-auction">
+              <AutoAuctionSystem />
+            </TabsContent>
+
             <TabsContent value="auto-pricing">
               <div className="max-w-7xl mx-auto">
                 <AutoPricingAlgorithm />
               </div>
             </TabsContent>
 
+            <TabsContent value="batch-automation">
+              <BatchAutomation />
+            </TabsContent>
+
             <TabsContent value="create-auto-auction">
               <div className="max-w-7xl mx-auto">
                 <AutoPricedAuctionCreator />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="notifications">
+              <TokenRedistributionNotifier />
+            </TabsContent>
+
+            <TabsContent value="activity-monitor">
+              <TokenActivityMonitor />
+            </TabsContent>
+
+            <TabsContent value="page-health">
+              <div className="max-w-7xl mx-auto">
+                <PageHealthMonitor />
               </div>
             </TabsContent>
 
@@ -800,15 +967,46 @@ function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="page-health">
-              <div className="max-w-7xl mx-auto">
-                <PageHealthMonitor />
-              </div>
+            <TabsContent value="batch-analyzer">
+              <BatchRepoAnalyzer />
             </TabsContent>
 
-            <TabsContent value="repos">
+            <TabsContent value="file-builder">
+              <RepoFileBuilder />
+            </TabsContent>
+
+            <TabsContent value="scanner">
+              <GitHubInfinityScanner />
+            </TabsContent>
+
+            <TabsContent value="backup">
+              <RepoBackupSystem />
+            </TabsContent>
+
+            <TabsContent value="media">
+              <MediaUploadWithAI 
+                maxFiles={10}
+                onMediaApproved={(files) => {
+                  toast.success(`${files.length} files approved and ready! ✅`)
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="spaces">
+              <TwitterSpacesRadio />
+            </TabsContent>
+
+            <TabsContent value="emoji">
+              <EmojiFeatureHub />
+            </TabsContent>
+
+            <TabsContent value="history">
+              <RedistributionHistory />
+            </TabsContent>
+
+            <TabsContent value="ss-pay">
               <div className="max-w-7xl mx-auto">
-                <RepoManagementHub />
+                <SocialSecurityDistributor />
               </div>
             </TabsContent>
 
@@ -818,16 +1016,18 @@ function App() {
               </div>
             </TabsContent>
 
-            <TabsContent value="live-repos">
+            <TabsContent value="user">
+              <UserDashboard />
+            </TabsContent>
+
+            <TabsContent value="buy-inf">
               <div className="max-w-7xl mx-auto">
-                <LiveRepoManager />
+                <InfinityTokenSale />
               </div>
             </TabsContent>
 
-            <TabsContent value="ai-repair">
-              <div className="max-w-7xl mx-auto">
-                <AIPageRepair />
-              </div>
+            <TabsContent value="charts">
+              <InteractiveTokenChart />
             </TabsContent>
           </Tabs>
         </div>
