@@ -87,7 +87,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
               Initializing Infinity Brain{dots}
             </h2>
             <p className="text-muted-foreground">
-              Setting up the GitHub Spark runtime
+              Connecting to GitHub and loading your workspace
             </p>
           </div>
           <div className="flex justify-center">
@@ -114,15 +114,15 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
 
         <Alert variant="destructive">
           <AlertTriangleIcon aria-label="Warning" />
-          <AlertTitle>Failed to initialize GitHub Spark</AlertTitle>
+          <AlertTitle>Failed to initialize Infinity Brain</AlertTitle>
           <AlertDescription className="space-y-2">
             <p>
-              The Spark runtime didn't load within 10 seconds. This might be due to:
+              Infinity Brain couldn't connect to GitHub within 10 seconds. This might be due to:
             </p>
             <ul className="list-disc list-inside text-sm space-y-1 mt-2">
               <li>Network connectivity issues</li>
-              <li>GitHub Spark service unavailable</li>
-              <li>Browser extensions blocking the runtime</li>
+              <li>GitHub authentication required</li>
+              <li>Browser extensions blocking the connection</li>
             </ul>
           </AlertDescription>
         </Alert>
@@ -137,7 +137,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
           </Button>
 
           <a 
-            href="https://githubnext.com/projects/github-spark"
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
             className="block"
@@ -147,7 +147,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
               className="w-full"
               size="lg"
             >
-              Learn About GitHub Spark
+              Sign in to GitHub
             </Button>
           </a>
         </div>
@@ -156,9 +156,9 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
           <h3 className="font-semibold text-sm mb-2">Troubleshooting Tips:</h3>
           <ul className="text-xs text-muted-foreground space-y-1">
             <li>• Check your internet connection</li>
+            <li>• Sign in to your GitHub account</li>
             <li>• Disable ad blockers or browser extensions</li>
             <li>• Try using a different browser</li>
-            <li>• Ensure you're accessing this from GitHub Spark</li>
           </ul>
         </div>
       </div>
