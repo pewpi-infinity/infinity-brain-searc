@@ -62,7 +62,6 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
   }, [state])
 
   const handleRetry = () => {
-    setState('loading')
     window.location.reload()
   }
 
@@ -93,8 +92,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
           </div>
           <div className="flex justify-center">
             <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary via-secondary to-accent animate-pulse" 
-                   style={{ width: '60%' }} />
+              <div className="h-full bg-gradient-to-r from-primary via-secondary to-accent animate-pulse w-3/5" />
             </div>
           </div>
         </div>
@@ -115,7 +113,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
         </div>
 
         <Alert variant="destructive">
-          <AlertTriangleIcon />
+          <AlertTriangleIcon aria-label="Warning" />
           <AlertTitle>Failed to initialize GitHub Spark</AlertTitle>
           <AlertDescription className="space-y-2">
             <p>
