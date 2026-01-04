@@ -1,5 +1,58 @@
 # Infinity Brain - Deployment Guide
 
+## 📦 Automated GitHub Pages Deployment
+
+Infinity Brain now features **automated deployment to GitHub Pages**! Every push to the main branch automatically builds and deploys your site.
+
+### Setup (One-Time)
+
+1. **Enable GitHub Pages**
+   - Go to your repository settings on GitHub
+   - Navigate to "Pages" in the left sidebar
+   - Under "Source", select "GitHub Actions"
+   - Save the changes
+
+2. **That's it!** 
+   - The workflow is already configured in `.github/workflows/deploy.yml`
+   - Every push to `main` will automatically trigger a build and deployment
+   - Your site will be live at: `https://pewpi-infinity.github.io/infinity-brain-searc/`
+
+### Features
+
+✨ **Automatic Deployment**: Push to main, and your site goes live  
+🔄 **CI/CD Integration**: Built-in GitHub Actions workflow  
+🌐 **Global CDN**: Served via GitHub's CDN  
+🔐 **Free HTTPS**: Automatic SSL certificates  
+⚡ **Fast Builds**: Optimized Vite build process  
+📊 **Build Status**: View deployment status in GitHub Actions tab  
+
+### Manual Deployment
+
+You can also trigger a deployment manually:
+1. Go to the "Actions" tab in your GitHub repository
+2. Select "Deploy to GitHub Pages" workflow
+3. Click "Run workflow"
+4. Select the branch and click "Run workflow"
+
+### Deployment Process
+
+When code is pushed to main:
+1. **Checkout**: Code is checked out from repository
+2. **Setup**: Node.js 20 is installed with npm caching
+3. **Install**: Dependencies are installed via `npm ci`
+4. **Build**: Vite builds the production bundle
+5. **Upload**: Build artifacts are uploaded
+6. **Deploy**: Site is deployed to GitHub Pages
+
+### Configuration
+
+The deployment is configured in:
+- **Workflow**: `.github/workflows/deploy.yml`
+- **Base Path**: `/infinity-brain-searc/` (set in `vite.config.ts`)
+- **Build Output**: `dist/` directory
+
+---
+
 ## 🚀 One-Click Netlify Deployment
 
 Infinity Brain now features **true one-click automated deployment** to Netlify! After a simple one-time setup, you can deploy your entire site with a single button click.
