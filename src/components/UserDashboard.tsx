@@ -13,13 +13,38 @@ import { useState } from 'react'
 export function UserDashboard() {
   const { currentUser, userProfile, isAuthenticated, login, logout, syncWallet } = useAuth()
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [sparkReady, setSparkReady] = useState(false)
+
+  // Check if Spark is ready
+  useState(() => {
+    const checkSpark = () => {
+      if (window.spark) {
+        setSparkReady(true)
+      } else {
+        setTimeout(checkSpark, 100)
+      }
+    }
+    checkSpark()
+  })
 
   const handleLogin = async () => {
+    if (!sparkReady) {
+      toast.error('System not ready yet', {
+        description: 'Please wait a moment for the app to fully load.'
+      })
+      return
+    }
+
+    setIsLoggingIn(true)
     try {
       await login()
       toast.success('Successfully logged in!')
     } catch (error) {
-      toast.error('Failed to log in')
+      // Error is already handled in auth.tsx, just catch it here
+      console.error('Login error in dashboard:', error)
+    } finally {
+      setIsLoggingIn(false)
     }
   }
 
@@ -51,14 +76,42 @@ export function UserDashboard() {
             <p className="text-sm text-muted-foreground mb-4">
               Log in to access the tokenized business ecosystem
             </p>
+            {!sparkReady && (
+              <p className="text-xs text-yellow-600 mb-2">
+                ⏳ Initializing Spark API...
+              </p>
+            )}
           </div>
           <Button
             onClick={handleLogin}
-            className="bg-gradient-to-r from-primary to-accent"
+            disabled={isLoggingIn || !sparkReady}
+            className="bg-gradient-to-r from-primary to-accent min-w-[200px]"
           >
-            <SignIn size={20} weight="bold" className="mr-2" />
-            Log In with GitHub
+            {isLoggingIn ? (
+              <>
+                <ArrowsClockwise size={20} weight="bold" className="mr-2 animate-spin" />
+                Authenticating...
+              </>
+            ) : (
+              <>
+                <SignIn size={20} weight="bold" className="mr-2" />
+                {sparkReady ? 'Sign in with GitHub' : 'Loading...'}
+              </>
+            )}
           </Button>
+          {sparkReady && (
+            <div className="mt-2 text-xs text-muted-foreground max-w-md">
+              <p className="mb-1">🔒 We need GitHub authentication to:</p>
+              <ul className="list-disc list-inside text-left space-y-1">
+                <li>Identify your account securely</li>
+                <li>Give you 10 free INF tokens to start</li>
+                <li>Save your tokens and transactions</li>
+              </ul>
+              <p className="mt-2 text-xs opacity-75">
+                Your data is stored securely and never shared.
+              </p>
+            </div>
+          )}
         </div>
       </Card>
     )

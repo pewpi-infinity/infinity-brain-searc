@@ -50,12 +50,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async () => {
     try {
-      const user = await window.spark.user()
+      // Check if Spark is loaded
+      if (!window.spark) {
+        toast.error('Spark is not loaded yet. Please wait a moment and try again.')
+        throw new Error('Spark not initialized')
+      }
+
+      // Show loading state
+      toast.info('Starting authentication...', {
+        description: 'Opening GitHub OAuth window'
+      })
+
+      // Call Spark user method with retry logic
+      let user = null
+      let retryCount = 0
+      const maxRetries = 3
+
+      while (!user && retryCount < maxRetries) {
+        try {
+          user = await window.spark.user()
+          
+          if (!user || !user.id) {
+            retryCount++
+            if (retryCount < maxRetries) {
+              toast.info(`Authentication attempt ${retryCount} failed, retrying...`)
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            }
+          }
+        } catch (error) {
+          retryCount++
+          if (retryCount < maxRetries) {
+            toast.info(`Connection error, retrying... (${retryCount}/${maxRetries})`)
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          } else {
+            throw error
+          }
+        }
+      }
       
       if (!user || !user.id) {
-        toast.error('Authentication failed - please try again')
-        throw new Error('User authentication failed')
+        toast.error('Authentication failed', {
+          description: 'Could not authenticate with GitHub. Please check if popups are blocked and try again.'
+        })
+        throw new Error('User authentication failed after retries')
       }
+      
+      toast.success('Authentication successful!', {
+        description: 'Loading your profile...'
+      })
       
       const userIdString = String(user.id)
       setUserId(userIdString)
@@ -143,6 +185,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Login failed:', error)
+      
+      // Provide detailed error information
+      let errorMessage = 'Login failed. Please try again.'
+      let errorDescription = ''
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Spark not initialized')) {
+          errorMessage = 'System not ready'
+          errorDescription = 'Please wait a moment for the app to fully load and try again.'
+        } else if (error.message.includes('authentication failed')) {
+          errorMessage = 'GitHub authentication failed'
+          errorDescription = 'Make sure popups are enabled and you have a GitHub account.'
+        } else if (error.message.includes('popup')) {
+          errorMessage = 'Popup blocked'
+          errorDescription = 'Please allow popups for this site and try again.'
+        } else {
+          errorMessage = 'Login error'
+          errorDescription = error.message
+        }
+      }
+      
+      toast.error(errorMessage, {
+        description: errorDescription,
+        duration: 5000
+      })
+      
       throw error
     }
   }
