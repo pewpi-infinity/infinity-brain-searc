@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { CloudArrowUp, Lightning, GithubLogo, ChartBar, Globe, CheckCircle } from '@phosphor-icons/react'
 
 interface DeploymentStats {
@@ -18,8 +18,8 @@ interface DeploymentStats {
 }
 
 export function DeploymentStats() {
-  const [netlifyHistory = []] = useLocalStorage<any[]>('netlify-deployments', [])
-  const [vercelHistory = []] = useLocalStorage<any[]>('vercel-deployments', [])
+  const [netlifyHistory = []] = useKV<any[]>('netlify-deployments', [])
+  const [vercelHistory = []] = useKV<any[]>('vercel-deployments', [])
   const [stats, setStats] = useState<DeploymentStats>({
     totalDeployments: 0,
     netlifyCount: 0,

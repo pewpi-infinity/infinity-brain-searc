@@ -1,6 +1,4 @@
 import { toast } from 'sonner'
-// Note: storage abstraction is kept for non-auth data
-import { storage } from './storage'
 
 export interface SlideCoin {
   id: string
@@ -71,9 +69,6 @@ const handleInteraction = async (event: Event) => {
 
 export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> => {
   try {
-    // Get user from Spark API
-    if (!window.spark) return null
-    
     const user = await window.spark.user()
     if (!user) return null
     
@@ -125,20 +120,20 @@ export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> =
 
 const saveToWallet = async (slideCoin: SlideCoin) => {
   try {
-    await storage.set(`slide-${slideCoin.id}`, slideCoin)
+    await window.spark.kv.set(`slide-${slideCoin.id}`, slideCoin)
     
     const walletKey = `wallet-${slideCoin.owner}`
-    const wallet = await storage.get<any>(walletKey) || { balance: 0, slideCoins: [] }
+    const wallet = await window.spark.kv.get<any>(walletKey) || { balance: 0, slideCoins: [] }
     
     wallet.balance = (wallet.balance || 0) + slideCoin.token.value
     wallet.slideCoins = wallet.slideCoins || []
     wallet.slideCoins.push(slideCoin.id)
     
-    await storage.set(walletKey, wallet)
+    await window.spark.kv.set(walletKey, wallet)
     
-    const allSlides = await storage.get<string[]>('all-slide-coins') || []
+    const allSlides = await window.spark.kv.get<string[]>('all-slide-coins') || []
     allSlides.push(slideCoin.id)
-    await storage.set('all-slide-coins', allSlides)
+    await window.spark.kv.set('all-slide-coins', allSlides)
     
     if (Math.random() > 0.7) {
       toast.success(`💫 Slide Coin Created!`, {
@@ -220,12 +215,12 @@ function throttle(func: Function, wait: number) {
 
 export const getUserSlideCoins = async (username: string): Promise<SlideCoin[]> => {
   try {
-    const wallet = await storage.get<any>(`wallet-${username}`)
+    const wallet = await window.spark.kv.get<any>(`wallet-${username}`)
     if (!wallet || !wallet.slideCoins) return []
     
     const slideCoins: SlideCoin[] = []
     for (const id of wallet.slideCoins) {
-      const coin = await storage.get<SlideCoin>(`slide-${id}`)
+      const coin = await window.spark.kv.get<SlideCoin>(`slide-${id}`)
       if (coin) slideCoins.push(coin)
     }
     

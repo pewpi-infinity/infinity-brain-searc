@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import {
   FloppyDisk,
   Clock,
@@ -39,14 +39,14 @@ interface BackupSettings {
 }
 
 export function AutoBackupScheduler() {
-  const [backupSettings, setBackupSettings] = useLocalStorage<BackupSettings>('backup-settings', {
+  const [backupSettings, setBackupSettings] = useKV<BackupSettings>('backup-settings', {
     enabled: true,
     frequency: 'daily',
     time: '02:00',
     lastBackup: undefined,
     nextBackup: undefined
   })
-  const [backupHistory, setBackupHistory] = useLocalStorage<BackupRecord[]>('backup-history', [])
+  const [backupHistory, setBackupHistory] = useKV<BackupRecord[]>('backup-history', [])
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [backupProgress, setBackupProgress] = useState(0)
 

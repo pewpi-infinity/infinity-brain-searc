@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Slider } from '@/components/ui/slider'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { Bell, BellRinging, Plus, Trash, Warning, CheckCircle, XCircle, Sparkle, TrendUp, TrendDown, SmileyXEyes, Smiley, SmileyMeh, SmileySad, Heart, Envelope, EnvelopeSimple, Gear } from '@phosphor-icons/react'
 
@@ -64,10 +64,10 @@ interface TriggeredAlert {
 }
 
 export function SentimentAlertSystem() {
-  const [entries] = useLocalStorage<SentimentEntry[]>('sentiment-entries', [])
-  const [alertRules, setAlertRules] = useLocalStorage<AlertRule[]>('sentiment-alert-rules', [])
-  const [triggeredAlerts, setTriggeredAlerts] = useLocalStorage<TriggeredAlert[]>('triggered-alerts', [])
-  const [emailSettings, setEmailSettings] = useLocalStorage<EmailSettings>('email-notification-settings', {
+  const [entries] = useKV<SentimentEntry[]>('sentiment-entries', [])
+  const [alertRules, setAlertRules] = useKV<AlertRule[]>('sentiment-alert-rules', [])
+  const [triggeredAlerts, setTriggeredAlerts] = useKV<TriggeredAlert[]>('triggered-alerts', [])
+  const [emailSettings, setEmailSettings] = useKV<EmailSettings>('email-notification-settings', {
     enabled: false,
     email: '',
     notifyOnPriorities: ['high', 'critical'],
@@ -75,7 +75,7 @@ export function SentimentAlertSystem() {
   })
   const [showCreateRule, setShowCreateRule] = useState(false)
   const [showEmailSettings, setShowEmailSettings] = useState(false)
-  const [globalAlertsEnabled, setGlobalAlertsEnabled] = useLocalStorage<boolean>('global-alerts-enabled', true)
+  const [globalAlertsEnabled, setGlobalAlertsEnabled] = useKV<boolean>('global-alerts-enabled', true)
   
   const [newRule, setNewRule] = useState<Partial<AlertRule>>({
     name: '',

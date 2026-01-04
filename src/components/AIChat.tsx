@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
 import { PaperPlaneRight, User, Robot, List, Trash, Clock, Plus } from '@phosphor-icons/react'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 
 interface Message {
@@ -25,7 +25,7 @@ interface ChatSession {
 }
 
 export function AIChat() {
-  const [chatSessions, setChatSessions] = useLocalStorage<ChatSession[]>('ai-chat-sessions', [])
+  const [chatSessions, setChatSessions] = useKV<ChatSession[]>('ai-chat-sessions', [])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)

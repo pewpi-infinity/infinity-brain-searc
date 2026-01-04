@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Calendar } from '@/components/ui/calendar'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   Calendar as CalendarIcon, 
   Clock, 
@@ -32,7 +32,7 @@ interface ContentCalendarProps {
 }
 
 export function ContentCalendar({ onSchedulePost }: ContentCalendarProps) {
-  const [scheduledPosts, setScheduledPosts] = useLocalStorage<ScheduledPost[]>('scheduled-posts', [])
+  const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
 
   const deleteScheduledPost = (postId: string) => {

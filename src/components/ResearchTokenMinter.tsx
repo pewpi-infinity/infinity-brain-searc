@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { Flask, Hash, FileText, Link, Sparkle, CheckCircle, Copy } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +34,7 @@ interface ResearchToken {
 }
 
 export function ResearchTokenMinter() {
-  const [tokens, setTokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
+  const [tokens, setTokens] = useKV<ResearchToken[]>('research-tokens', [])
   const [title, setTitle] = useState('')
   const [abstract, setAbstract] = useState('')
   const [content, setContent] = useState('')

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   Rocket, 
   Users, 
@@ -82,10 +82,10 @@ const defaultStats: DistributionStats = {
 }
 
 export function SocialSecurityDistributor() {
-  const [bots, setBots] = useLocalStorage<PaymentBot[]>('ss-payment-bots', [])
-  const [recipients, setRecipients] = useLocalStorage<PaymentRecipient[]>('ss-recipients', [])
-  const [stats, setStats] = useLocalStorage<DistributionStats>('ss-distribution-stats', defaultStats)
-  const [schedules, setSchedules] = useLocalStorage<PaymentSchedule[]>('ss-payment-schedules', [])
+  const [bots, setBots] = useKV<PaymentBot[]>('ss-payment-bots', [])
+  const [recipients, setRecipients] = useKV<PaymentRecipient[]>('ss-recipients', [])
+  const [stats, setStats] = useKV<DistributionStats>('ss-distribution-stats', defaultStats)
+  const [schedules, setSchedules] = useKV<PaymentSchedule[]>('ss-payment-schedules', [])
   
   const [totalAmount, setTotalAmount] = useState('1000000000000')
   const [recipientCount, setRecipientCount] = useState('1000000')

@@ -2,50 +2,6 @@
 
 A comprehensive platform for creating, managing, and trading business tokens with integrated AI capabilities, multi-source search, **automated deployment to world-class hosting platforms**, and a **revolutionary social security system**.
 
-## 🔐 Authentication Setup
-
-This application uses **GitHub OAuth** for authentication. To run the app locally or deploy it:
-
-### 1. Create a GitHub OAuth App
-
-1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
-2. Click **"New OAuth App"**
-3. Fill in the application details:
-   - **Application name**: `Infinity Brain Local` (or your preferred name)
-   - **Homepage URL**: `http://localhost:5173` (for local development)
-   - **Authorization callback URL**: `http://localhost:5173/auth/callback`
-4. Click **"Register application"**
-5. Copy your **Client ID**
-
-### 2. Configure Environment Variables
-
-1. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Add your GitHub OAuth Client ID to `.env`:
-   ```
-   VITE_GITHUB_CLIENT_ID=your_client_id_here
-   ```
-
-### 3. Install Dependencies & Run
-
-```bash
-npm install
-npm run dev
-```
-
-### Production Deployment
-
-For production deployment, create a separate GitHub OAuth App with your production URL:
-- **Homepage URL**: `https://your-domain.com`
-- **Authorization callback URL**: `https://your-domain.com/auth/callback`
-
-**Note**: The current implementation uses a client-side OAuth flow suitable for MVP/demo purposes. For production, implement a backend service to securely exchange authorization codes for access tokens.
-
----
-
 ## 🚀 **New: Automated GitHub Pages Deployment**
 
 The app now automatically deploys to GitHub Pages on every push to main!
@@ -267,41 +223,6 @@ vercel --prod
 ## 🤝 Contributing
 
 This is a personal project for the Infinity Brain tokenized ecosystem. For issues or suggestions, please open an issue in the repository.
-
----
-
-## 🔄 Architecture Changes
-
-### Authentication & Storage Migration
-
-**Previous**: Spark Platform Authentication + KV Storage  
-**Current**: GitHub OAuth + localStorage
-
-This app has been migrated from the GitHub Spark platform to use native GitHub OAuth authentication and browser localStorage for data persistence. Key changes include:
-
-#### What Changed
-- ✅ **Authentication**: GitHub OAuth flow (redirect-based)
-- ✅ **Storage**: localStorage replaces Spark KV store
-- ✅ **User Sessions**: Managed client-side with localStorage
-- ✅ **Token Data**: All business tokens stored in localStorage
-- ⚠️ **AI Features**: Still require `window.spark.llm` API (optional dependency)
-
-#### Data Storage
-All application data is now stored locally in your browser:
-- User profiles and sessions
-- Business tokens and balances
-- Transaction history
-- Auction data
-- Research tokens
-- Social security applications
-
-**Note**: localStorage has a ~5-10MB limit. For larger datasets, consider IndexedDB migration.
-
-#### Limitations
-- Data is browser-specific (not synced across devices)
-- Clearing browser data will reset the application
-- No backend persistence (suitable for MVP/demo)
-- OAuth token exchange happens client-side (requires backend for production)
 
 ---
 

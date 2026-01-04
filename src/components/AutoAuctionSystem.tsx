@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Gavel, Robot, Clock, Coins, TrendUp, Sparkle, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 
 interface AutoAuctionRule {
@@ -42,11 +42,11 @@ interface StaleToken {
 
 export function AutoAuctionSystem() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [rules, setRules] = useLocalStorage<AutoAuctionRule[]>('auto-auction-rules', [])
+  const [rules, setRules] = useKV<AutoAuctionRule[]>('auto-auction-rules', [])
   const [staleTokens, setStaleTokens] = useState<StaleToken[]>([])
-  const [autoEnabled, setAutoEnabled] = useLocalStorage<boolean>('auto-auction-enabled', false)
-  const [allProfiles] = useLocalStorage<Record<string, any>>('all-user-profiles', {})
-  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
+  const [autoEnabled, setAutoEnabled] = useKV<boolean>('auto-auction-enabled', false)
+  const [allProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
+  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
   
   const [newRuleToken, setNewRuleToken] = useState('')
   const [newRuleTrigger, setNewRuleTrigger] = useState<'stale' | 'inactive' | 'threshold' | 'scheduled'>('stale')
