@@ -60,7 +60,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+function AuthProviderInner({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [userProfile, setUserProfile] = useKV<UserProfile | null>(userId ? `user-profile-${userId}` : 'user-profile-temp', null)
@@ -589,6 +589,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isReady, setIsReady] = useState(false)
+  
+  // Wait for Spark to be ready before using useKV
+  useEffect(() => {
+    const checkSparkReady = () => {
+      if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
+        setIsReady(true)
+      } else {
+        setTimeout(checkSparkReady, 100)
+      }
+    }
+    checkSparkReady()
+  }, [])
+  
+  // Don't render AuthProviderInner until Spark is ready
+  if (!isReady) {
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading Spark...</p>
+      </div>
+    </div>
+  }
+  
+  return <AuthProviderInner>{children}</AuthProviderInner>
 }
 
 export function useAuth() {
