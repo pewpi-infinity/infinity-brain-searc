@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { User, SignIn, SignOut, Clock, Shield, Wallet, ArrowsLeftRight, ArrowsClockwise } from '@phosphor-icons/react'
+import { User, SignIn, SignOut, Clock, Shield, Wallet, ArrowsLeftRight, ArrowsClockwise, WifiSlash, Warning } from '@phosphor-icons/react'
 import { useAuth } from '@/lib/auth'
 import { toast } from 'sonner'
 import { TokenTransfer } from './TokenTransfer'
@@ -11,9 +11,10 @@ import { TransactionHistory } from './TransactionHistory'
 import { useState, useEffect } from 'react'
 
 export function UserDashboard() {
-  const { currentUser, userProfile, isAuthenticated, login, logout, syncWallet } = useAuth()
+  const { currentUser, userProfile, isAuthenticated, connectionState, login, logout, syncWallet, retryConnection } = useAuth()
   const [isSyncing, setIsSyncing] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isRetrying, setIsRetrying] = useState(false)
   const [sparkReady, setSparkReady] = useState(false)
 
   // Check if Spark is ready
@@ -71,6 +72,68 @@ export function UserDashboard() {
     } finally {
       setIsSyncing(false)
     }
+  }
+
+  const handleRetryConnection = async () => {
+    setIsRetrying(true)
+    try {
+      await retryConnection()
+      toast.success('Connection restored!')
+    } catch (error) {
+      console.error('Retry connection failed:', error)
+    } finally {
+      setIsRetrying(false)
+    }
+  }
+
+  // Show connection lost state
+  if (connectionState === 'error' && !isAuthenticated) {
+    return (
+      <Card className="p-6 gradient-border border-red-500/50">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="p-4 rounded-full bg-red-500/10">
+            <WifiSlash size={48} weight="duotone" className="text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold mb-2 text-red-500">Connection Lost</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Unable to connect to the authentication service
+            </p>
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-4 text-left">
+              <div className="flex items-start gap-2">
+                <Warning size={20} weight="fill" className="text-yellow-500 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold text-yellow-700 dark:text-yellow-400">Troubleshooting Tips:</p>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+                    <li>Check your internet connection</li>
+                    <li>Ensure popups are not blocked</li>
+                    <li>Try disabling VPN or ad blockers</li>
+                    <li>Refresh the page if the issue persists</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Button
+            onClick={handleRetryConnection}
+            disabled={isRetrying}
+            className="bg-gradient-to-r from-primary to-accent min-w-[200px]"
+          >
+            {isRetrying ? (
+              <>
+                <ArrowsClockwise size={20} weight="bold" className="mr-2 animate-spin" />
+                Retrying...
+              </>
+            ) : (
+              <>
+                <ArrowsClockwise size={20} weight="bold" className="mr-2" />
+                Retry Connection
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
+    )
   }
 
   if (!isAuthenticated || !currentUser || !userProfile) {
