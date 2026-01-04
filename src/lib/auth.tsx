@@ -25,6 +25,14 @@ export interface CachedAuthData {
 
 export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
 
+// Troubleshooting tips for different error scenarios
+const TROUBLESHOOTING_TIPS = {
+  timeout: '• Check your internet speed\n• Try again in a few moments\n• Consider using a different network',
+  network: '• Verify your internet connection\n• Check if GitHub is accessible\n• Try disabling VPN or proxy',
+  auth: '• Ensure popups are not blocked\n• Try clearing browser cache\n• Make sure you have a GitHub account',
+  general: '• Check your internet connection\n• Ensure popups are enabled\n• Try refreshing the page'
+} as const
+
 export interface UserProfile {
   userId: string
   username: string
@@ -71,10 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     try {
       // Try to fetch a small resource to verify actual connectivity
+      // Using GitHub's favicon as it's the same domain we'll authenticate with
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 3000)
       
-      await fetch('https://www.github.com/favicon.ico', {
+      await fetch('https://api.github.com', {
         method: 'HEAD',
         cache: 'no-cache',
         signal: controller.signal
@@ -113,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<any> => {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
-        reject(new Error('TIMEOUT: Authentication request timed out after ' + (timeoutMs / 1000) + ' seconds'))
+        reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
       }, timeoutMs)
 
       window.spark.user()
@@ -200,9 +209,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (retryCount < maxRetries) {
             // Exponential backoff: 1s, 2s, 4s, 8s
             const delayMs = baseDelay * Math.pow(2, retryCount - 1)
-            const estimatedTimeRemaining = Math.ceil(
-              (maxRetries - retryCount) * (delayMs * 2) / 1000
-            )
+            
+            // Calculate estimated time remaining based on exponential backoff
+            let estimatedTimeRemaining = 0
+            for (let i = retryCount; i < maxRetries; i++) {
+              estimatedTimeRemaining += baseDelay * Math.pow(2, i - 1)
+            }
+            const estimatedSeconds = Math.ceil(estimatedTimeRemaining / 1000)
             
             // Show specific error type in notification
             let retryMessage = 'Connection error, retrying...'
@@ -213,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             
             toast.info(retryMessage, {
-              description: `Attempt ${retryCount}/${maxRetries} - Next retry in ${delayMs / 1000}s (~${estimatedTimeRemaining}s remaining)`
+              description: `Attempt ${retryCount}/${maxRetries} - Next retry in ${delayMs / 1000}s (~${estimatedSeconds}s remaining)`
             })
             
             await delay(delayMs)
@@ -224,18 +237,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           } else {
             // All retries exhausted - provide troubleshooting tips
-            let troubleshootingTips = ''
+            let troubleshootingTips = TROUBLESHOOTING_TIPS.general
             if (isTimeout) {
-              troubleshootingTips = '• Check your internet speed\n• Try again in a few moments\n• Consider using a different network'
+              troubleshootingTips = TROUBLESHOOTING_TIPS.timeout
             } else if (isNetworkError) {
-              troubleshootingTips = '• Verify your internet connection\n• Check if GitHub is accessible\n• Try disabling VPN or proxy'
+              troubleshootingTips = TROUBLESHOOTING_TIPS.network
             } else if (isAuthFailure) {
-              troubleshootingTips = '• Ensure popups are not blocked\n• Try clearing browser cache\n• Make sure you have a GitHub account'
-            } else {
-              troubleshootingTips = '• Check your internet connection\n• Ensure popups are enabled\n• Try refreshing the page'
+              troubleshootingTips = TROUBLESHOOTING_TIPS.auth
             }
             
-            toast.error('Authentication failed after ' + maxRetries + ' attempts', {
+            toast.error(`Authentication failed after ${maxRetries} attempts`, {
               description: troubleshootingTips,
               duration: 10000
             })
