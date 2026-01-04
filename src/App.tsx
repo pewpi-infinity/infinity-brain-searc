@@ -69,6 +69,9 @@ import { AutoPricedAuctionCreator } from '@/components/AutoPricedAuctionCreator'
 import { HelpMeChoose } from '@/components/HelpMeChoose'
 import { WelcomeFlow } from '@/components/WelcomeFlow'
 import { BatchAutomation } from '@/components/BatchAutomation'
+import { PageHealthMonitor } from '@/components/PageHealthMonitor'
+import { RepoManagementHub } from '@/components/RepoManagementHub'
+import { BlockchainIntegration } from '@/components/BlockchainIntegration'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -348,6 +351,18 @@ function App() {
                 <Lightning size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Auto Auction</span>
               </TabsTrigger>
+              <TabsTrigger value="page-health" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Eye size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Page Health</span>
+              </TabsTrigger>
+              <TabsTrigger value="repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <GitBranch size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">My Repos</span>
+              </TabsTrigger>
+              <TabsTrigger value="blockchain" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <CurrencyDollar size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Live Blockchain</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="home" className="space-y-8">
@@ -618,6 +633,24 @@ function App() {
             <TabsContent value="auction-analytics">
               <div className="max-w-7xl mx-auto">
                 <ComprehensiveAuctionAnalytics />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="page-health">
+              <div className="max-w-7xl mx-auto">
+                <PageHealthMonitor />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="repos">
+              <div className="max-w-7xl mx-auto">
+                <RepoManagementHub />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="blockchain">
+              <div className="max-w-7xl mx-auto">
+                <BlockchainIntegration />
               </div>
             </TabsContent>
           </Tabs>

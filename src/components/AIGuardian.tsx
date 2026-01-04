@@ -1,28 +1,69 @@
-import { Robot } from '@phosphor-icons/react'
+import { useState, useEffect } from 'react'
+import { Robot, X } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useKV } from '@github/spark/hooks'
 
 export function AIGuardian() {
+  const [isVisible, setIsVisible] = useState(false)
+  const [isDismissed, setIsDismissed] = useKV<boolean>('ai-guardian-dismissed', false)
+  const [alert, setAlert] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isDismissed) {
+      const timer = setTimeout(() => {
+        setIsVisible(true)
+        setTimeout(() => {
+          setIsVisible(false)
+        }, 5000)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [isDismissed])
+
+  const handleDismiss = () => {
+    setIsVisible(false)
+    setIsDismissed(true)
+  }
+
+  const showAlert = (message: string) => {
+    setAlert(message)
+    setIsVisible(true)
+  }
+
+  if (isDismissed && !alert) return null
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="fixed top-20 right-6 z-40 max-w-xs"
-    >
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 shadow-lg">
-        <div className="flex items-start gap-3">
-          <Robot size={28} weight="duotone" className="text-blue-600 flex-shrink-0 animate-pulse" />
-          <div>
-            <h4 className="font-semibold text-sm text-blue-900 mb-1">
-              🤖 Infinity AI is watching
-            </h4>
-            <p className="text-xs text-blue-800">
-              If something looks unsafe or confusing, I'll stop and explain first.
-            </p>
-          </div>
-        </div>
-      </Card>
-    </motion.div>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="fixed top-4 right-4 z-50 max-w-xs"
+        >
+          <Card className="p-3 bg-gradient-to-r from-blue-50/95 to-purple-50/95 border-blue-200 shadow-lg backdrop-blur">
+            <div className="flex items-start gap-2">
+              <Robot size={20} weight="duotone" className="text-blue-600 flex-shrink-0 mt-0.5 opacity-70" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-blue-800 leading-relaxed">
+                  {alert || 'Infinity AI is watching for mistakes.'}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-5 w-5 p-0 hover:bg-blue-100"
+                onClick={handleDismiss}
+              >
+                <X size={14} className="text-blue-600" />
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
