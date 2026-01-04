@@ -36,6 +36,7 @@ import { SentimentAlertSystem } from '@/components/SentimentAlertSystem'
 import { BackgroundChanger } from '@/components/BackgroundChanger'
 import { EmojiFeatureHub } from '@/components/EmojiFeatureHub'
 import { SocialSecurityDistributor } from '@/components/SocialSecurityDistributor'
+import { SocialSecurityPlatform } from '@/components/SocialSecurityPlatform'
 import { InfinityTokenSale } from '@/components/InfinityTokenSale'
 import { EmojiCatcherGame } from '@/components/EmojiCatcherGame'
 import { RepoBackupSystem } from '@/components/RepoBackupSystem'
@@ -49,7 +50,7 @@ import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
-import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck } from '@phosphor-icons/react'
+import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
@@ -285,10 +286,18 @@ function App() {
                             <Button 
                               variant="ghost" 
                               className="w-full justify-start gap-2 h-10"
+                              onClick={() => setActiveTab('social-security')}
+                            >
+                              <HandHeart size={20} weight="duotone" />
+                              Social Security
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              className="w-full justify-start gap-2 h-10"
                               onClick={() => setActiveTab('ss-pay')}
                             >
                               <Coin size={20} weight="duotone" />
-                              Social Security Pay
+                              Admin Distribution
                             </Button>
                             <Button 
                               variant="ghost" 
@@ -390,6 +399,17 @@ function App() {
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Button
+                    onClick={() => setActiveTab('social-security')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 border-2 border-white/20"
+                  >
+                    <HandHeart size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Social Security</div>
+                      <div className="text-sm opacity-90">Apply for support</div>
+                    </div>
+                  </Button>
+
                   <Button
                     onClick={() => setActiveTab('create')}
                     className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
@@ -616,6 +636,7 @@ function App() {
               <TabsContent value="user"><UserDashboard /></TabsContent>
               <TabsContent value="admin"><AdminTools /></TabsContent>
               <TabsContent value="buy-inf"><InfinityTokenSale /></TabsContent>
+              <TabsContent value="social-security"><SocialSecurityPlatform /></TabsContent>
               <TabsContent value="charts"><InteractiveTokenChart /></TabsContent>
               <TabsContent value="blockchain"><BlockchainIntegration /></TabsContent>
               <TabsContent value="templates"><AuctionTemplates /></TabsContent>
