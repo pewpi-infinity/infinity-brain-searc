@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
 import { SearchBar } from '@/components/SearchBar'
 import { AIChat } from '@/components/AIChat'
 import { SlotMachine } from '@/components/SlotMachine'
@@ -52,7 +54,7 @@ import { ActionWheel } from '@/components/ActionWheel'
 import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
-import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell, Lightning, Gauge } from '@phosphor-icons/react'
+import { MagnifyingGlass, Robot, Coin, House, Sparkle, Package, CurrencyDollar, User, Storefront, ChartLine, FileHtml, Rocket, ShareNetwork, Cloud, Hash, Heart, BellRinging, Smiley, GameController, HandCoins, Gavel, ClockClockwise, ChartBar, Eye, Database, UploadSimple, Radio, ShieldCheck, Flask, GitBranch, FolderOpen, Code, ArrowsClockwise, Bell, Lightning, Gauge, List } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
@@ -118,7 +120,7 @@ function App() {
     }
 
     try {
-      const prompt = `Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
+      const prompt = window.spark.llmPrompt`Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
       const response = await window.spark.llm(prompt, 'gpt-4o-mini', true)
       const data = JSON.parse(response)
       
@@ -142,7 +144,285 @@ function App() {
         <div className="min-h-screen mesh-background">
         <div className="container mx-auto px-4 py-8">
           <header className="mb-8 text-center space-y-4">
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 relative">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-card/80 backdrop-blur hover:bg-accent/20 border-2"
+                  >
+                    <List size={24} weight="bold" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80 overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <Sparkle size={24} weight="duotone" className="text-accent" />
+                      Advanced Controls
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-2">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('admin')}
+                    >
+                      <ShieldCheck size={20} weight="duotone" />
+                      My Controls
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('autopilot')}
+                    >
+                      <Gauge size={20} weight="duotone" />
+                      Auto-Pilot Rules
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('batch-automation')}
+                    >
+                      <Lightning size={20} weight="duotone" />
+                      Batch Automation
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('notifications')}
+                    >
+                      <Bell size={20} weight="duotone" />
+                      Alerts & History
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('history')}
+                    >
+                      <ClockClockwise size={20} weight="duotone" />
+                      Redistribution History
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('user')}
+                    >
+                      <User size={20} weight="duotone" />
+                      Account & Identity
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('buy-inf')}
+                    >
+                      <Coin size={20} weight="duotone" />
+                      Payments & Tokens
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('page-health')}
+                    >
+                      <Eye size={20} weight="duotone" />
+                      System Health
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('backup')}
+                    >
+                      <Database size={20} weight="duotone" />
+                      Backup & Restore
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('export')}
+                    >
+                      <FileHtml size={20} weight="duotone" />
+                      Export Pages
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('deploy')}
+                    >
+                      <Rocket size={20} weight="duotone" />
+                      Deploy Sites
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('activity-monitor')}
+                    >
+                      <ArrowsClockwise size={20} weight="duotone" />
+                      Activity Monitor
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('auto-pricing')}
+                    >
+                      <Robot size={20} weight="duotone" />
+                      Auto-Pricing
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('templates')}
+                    >
+                      <ClockClockwise size={20} weight="duotone" />
+                      Auction Templates
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('watchlist')}
+                    >
+                      <Eye size={20} weight="duotone" />
+                      Watch List
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('batch-analyzer')}
+                    >
+                      <GitBranch size={20} weight="duotone" />
+                      Batch Repo Analyzer
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('file-builder')}
+                    >
+                      <Code size={20} weight="duotone" />
+                      File Builder
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('scanner')}
+                    >
+                      <FolderOpen size={20} weight="duotone" />
+                      GitHub Scanner
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('auto-auction')}
+                    >
+                      <Robot size={20} weight="duotone" />
+                      Auto Auction
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('charts')}
+                    >
+                      <ChartLine size={20} weight="duotone" />
+                      Token Charts
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('media')}
+                    >
+                      <UploadSimple size={20} weight="duotone" />
+                      Media Upload
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('spaces')}
+                    >
+                      <Radio size={20} weight="duotone" />
+                      Twitter Spaces
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('analytics')}
+                    >
+                      <ChartBar size={20} weight="duotone" />
+                      Engagement Analytics
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('metrics')}
+                    >
+                      <ChartLine size={20} weight="duotone" />
+                      Token Metrics
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('ss-pay')}
+                    >
+                      <HandCoins size={20} weight="duotone" />
+                      Social Security Pay
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('emoji')}
+                    >
+                      <Smiley size={20} weight="duotone" />
+                      Emoji Features
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('trends')}
+                    >
+                      <Hash size={20} weight="duotone" />
+                      Hashtag Trends
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('azure')}
+                    >
+                      <Cloud size={20} weight="duotone" />
+                      Azure Deploy
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('sentiment')}
+                    >
+                      <Heart size={20} weight="duotone" />
+                      Sentiment Analysis
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('alerts')}
+                    >
+                      <BellRinging size={20} weight="duotone" />
+                      Sentiment Alerts
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('auction-analytics')}
+                    >
+                      <ChartBar size={20} weight="duotone" />
+                      Auction Analytics
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2"
+                      onClick={() => setActiveTab('create-auto-auction')}
+                    >
+                      <Lightning size={20} weight="duotone" />
+                      Create Auto-Auction
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+              
               <Sparkle size={48} weight="duotone" className="text-accent animate-pulse" />
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                 Infinity Brain
@@ -182,198 +462,70 @@ function App() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-6 md:grid-cols-36 h-auto gap-1 bg-card/80 backdrop-blur p-2">
-              <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <House size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Home</span>
+            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-3 md:grid-cols-5 lg:grid-cols-8 h-auto gap-2 bg-card/80 backdrop-blur p-3">
+              <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <House size={24} weight="duotone" />
+                <span className="text-sm font-medium">Home</span>
               </TabsTrigger>
-              <TabsTrigger value="research" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Flask size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Research</span>
+              <TabsTrigger value="research" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <Flask size={24} weight="duotone" />
+                <span className="text-sm font-medium">Research</span>
               </TabsTrigger>
-              <TabsTrigger value="quality" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Sparkle size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Quality AI</span>
+              <TabsTrigger value="quality" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <Sparkle size={24} weight="duotone" />
+                <span className="text-sm font-medium">Quality AI</span>
               </TabsTrigger>
-              <TabsTrigger value="batch-analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <GitBranch size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Do Many Things</span>
+              <TabsTrigger value="tokens" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <CurrencyDollar size={24} weight="duotone" />
+                <span className="text-sm font-medium">Create Value</span>
               </TabsTrigger>
-              <TabsTrigger value="file-builder" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Code size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Create</span>
+              <TabsTrigger value="marketplace" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <Storefront size={24} weight="duotone" />
+                <span className="text-sm font-medium">Trade</span>
               </TabsTrigger>
-              <TabsTrigger value="scanner" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <FolderOpen size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Recognize Things</span>
+              <TabsTrigger value="auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <Gavel size={24} weight="duotone" />
+                <span className="text-sm font-medium">Auction</span>
               </TabsTrigger>
-              <TabsTrigger value="autopilot" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Gauge size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Auto-Pilot</span>
+              <TabsTrigger value="markets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <ChartLine size={24} weight="duotone" />
+                <span className="text-sm font-medium">Markets</span>
               </TabsTrigger>
-              <TabsTrigger value="auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Robot size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Auto</span>
+              <TabsTrigger value="chat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <Robot size={24} weight="duotone" />
+                <span className="text-sm font-medium">AI Chat</span>
               </TabsTrigger>
-              <TabsTrigger value="batch-automation" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Lightning size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Batch Auto</span>
+              <TabsTrigger value="social" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <ShareNetwork size={24} weight="duotone" />
+                <span className="text-sm font-medium">Social</span>
               </TabsTrigger>
-              <TabsTrigger value="activity-monitor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ArrowsClockwise size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Activity</span>
+              <TabsTrigger value="repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <GitBranch size={24} weight="duotone" />
+                <span className="text-sm font-medium">My Repos</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Bell size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Alerts</span>
+              <TabsTrigger value="live-repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <GitBranch size={24} weight="duotone" />
+                <span className="text-sm font-medium">Live Sites</span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ClockClockwise size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">History</span>
+              <TabsTrigger value="blockchain" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <CurrencyDollar size={24} weight="duotone" />
+                <span className="text-sm font-medium">Blockchain</span>
               </TabsTrigger>
-              <TabsTrigger value="charts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartLine size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Charts</span>
+              <TabsTrigger value="ai-repair" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col items-center gap-1 py-3">
+                <Sparkle size={24} weight="duotone" />
+                <span className="text-sm font-medium">AI Repair</span>
               </TabsTrigger>
-              <TabsTrigger value="media" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <UploadSimple size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Media</span>
+              <TabsTrigger value="mario" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-3">
+                <GameController size={24} weight="duotone" />
+                <span className="text-sm font-medium">🍄 Games</span>
               </TabsTrigger>
-              <TabsTrigger value="spaces" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Radio size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Spaces</span>
+              <TabsTrigger value="modules" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <Package size={24} weight="duotone" />
+                <span className="text-sm font-medium">Add Abilities</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartBar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="metrics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartLine size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">📊 Metrics</span>
-              </TabsTrigger>
-              <TabsTrigger value="backup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Database size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Backup</span>
-              </TabsTrigger>
-              <TabsTrigger value="buy-inf" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Coin size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Buy INF</span>
-              </TabsTrigger>
-              <TabsTrigger value="ss-pay" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <HandCoins size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">SS Pay</span>
-              </TabsTrigger>
-              <TabsTrigger value="mario" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <GameController size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">🍄 Mario</span>
-              </TabsTrigger>
-              <TabsTrigger value="emoji" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Smiley size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">🍄👑 Emoji</span>
-              </TabsTrigger>
-              <TabsTrigger value="user" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <User size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Account</span>
-              </TabsTrigger>
-              <TabsTrigger value="modules" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Package size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Add Abilities</span>
-              </TabsTrigger>
-              <TabsTrigger value="tokens" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <CurrencyDollar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Create Value</span>
-              </TabsTrigger>
-              <TabsTrigger value="markets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-primary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartLine size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Markets</span>
-              </TabsTrigger>
-              <TabsTrigger value="marketplace" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Storefront size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Trade</span>
-              </TabsTrigger>
-              <TabsTrigger value="auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Gavel size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Auction</span>
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <ClockClockwise size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Templates</span>
-              </TabsTrigger>
-              <TabsTrigger value="watchlist" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Eye size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Watch</span>
-              </TabsTrigger>
-              <TabsTrigger value="search" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <MagnifyingGlass size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Search</span>
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Robot size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">AI Chat</span>
-              </TabsTrigger>
-              <TabsTrigger value="social" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <ShareNetwork size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Social</span>
-              </TabsTrigger>
-              <TabsTrigger value="trends" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Hash size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Trends</span>
-              </TabsTrigger>
-              <TabsTrigger value="export" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <FileHtml size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Take With Me</span>
-              </TabsTrigger>
-              <TabsTrigger value="deploy" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-primary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Rocket size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Publish</span>
-              </TabsTrigger>
-              <TabsTrigger value="azure" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Cloud size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Azure</span>
-              </TabsTrigger>
-              <TabsTrigger value="sentiment" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-secondary data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <Heart size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Sentiment</span>
-              </TabsTrigger>
-              <TabsTrigger value="alerts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-accent-foreground flex flex-col md:flex-row items-center gap-1 py-2">
-                <BellRinging size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Alerts</span>
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ShieldCheck size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">My Controls</span>
-              </TabsTrigger>
-              <TabsTrigger value="auction-analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <ChartBar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Auction Data</span>
-              </TabsTrigger>
-              <TabsTrigger value="auto-pricing" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Robot size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">AutoPrice</span>
-              </TabsTrigger>
-              <TabsTrigger value="create-auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Lightning size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Auto Auction</span>
-              </TabsTrigger>
-              <TabsTrigger value="page-health" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Eye size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Page Health</span>
-              </TabsTrigger>
-              <TabsTrigger value="repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <GitBranch size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">My Repos</span>
-              </TabsTrigger>
-              <TabsTrigger value="blockchain" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <CurrencyDollar size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Live Blockchain</span>
-              </TabsTrigger>
-              <TabsTrigger value="live-repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <GitBranch size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Live Websites</span>
-              </TabsTrigger>
-              <TabsTrigger value="ai-repair" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
-                <Sparkle size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">AI Repair</span>
+              <TabsTrigger value="search" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-3">
+                <MagnifyingGlass size={24} weight="duotone" />
+                <span className="text-sm font-medium">Search</span>
               </TabsTrigger>
             </TabsList>
 
