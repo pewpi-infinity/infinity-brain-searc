@@ -75,6 +75,7 @@ import { AIPageRepair } from '@/components/AIPageRepair'
 import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
 import { AuthDebugPanel } from '@/components/AuthDebugPanel'
 import { AIDebugger } from '@/components/AIDebugger'
+import { BismuthSignalReader } from '@/components/BismuthSignalReader'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -687,6 +688,7 @@ function App() {
           <SafetyFooter />
           <AuthDebugPanel />
           <AIDebugger />
+          <BismuthSignalReader />
         </div>
       </TokenRedistributionServiceProvider>
     </AuthProvider>
