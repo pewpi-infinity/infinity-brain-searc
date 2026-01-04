@@ -25,7 +25,7 @@ import {
   FileText
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { TokenAuction } from './TokenAuction'
 
@@ -58,9 +58,9 @@ export interface ScheduledAuction {
 
 export function AuctionTemplates() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [templates, setTemplates] = useKV<AuctionTemplate[]>('auction-templates', [])
-  const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [templates, setTemplates] = useLocalStorage<AuctionTemplate[]>('auction-templates', [])
+  const [auctions, setAuctions] = useLocalStorage<TokenAuction[]>('token-auctions', [])
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
 
   const [isCreating, setIsCreating] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<AuctionTemplate | null>(null)

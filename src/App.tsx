@@ -76,8 +76,14 @@ import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
 import { AuthDebugPanel } from '@/components/AuthDebugPanel'
 import { AIDebugger } from '@/components/AIDebugger'
 import { BismuthSignalReader } from '@/components/BismuthSignalReader'
+import { AuthCallback } from '@/components/AuthCallback'
 
 function App() {
+  // Check if we're on the OAuth callback route
+  if (window.location.pathname === '/auth/callback') {
+    return <AuthCallback />
+  }
+
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)

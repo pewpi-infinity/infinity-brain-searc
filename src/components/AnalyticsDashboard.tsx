@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { 
   ChartLine,
   TrendUp,
@@ -44,8 +44,8 @@ interface PlatformMetrics {
 }
 
 export function AnalyticsDashboard() {
-  const [postHistory] = useKV<any[]>('post-history', [])
-  const [platforms] = useKV<any[]>('social-platforms', [])
+  const [postHistory] = useLocalStorage<any[]>('post-history', [])
+  const [platforms] = useLocalStorage<any[]>('social-platforms', [])
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('30d')
 
   const generateMockAnalytics = (): PostAnalytics[] => {

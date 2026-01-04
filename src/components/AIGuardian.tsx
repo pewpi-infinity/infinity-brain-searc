@@ -3,11 +3,11 @@ import { Robot, X } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 export function AIGuardian() {
   const [isVisible, setIsVisible] = useState(false)
-  const [isDismissed, setIsDismissed] = useKV<boolean>('ai-guardian-dismissed', false)
+  const [isDismissed, setIsDismissed] = useLocalStorage<boolean>('ai-guardian-dismissed', false)
   const [alert, setAlert] = useState<string | null>(null)
 
   useEffect(() => {

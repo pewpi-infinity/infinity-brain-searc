@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { 
   ChartLine, 
   TrendUp, 
@@ -57,8 +57,8 @@ interface AuctionMetric {
 const COLORS = ['oklch(0.45 0.15 300)', 'oklch(0.55 0.20 250)', 'oklch(0.70 0.18 200)', 'oklch(0.75 0.08 290)', 'oklch(0.577 0.245 27.325)']
 
 export function AuctionAnalytics() {
-  const [auctions] = useKV<AuctionMetric[]>('auction-history', [])
-  const [liveAuctions] = useKV<any[]>('token-auctions', [])
+  const [auctions] = useLocalStorage<AuctionMetric[]>('auction-history', [])
+  const [liveAuctions] = useLocalStorage<any[]>('token-auctions', [])
   const [timeRange, setTimeRange] = useState('7d')
   const [selectedMetric, setSelectedMetric] = useState('revenue')
 

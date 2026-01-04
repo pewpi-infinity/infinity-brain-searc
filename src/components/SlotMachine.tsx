@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Brain, Sparkle, Plus, ArrowsClockwise } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { toast } from 'sonner'
 
 interface GeneratedPage {
@@ -19,7 +19,7 @@ interface GeneratedPage {
 const PAGE_ICONS = ['🌐', '📱', '🎨', '🚀', '💡', '🎯', '⚡', '🔮']
 
 export function SlotMachine() {
-  const [savedPages, setSavedPages] = useKV<GeneratedPage[]>('neural-cart-pages', [])
+  const [savedPages, setSavedPages] = useLocalStorage<GeneratedPage[]>('neural-cart-pages', [])
   const [thoughtPrompt, setThoughtPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [reels, setReels] = useState(['🌐', '📱', '🎨'])

@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Globe, Pencil, Eye, Code, Sparkle, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 
 interface LiveRepo {
   id: string
@@ -20,7 +20,7 @@ interface LiveRepo {
 }
 
 export function LiveRepoManager() {
-  const [repos, setRepos] = useKV<LiveRepo[]>('live-repos', [
+  const [repos, setRepos] = useLocalStorage<LiveRepo[]>('live-repos', [
     {
       id: 'smug_look',
       name: 'smug_look',

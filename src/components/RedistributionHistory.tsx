@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,7 +17,7 @@ interface RedistributionRecord {
 }
 
 export function RedistributionHistory() {
-  const [redistributions] = useKV<RedistributionRecord[]>('token-redistributions', [])
+  const [redistributions] = useLocalStorage<RedistributionRecord[]>('token-redistributions', [])
   const [filteredData, setFilteredData] = useState<RedistributionRecord[]>([])
   const [filter, setFilter] = useState<'all' | 'received' | 'lost'>('all')
   const [currentUser, setCurrentUser] = useState<string | null>(null)

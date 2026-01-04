@@ -11,7 +11,7 @@ import {
   Fire,
   ChartLineUp
 } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { Transaction } from './TransactionHistory'
 import { MarketOrder } from './TokenMarketplace'
 
@@ -31,9 +31,9 @@ interface MarketOverviewProps {
 }
 
 export function MarketOverview({ onTokenSelect }: MarketOverviewProps) {
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
-  const [allTransactions] = useKV<Transaction[]>('all-transactions', [])
-  const [marketOrders] = useKV<MarketOrder[]>('market-orders', [])
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
+  const [allTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
+  const [marketOrders] = useLocalStorage<MarketOrder[]>('market-orders', [])
   const [sortBy, setSortBy] = useState<'price' | 'change' | 'volume' | 'marketCap'>('marketCap')
 
   const generateMarketData = (): TokenMarketData[] => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts'
 import { ChartBar, Users, Eye, Heart, ShareNetwork, TrendUp } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -34,8 +34,8 @@ interface ContentAnalytics {
 }
 
 export function EngagementAnalytics() {
-  const [analytics, setAnalytics] = useKV<Record<string, ContentAnalytics>>('engagement-analytics', {})
-  const [globalEvents, setGlobalEvents] = useKV<EngagementEvent[]>('global-engagement-events', [])
+  const [analytics, setAnalytics] = useLocalStorage<Record<string, ContentAnalytics>>('engagement-analytics', {})
+  const [globalEvents, setGlobalEvents] = useLocalStorage<EngagementEvent[]>('global-engagement-events', [])
   const [selectedContent, setSelectedContent] = useState<string>('global')
 
   useEffect(() => {
@@ -355,7 +355,7 @@ export function EngagementAnalytics() {
 }
 
 export function useEngagementTracking(contentId: string) {
-  const [, setAnalytics] = useKV<Record<string, ContentAnalytics>>('engagement-analytics', {})
+  const [, setAnalytics] = useLocalStorage<Record<string, ContentAnalytics>>('engagement-analytics', {})
 
   const track = (type: EngagementEvent['type'], metadata?: Record<string, any>) => {
     const event: EngagementEvent = {

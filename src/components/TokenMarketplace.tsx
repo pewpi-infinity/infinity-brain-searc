@@ -22,7 +22,7 @@ import {
   Clock
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
@@ -53,10 +53,10 @@ interface OrderBookEntry {
 
 export function TokenMarketplace() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [marketOrders, setMarketOrders] = useKV<MarketOrder[]>('market-orders', [])
-  const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
-  const [userProfiles, setUserProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
-  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [marketOrders, setMarketOrders] = useLocalStorage<MarketOrder[]>('market-orders', [])
+  const [allTransactions, setAllTransactions] = useLocalStorage<Transaction[]>('all-transactions', [])
+  const [userProfiles, setUserProfiles] = useLocalStorage<Record<string, any>>('all-user-profiles', {})
+  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
   
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy')
   const [selectedToken, setSelectedToken] = useState('')

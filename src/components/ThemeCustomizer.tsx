@@ -8,7 +8,7 @@ import {
   Check,
   X
 } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/lib/useLocalStorage'
 import { toast } from 'sonner'
 
 interface ThemeConfig {
@@ -134,8 +134,8 @@ const BACKGROUND_PATTERNS = [
 ]
 
 export function ThemeCustomizer() {
-  const [selectedTheme, setSelectedTheme] = useKV<string>('selected-theme', 'infinity-original')
-  const [backgroundPattern, setBackgroundPattern] = useKV<string>('background-pattern', 'mesh')
+  const [selectedTheme, setSelectedTheme] = useLocalStorage<string>('selected-theme', 'infinity-original')
+  const [backgroundPattern, setBackgroundPattern] = useLocalStorage<string>('background-pattern', 'mesh')
   const [showCustomizer, setShowCustomizer] = useState(false)
 
   const applyTheme = (theme: ThemeConfig) => {

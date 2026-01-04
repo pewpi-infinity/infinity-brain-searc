@@ -1,3 +1,5 @@
+import { storage } from './storage'
+
 export interface TokenMetric {
   tokenSymbol: string
   timestamp: number
@@ -150,7 +152,7 @@ export async function trackTokenMetric(
   value: number = 1,
   metadata?: TokenMetric['metadata']
 ): Promise<void> {
-  const metrics = await window.spark.kv.get<TokenMetric[]>(`token-metrics-${tokenSymbol}`) || []
+  const metrics = await storage.get<TokenMetric[]>(`token-metrics-${tokenSymbol}`) || []
   
   const newMetric: TokenMetric = {
     tokenSymbol,
@@ -168,19 +170,19 @@ export async function trackTokenMetric(
     metrics.splice(0, metrics.length - maxMetrics)
   }
   
-  await window.spark.kv.set(`token-metrics-${tokenSymbol}`, metrics)
+  await storage.set(`token-metrics-${tokenSymbol}`, metrics)
   
   await updateTokenValueSnapshot(tokenSymbol, metrics)
 }
 
 async function updateTokenValueSnapshot(tokenSymbol: string, metrics: TokenMetric[]): Promise<void> {
-  const tokens = await window.spark.kv.get<Record<string, any>>('business-tokens') || {}
+  const tokens = await storage.get<Record<string, any>>('business-tokens') || {}
   const tokenData = tokens[tokenSymbol]
   const baseValue = tokenData?.initialPrice || 1.0
   
   const snapshot = calculateTokenValueFromMetrics(metrics, baseValue)
   
-  const snapshots = await window.spark.kv.get<TokenValueSnapshot[]>(`token-snapshots-${tokenSymbol}`) || []
+  const snapshots = await storage.get<TokenValueSnapshot[]>(`token-snapshots-${tokenSymbol}`) || []
   snapshots.push(snapshot)
   
   const maxSnapshots = 1000
@@ -188,5 +190,5 @@ async function updateTokenValueSnapshot(tokenSymbol: string, metrics: TokenMetri
     snapshots.splice(0, snapshots.length - maxSnapshots)
   }
   
-  await window.spark.kv.set(`token-snapshots-${tokenSymbol}`, snapshots)
+  await storage.set(`token-snapshots-${tokenSymbol}`, snapshots)
 }
