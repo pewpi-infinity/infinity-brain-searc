@@ -1,4 +1,5 @@
 import { toast } from 'sonner'
+import { storage } from './storage'
 
 export interface SlideCoin {
   id: string
@@ -69,8 +70,11 @@ const handleInteraction = async (event: Event) => {
 
 export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> => {
   try {
-    const user = await window.spark.user()
-    if (!user) return null
+    // Get user from localStorage instead of Spark
+    const userDataStr = localStorage.getItem('github_user')
+    if (!userDataStr) return null
+    
+    const user = JSON.parse(userDataStr)
     
     const timestamp = Date.now()
     const mouseEvent = event as MouseEvent
@@ -120,20 +124,20 @@ export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> =
 
 const saveToWallet = async (slideCoin: SlideCoin) => {
   try {
-    await window.spark.kv.set(`slide-${slideCoin.id}`, slideCoin)
+    await storage.set(`slide-${slideCoin.id}`, slideCoin)
     
     const walletKey = `wallet-${slideCoin.owner}`
-    const wallet = await window.spark.kv.get<any>(walletKey) || { balance: 0, slideCoins: [] }
+    const wallet = await storage.get<any>(walletKey) || { balance: 0, slideCoins: [] }
     
     wallet.balance = (wallet.balance || 0) + slideCoin.token.value
     wallet.slideCoins = wallet.slideCoins || []
     wallet.slideCoins.push(slideCoin.id)
     
-    await window.spark.kv.set(walletKey, wallet)
+    await storage.set(walletKey, wallet)
     
-    const allSlides = await window.spark.kv.get<string[]>('all-slide-coins') || []
+    const allSlides = await storage.get<string[]>('all-slide-coins') || []
     allSlides.push(slideCoin.id)
-    await window.spark.kv.set('all-slide-coins', allSlides)
+    await storage.set('all-slide-coins', allSlides)
     
     if (Math.random() > 0.7) {
       toast.success(`💫 Slide Coin Created!`, {

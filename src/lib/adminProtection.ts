@@ -1,3 +1,5 @@
+import { storage } from './storage'
+
 const ADMIN_GITHUB_ID = 'pewpi-infinity'
 
 export interface AdminProtection {
@@ -80,13 +82,17 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
 ]
 
 export async function restoreAdminAuctions() {
-  const ownerUser = await window.spark.user()
+  // Get user from localStorage instead of Spark
+  const userDataStr = localStorage.getItem('github_user')
+  if (!userDataStr) return
+  
+  const ownerUser = JSON.parse(userDataStr)
   
   if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
     return
   }
 
-  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+  const existingAuctions = await storage.get<any[]>('token-auctions') || []
   
   const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
   const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
@@ -104,17 +110,21 @@ export async function restoreAdminAuctions() {
     ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
   ]
 
-  await window.spark.kv.set('token-auctions', mergedAuctions)
+  await storage.set('token-auctions', mergedAuctions)
 }
 
 export async function protectAdminAuctions() {
-  const ownerUser = await window.spark.user()
+  // Get user from localStorage instead of Spark
+  const userDataStr = localStorage.getItem('github_user')
+  if (!userDataStr) return
+  
+  const ownerUser = JSON.parse(userDataStr)
   
   if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
     return
   }
 
-  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+  const existingAuctions = await storage.get<any[]>('token-auctions') || []
   const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
   
   const protectedAuctions = existingAuctions.map(auction => {
@@ -129,5 +139,5 @@ export async function protectAdminAuctions() {
     return auction
   })
 
-  await window.spark.kv.set('token-auctions', protectedAuctions)
+  await storage.set('token-auctions', protectedAuctions)
 }
