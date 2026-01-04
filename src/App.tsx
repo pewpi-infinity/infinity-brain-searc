@@ -66,6 +66,9 @@ import { TokenRedistributionNotifier } from '@/components/TokenRedistributionNot
 import { RedistributionHistory } from '@/components/RedistributionHistory'
 import { AutoPricingAlgorithm } from '@/components/AutoPricingAlgorithm'
 import { AutoPricedAuctionCreator } from '@/components/AutoPricedAuctionCreator'
+import { HelpMeChoose } from '@/components/HelpMeChoose'
+import { WelcomeFlow } from '@/components/WelcomeFlow'
+import { BatchAutomation } from '@/components/BatchAutomation'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -138,6 +141,24 @@ function App() {
                 Infinity Brain
               </h1>
             </div>
+            
+            <div className="max-w-3xl mx-auto space-y-3">
+              <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-4 shadow-lg">
+                <h2 className="text-lg font-semibold text-accent mb-2">🤖 Infinity Brain Promise</h2>
+                <p className="text-sm text-foreground/90">
+                  You will never be asked for secret keys, terminal commands, or code.
+                  If something can be done safely for you, it will be.
+                </p>
+              </div>
+              
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                  <Robot size={20} weight="duotone" className="text-primary" />
+                  <span><strong>Infinity AI is watching for mistakes.</strong> If something looks unsafe or confusing, I'll stop and explain first.</span>
+                </p>
+              </div>
+            </div>
+            
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Comprehensive tokenized business infrastructure ecosystem. Buy INF with USD or earn through contributions!
             </p>
@@ -169,7 +190,7 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="batch-analyzer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <GitBranch size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Do Many</span>
+                <span className="text-xs md:text-sm">Do Many Things</span>
               </TabsTrigger>
               <TabsTrigger value="file-builder" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Code size={20} weight="duotone" />
@@ -177,7 +198,7 @@ function App() {
               </TabsTrigger>
               <TabsTrigger value="scanner" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <FolderOpen size={20} weight="duotone" />
-                <span className="text-xs md:text-sm">Recognize</span>
+                <span className="text-xs md:text-sm">Recognize Things</span>
               </TabsTrigger>
               <TabsTrigger value="autopilot" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Gauge size={20} weight="duotone" />
@@ -186,6 +207,10 @@ function App() {
               <TabsTrigger value="auto-auction" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <Robot size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Auto</span>
+              </TabsTrigger>
+              <TabsTrigger value="batch-automation" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Lightning size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Batch Auto</span>
               </TabsTrigger>
               <TabsTrigger value="activity-monitor" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <ArrowsClockwise size={20} weight="duotone" />
@@ -370,6 +395,10 @@ function App() {
               <AutoAuctionSystem />
             </TabsContent>
 
+            <TabsContent value="batch-automation">
+              <BatchAutomation />
+            </TabsContent>
+
             <TabsContent value="activity-monitor">
               <TokenActivityMonitor />
             </TabsContent>
@@ -443,21 +472,39 @@ function App() {
             </TabsContent>
 
             <TabsContent value="tokens">
-              <TokenMinter />
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <HelpMeChoose category="tokens" onNavigate={setActiveTab} />
+                </div>
+                <TokenMinter />
+              </div>
             </TabsContent>
 
             <TabsContent value="markets">
-              <MarketOverview onTokenSelect={(symbol) => {
-                setActiveTab('marketplace')
-              }} />
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
+                </div>
+                <MarketOverview onTokenSelect={(symbol) => {
+                  setActiveTab('marketplace')
+                }} />
+              </div>
             </TabsContent>
 
             <TabsContent value="marketplace">
-              <TokenMarketplace />
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <HelpMeChoose category="marketplace" onNavigate={setActiveTab} />
+                </div>
+                <TokenMarketplace />
+              </div>
             </TabsContent>
 
             <TabsContent value="auction">
               <div className="space-y-6">
+                <div className="flex justify-end">
+                  <HelpMeChoose category="auction" onNavigate={setActiveTab} />
+                </div>
                 <LiveAuctionViewer showCreateForm={true} />
                 <TokenAuction />
               </div>
@@ -581,6 +628,7 @@ function App() {
         <HelpLegend />
         <BackgroundChanger />
         <ThemeCustomizer />
+        <WelcomeFlow onNavigate={setActiveTab} />
         <ActionWheel
           onImport={() => {
             toast.info('Import feature - coming soon', {

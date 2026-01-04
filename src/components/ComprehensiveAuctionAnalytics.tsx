@@ -4,8 +4,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChartLine, TrendUp, TrendDown, Coin, Users, Clock, Lightning, ArrowsClockwise } from '@phosphor-icons/react'
+import { ChartLine, TrendUp, TrendDown, Coin, Users, Clock, Lightning, ArrowsClockwise, Brain, Sparkle } from '@phosphor-icons/react'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { toast } from 'sonner'
 
 interface Auction {
   id: string
@@ -33,11 +34,21 @@ interface AuctionMetrics {
   averageDuration: number
 }
 
+interface MarketForecast {
+  nextDayVolume: number
+  nextWeekVolume: number
+  confidence: number
+  trend: 'up' | 'down' | 'stable'
+  recommendation: string
+}
+
 export function ComprehensiveAuctionAnalytics() {
   const [auctions] = useKV<Auction[]>('auctions', [])
   const [metrics, setMetrics] = useState<AuctionMetrics | null>(null)
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('7d')
   const [refreshing, setRefreshing] = useState(false)
+  const [forecast, setForecast] = useState<MarketForecast | null>(null)
+  const [generatingForecast, setGeneratingForecast] = useState(false)
 
   const calculateMetrics = () => {
     setRefreshing(true)
@@ -82,6 +93,46 @@ export function ComprehensiveAuctionAnalytics() {
     })
     
     setTimeout(() => setRefreshing(false), 500)
+  }
+
+  const generateForecast = async () => {
+    setGeneratingForecast(true)
+    
+    try {
+      const recentAuctions = (auctions || []).slice(-30)
+      const volumeHistory = recentAuctions.map(a => a.currentBid)
+      const bidHistory = recentAuctions.map(a => a.bidCount)
+      
+      const promptText = `You are a market forecasting AI. Analyze this auction data and provide a forecast.
+
+Recent auction volumes: ${JSON.stringify(volumeHistory)}
+Recent bid counts: ${JSON.stringify(bidHistory)}
+Total auctions: ${metrics?.totalAuctions || 0}
+Average bid: ${metrics?.averageBid || 0}
+Current active: ${metrics?.activeAuctions || 0}
+
+Based on this data, provide a market forecast in JSON format with:
+- nextDayVolume: predicted volume for next 24 hours (number)
+- nextWeekVolume: predicted volume for next 7 days (number)
+- confidence: confidence level 0-100 (number)
+- trend: "up", "down", or "stable" (string)
+- recommendation: brief actionable advice for auction creators (string, max 100 chars)
+
+Return ONLY valid JSON, no other text.`
+
+      const response = await window.spark.llm(promptText, 'gpt-4o', true)
+      const forecastData = JSON.parse(response)
+      
+      setForecast(forecastData)
+      toast.success('Market forecast generated!', {
+        description: `Trend: ${forecastData.trend} | Confidence: ${forecastData.confidence}%`
+      })
+    } catch (error) {
+      toast.error('Failed to generate forecast')
+      console.error('Forecast error:', error)
+    } finally {
+      setGeneratingForecast(false)
+    }
   }
 
   useEffect(() => {
@@ -197,6 +248,66 @@ export function ComprehensiveAuctionAnalytics() {
             <div className="text-xs text-muted-foreground">Avg Duration</div>
           </Card>
         </div>
+      </Card>
+
+      <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Brain size={28} weight="duotone" className="text-purple-600" />
+            <div>
+              <h3 className="text-xl font-bold">AI Market Forecast</h3>
+              <p className="text-sm text-muted-foreground">Predictive analytics powered by machine learning</p>
+            </div>
+          </div>
+          <Button
+            onClick={generateForecast}
+            disabled={generatingForecast || !metrics}
+            className="gap-2"
+          >
+            <Sparkle size={16} weight="duotone" />
+            {generatingForecast ? 'Analyzing...' : 'Generate Forecast'}
+          </Button>
+        </div>
+
+        {forecast && (
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <Card className="p-4 bg-white/80">
+                <div className="text-sm text-muted-foreground mb-1">Next 24h Volume</div>
+                <div className="text-2xl font-bold text-blue-600">{forecast.nextDayVolume.toFixed(2)} INF</div>
+              </Card>
+              <Card className="p-4 bg-white/80">
+                <div className="text-sm text-muted-foreground mb-1">Next 7d Volume</div>
+                <div className="text-2xl font-bold text-purple-600">{forecast.nextWeekVolume.toFixed(2)} INF</div>
+              </Card>
+              <Card className="p-4 bg-white/80">
+                <div className="text-sm text-muted-foreground mb-1">Confidence Level</div>
+                <div className="text-2xl font-bold text-green-600">{forecast.confidence}%</div>
+              </Card>
+            </div>
+
+            <Card className="p-4 bg-white/80">
+              <div className="flex items-center gap-3">
+                {forecast.trend === 'up' && <TrendUp size={24} className="text-green-600" weight="duotone" />}
+                {forecast.trend === 'down' && <TrendDown size={24} className="text-red-600" weight="duotone" />}
+                {forecast.trend === 'stable' && <ChartLine size={24} className="text-blue-600" weight="duotone" />}
+                <div className="flex-1">
+                  <div className="font-semibold mb-1">
+                    Market Trend: <Badge variant={forecast.trend === 'up' ? 'default' : forecast.trend === 'down' ? 'destructive' : 'secondary'}>{forecast.trend.toUpperCase()}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{forecast.recommendation}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {!forecast && !generatingForecast && (
+          <Card className="p-8 bg-white/50 text-center">
+            <Brain size={48} className="mx-auto mb-3 text-muted-foreground" weight="duotone" />
+            <p className="text-muted-foreground">Click "Generate Forecast" to get AI-powered market predictions</p>
+          </Card>
+        )}
       </Card>
 
       <Tabs defaultValue="volume" className="w-full">
