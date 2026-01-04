@@ -42,12 +42,15 @@ export function AuthDebugPanel() {
 
   // Toggle visibility with Ctrl+Shift+D
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         e.preventDefault()
         setIsVisible(prev => !prev)
       }
     }
+    
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])

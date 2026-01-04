@@ -13,6 +13,12 @@ const WARNING_THRESHOLDS = [7, 3, 1]
 
 export function useTokenRedistributionService() {
   useEffect(() => {
+    // Add browser check
+    if (typeof window === 'undefined' || !window.spark) {
+      console.log('Token redistribution requires browser environment with Spark')
+      return
+    }
+    
     const checkInterval = setInterval(async () => {
       await checkInactiveTokens()
     }, 3600000)
@@ -24,6 +30,8 @@ export function useTokenRedistributionService() {
 
   const checkInactiveTokens = async () => {
     try {
+      if (typeof window === 'undefined' || !window.spark) return
+      
       const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const now = Date.now()
 
