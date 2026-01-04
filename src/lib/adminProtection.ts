@@ -1,7 +1,4 @@
-// Admin protection utilities for Infinity Brain
-
-// Admin GitHub usernames (case-insensitive)
-const ADMIN_GITHUB_USERNAMES = ['pewpi', 'buotuner', 'pewpi-infinity']
+const ADMIN_GITHUB_ID = 'pewpi-infinity'
 
 export interface AdminProtection {
   isAdmin: (userId: string, username: string) => boolean
@@ -12,9 +9,7 @@ export interface AdminProtection {
 
 export const adminProtection: AdminProtection = {
   isAdmin: (userId: string, username: string): boolean => {
-    return ADMIN_GITHUB_USERNAMES.some(
-      admin => admin.toLowerCase() === username.toLowerCase()
-    )
+    return username.toLowerCase() === ADMIN_GITHUB_ID.toLowerCase()
   },
 
   canSyncWallet: (userId: string, username: string): boolean => {
@@ -40,7 +35,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 50,
     reservePrice: 50,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
+    creatorUsername: ADMIN_GITHUB_ID,
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,
@@ -57,7 +52,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 10,
     reservePrice: 10,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
+    creatorUsername: ADMIN_GITHUB_ID,
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,
@@ -74,7 +69,7 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
     currentBid: 100,
     reservePrice: 100,
     creatorId: 'admin',
-    creatorUsername: ADMIN_GITHUB_USERNAMES[0], // Use primary admin
+    creatorUsername: ADMIN_GITHUB_ID,
     startTime: Date.now(),
     endTime: Date.now() + (30 * 24 * 60 * 60 * 1000),
     status: 'active' as const,
@@ -85,68 +80,54 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
 ]
 
 export async function restoreAdminAuctions() {
-  // Use Spark API to get user
-  if (!window.spark) return
+  const ownerUser = await window.spark.user()
   
-  try {
-    const ownerUser = await window.spark.user()
-    
-    if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
-      return
-    }
-
-    const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
-    
-    const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
-    const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
-    
-    if (hasAdminAuctions) {
-      return
-    }
-
-    const mergedAuctions = [
-      ...ADMIN_AUCTIONS_TEMPLATE.map(auction => ({
-        ...auction,
-        creatorId: String(ownerUser.id),
-        creatorUsername: ownerUser.login
-      })),
-      ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
-    ]
-
-    await window.spark.kv.set('token-auctions', mergedAuctions)
-  } catch (error) {
-    console.error('Failed to restore admin auctions:', error)
+  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
+    return
   }
+
+  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+  
+  const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
+  const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
+  
+  if (hasAdminAuctions) {
+    return
+  }
+
+  const mergedAuctions = [
+    ...ADMIN_AUCTIONS_TEMPLATE.map(auction => ({
+      ...auction,
+      creatorId: String(ownerUser.id),
+      creatorUsername: ownerUser.login
+    })),
+    ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
+  ]
+
+  await window.spark.kv.set('token-auctions', mergedAuctions)
 }
 
 export async function protectAdminAuctions() {
-  // Use Spark API to get user
-  if (!window.spark) return
+  const ownerUser = await window.spark.user()
   
-  try {
-    const ownerUser = await window.spark.user()
-    
-    if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
-      return
-    }
-
-    const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
-    const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
-    
-    const protectedAuctions = existingAuctions.map(auction => {
-      if (adminAuctionIds.includes(auction.id) && auction.creatorId !== String(ownerUser.id)) {
-        return {
-          ...ADMIN_AUCTIONS_TEMPLATE.find(a => a.id === auction.id),
-          creatorId: String(ownerUser.id),
-          creatorUsername: ownerUser.login,
-          bids: auction.bids || []
-        }
-      }
-      return auction
-    })
-
-    await window.spark.kv.set('token-auctions', protectedAuctions)
-  } catch (error) {
-    console.error('Failed to protect admin auctions:', error)
+  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
+    return
   }
+
+  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
+  const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
+  
+  const protectedAuctions = existingAuctions.map(auction => {
+    if (adminAuctionIds.includes(auction.id) && auction.creatorId !== String(ownerUser.id)) {
+      return {
+        ...ADMIN_AUCTIONS_TEMPLATE.find(a => a.id === auction.id),
+        creatorId: String(ownerUser.id),
+        creatorUsername: ownerUser.login,
+        bids: auction.bids || []
+      }
+    }
+    return auction
+  })
+
+  await window.spark.kv.set('token-auctions', protectedAuctions)
 }

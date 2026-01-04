@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { socialAPI, type AuthConfig } from '@/lib/socialApis'
 import { 
   TwitterLogo, 
@@ -47,7 +47,7 @@ interface PlatformCredentials {
 }
 
 export function SocialOAuthManager() {
-  const [credentials, setCredentials] = useLocalStorage<PlatformCredentials>('social-api-credentials', {})
+  const [credentials, setCredentials] = useKV<PlatformCredentials>('social-api-credentials', {})
   const [showDialog, setShowDialog] = useState(false)
   const [activePlatform, setActivePlatform] = useState<'twitter' | 'facebook' | 'linkedin'>('twitter')
   const [verifying, setVerifying] = useState<string | null>(null)

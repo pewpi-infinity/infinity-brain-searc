@@ -1,8 +1,6 @@
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import type { ReactNode } from 'react'
-import { storage } from './storage'
-import { useAuth } from './auth'
 
 interface TokenRedistributionService {
   checkInactiveTokens: () => Promise<void>
@@ -14,8 +12,6 @@ const INACTIVITY_THRESHOLD_DAYS = 30
 const WARNING_THRESHOLDS = [7, 3, 1]
 
 export function useTokenRedistributionService() {
-  const { currentUser } = useAuth()
-
   useEffect(() => {
     const checkInterval = setInterval(async () => {
       await checkInactiveTokens()
@@ -28,7 +24,7 @@ export function useTokenRedistributionService() {
 
   const checkInactiveTokens = async () => {
     try {
-      const tokens = await storage.get<any[]>('minted-tokens') || []
+      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const now = Date.now()
 
       for (const token of tokens) {
@@ -49,7 +45,7 @@ export function useTokenRedistributionService() {
 
   const redistributeToken = async (tokenSymbol: string, fromOwner: string) => {
     try {
-      const tokens = await storage.get<any[]>('minted-tokens') || []
+      const tokens = await window.spark.kv.get<any[]>('minted-tokens') || []
       const tokenIndex = tokens.findIndex(t => t.symbol === tokenSymbol)
 
       if (tokenIndex === -1) return
@@ -74,23 +70,24 @@ export function useTokenRedistributionService() {
         reason: 'inactivity'
       }
 
-      const redistributions = await storage.get<any[]>('token-redistributions') || []
+      const redistributions = await window.spark.kv.get<any[]>('token-redistributions') || []
       redistributions.push(redistributionRecord)
-      await storage.set('token-redistributions', redistributions)
+      await window.spark.kv.set('token-redistributions', redistributions)
 
       tokens[tokenIndex].owner = randomTrader
       tokens[tokenIndex].lastActivity = Date.now()
       tokens[tokenIndex].previousOwners = [...(token.previousOwners || []), fromOwner]
-      await storage.set('minted-tokens', tokens)
+      await window.spark.kv.set('minted-tokens', tokens)
 
-      if (currentUser && currentUser.username === fromOwner) {
+      const user = await window.spark.user()
+      if (user && user.login === fromOwner) {
         toast.error(`Token ${tokenSymbol} Redistributed`, {
           description: `Due to inactivity, your tokens have been redistributed to active traders`,
           duration: 10000
         })
       }
 
-      if (currentUser && currentUser.username === randomTrader) {
+      if (user && user.login === randomTrader) {
         toast.success(`New Tokens Received!`, {
           description: `You received ${token.supply} ${tokenSymbol} tokens from an inactive holder`,
           duration: 10000
@@ -105,10 +102,12 @@ export function useTokenRedistributionService() {
 
   const notifyOwner = async (tokenSymbol: string, owner: string, daysRemaining: number) => {
     try {
-      if (!currentUser || currentUser.username !== owner) return
+      const user = await window.spark.user()
+      
+      if (!user || user.login !== owner) return
 
       const notificationKey = `notified-${tokenSymbol}-${Math.floor(daysRemaining)}`
-      const alreadyNotified = await storage.get<boolean>(notificationKey)
+      const alreadyNotified = await window.spark.kv.get<boolean>(notificationKey)
 
       if (alreadyNotified) return
 
@@ -138,10 +137,10 @@ export function useTokenRedistributionService() {
         })
       }
 
-      await storage.set(notificationKey, true)
+      await window.spark.kv.set(notificationKey, true)
       
       setTimeout(async () => {
-        await storage.delete(notificationKey)
+        await window.spark.kv.delete(notificationKey)
       }, 86400000)
 
     } catch (error) {
@@ -151,7 +150,7 @@ export function useTokenRedistributionService() {
 
   const findActiveTraders = async (): Promise<string[]> => {
     try {
-      const transactions = await storage.get<any[]>('token-transactions') || []
+      const transactions = await window.spark.kv.get<any[]>('token-transactions') || []
       const now = Date.now()
       const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
 

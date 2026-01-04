@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { ShieldCheck, MagnifyingGlass, CheckCircle, XCircle, Info } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +28,7 @@ interface ResearchToken {
 }
 
 export function ResearchTokenVerifier() {
-  const [tokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
+  const [tokens] = useKV<ResearchToken[]>('research-tokens', [])
   const [tokenId, setTokenId] = useState('')
   const [verificationResult, setVerificationResult] = useState<{
     found: boolean

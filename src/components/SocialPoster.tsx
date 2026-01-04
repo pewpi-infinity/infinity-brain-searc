@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   TwitterLogo, 
   FacebookLogo, 
@@ -64,11 +64,11 @@ interface ConversationMessage {
 
 export function SocialPoster() {
   const [postContent, setPostContent] = useState('')
-  const [platforms, setPlatforms] = useLocalStorage<PlatformConnection[]>('social-platforms', [])
-  const [postHistory, setPostHistory] = useLocalStorage<PostHistory[]>('post-history', [])
-  const [scheduledPosts, setScheduledPosts] = useLocalStorage<ScheduledPost[]>('scheduled-posts', [])
-  const [conversationHistory, setConversationHistory] = useLocalStorage<ConversationMessage[]>('conversation-history', [])
-  const [socialSuggestions, setSocialSuggestions] = useLocalStorage<any[]>('social-suggestions', [])
+  const [platforms, setPlatforms] = useKV<PlatformConnection[]>('social-platforms', [])
+  const [postHistory, setPostHistory] = useKV<PostHistory[]>('post-history', [])
+  const [scheduledPosts, setScheduledPosts] = useKV<ScheduledPost[]>('scheduled-posts', [])
+  const [conversationHistory, setConversationHistory] = useKV<ConversationMessage[]>('conversation-history', [])
+  const [socialSuggestions, setSocialSuggestions] = useKV<any[]>('social-suggestions', [])
   const [includeContext, setIncludeContext] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [postingProgress, setPostingProgress] = useState(0)

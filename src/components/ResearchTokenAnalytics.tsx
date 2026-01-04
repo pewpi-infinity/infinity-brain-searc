@@ -1,4 +1,4 @@
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartLine, TrendUp, Flask, Users, Hash } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -22,7 +22,7 @@ interface ResearchToken {
 }
 
 export function ResearchTokenAnalytics() {
-  const [tokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
+  const [tokens] = useKV<ResearchToken[]>('research-tokens', [])
 
   const totalTokens = tokens?.length || 0
   const totalValue = tokens?.reduce((sum, token) => sum + token.value, 0) || 0

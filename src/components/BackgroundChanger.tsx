@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { Palette, Check } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -83,7 +83,7 @@ const backgroundPresets: BackgroundPreset[] = [
 
 export function BackgroundChanger() {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedBg, setSelectedBg] = useLocalStorage<string>('selected-background', 'default')
+  const [selectedBg, setSelectedBg] = useKV<string>('selected-background', 'default')
 
   const applyBackground = (preset: BackgroundPreset) => {
     setSelectedBg(preset.id)

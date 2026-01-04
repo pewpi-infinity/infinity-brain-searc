@@ -6,13 +6,13 @@ import { Shield, ArrowsClockwise, Database, CheckCircle } from '@phosphor-icons/
 import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions, ADMIN_AUCTIONS_TEMPLATE } from '@/lib/adminProtection'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 export function AdminTools() {
   const { currentUser, isAuthenticated } = useAuth()
   const [isRestoring, setIsRestoring] = useState(false)
   const [isProtecting, setIsProtecting] = useState(false)
-  const [auctions] = useLocalStorage<any[]>('token-auctions', [])
+  const [auctions] = useKV<any[]>('token-auctions', [])
 
   if (!isAuthenticated || !currentUser?.isOwner) {
     return (

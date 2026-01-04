@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, FolderOpen, Code, Download, Sparkle, CheckCircle, Copy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface RepoFile {
   path: string
@@ -40,7 +40,7 @@ export function RepoFileBuilder() {
   const [scannedFiles, setScannedFiles] = useState<RepoFile[]>([])
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedProgram | null>(null)
-  const [programHistory, setProgramHistory] = useLocalStorage<GeneratedProgram[]>('generated-programs', [])
+  const [programHistory, setProgramHistory] = useKV<GeneratedProgram[]>('generated-programs', [])
 
   const scanRepository = async () => {
     if (!repoUrl.trim()) {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useKV } from '@github/spark'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { adminProtection, restoreAdminAuctions } from './adminProtection'
 
@@ -24,9 +24,6 @@ export interface CachedAuthData {
 }
 
 export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
-
-// Authentication configuration constants
-const AUTH_TIMEOUT_MS = 5000 // 5 seconds timeout for authentication requests
 
 // Troubleshooting tips for different error scenarios
 const TROUBLESHOOTING_TIPS = {
@@ -111,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Timeout wrapper for Spark user call
-  const callSparkUserWithTimeout = async (timeoutMs: number = AUTH_TIMEOUT_MS): Promise<SparkUser> => {
+  const callSparkUserWithTimeout = async (timeoutMs: number = 5000): Promise<any> => {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject(new Error(`TIMEOUT: Authentication request timed out after ${timeoutMs / 1000} seconds`))
@@ -174,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       while (!user && retryCount < maxRetries) {
         try {
-          const attemptedUser = await callSparkUserWithTimeout(AUTH_TIMEOUT_MS)
+          const attemptedUser = await callSparkUserWithTimeout(5000)
           
           if (attemptedUser && attemptedUser.id) {
             user = attemptedUser // Success - user is valid
@@ -291,17 +288,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
-      let existingProfileData: UserProfile | null = null
-      let allTransactions: any[] = []
-      
-      try {
-        existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
-        allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
-      } catch (error) {
-        console.error('Failed to load user profile or transactions:', error)
-        // Continue with defaults if KV operations fail
-        allTransactions = []
-      }
+      const existingProfileData = await window.spark.kv.get<UserProfile>(`user-profile-${userIdString}`)
+      const allTransactions = await window.spark.kv.get<any[]>('all-transactions') || []
       
       const recalculateTokenBalances = (userId: string) => {
         const balances: Record<string, number> = { 'INF': 10 }
@@ -422,9 +410,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
     }
     setCurrentUser(null)
-    setConnectionState('disconnected')
-    
-    toast.success('Logged out successfully')
   }
 
   const updateProfile = async (updates: Partial<UserProfile>) => {

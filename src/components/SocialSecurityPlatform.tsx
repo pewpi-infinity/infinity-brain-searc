@@ -8,14 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   Heart, 
   ShieldCheck, 
   CurrencyDollar, 
   CheckCircle, 
   Users,
-  Sparkle,
+  Sparkles,
   HandHeart,
   House,
   FirstAidKit,
@@ -65,9 +65,9 @@ interface FraudFlag {
 }
 
 export function SocialSecurityPlatform() {
-  const [applications, setApplications] = useLocalStorage<SocialSecurityApplication[]>('ss-applications', [])
-  const [payments, setPayments] = useLocalStorage<BenefitPayment[]>('ss-payments', [])
-  const [fraudFlags, setFraudFlags] = useLocalStorage<FraudFlag[]>('ss-fraud-flags', [])
+  const [applications, setApplications] = useKV<SocialSecurityApplication[]>('ss-applications', [])
+  const [payments, setPayments] = useKV<BenefitPayment[]>('ss-payments', [])
+  const [fraudFlags, setFraudFlags] = useKV<FraudFlag[]>('ss-fraud-flags', [])
   
   // Application form state
   const [name, setName] = useState('')
@@ -337,7 +337,7 @@ export function SocialSecurityPlatform() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Sparkle size={24} className="text-secondary" weight="duotone" />
+                  <Sparkles size={24} className="text-secondary" weight="duotone" />
                   <div>
                     <p className="text-sm text-muted-foreground">Approval Rate</p>
                     <p className="text-2xl font-bold">{stats.approvalRate.toFixed(0)}%</p>
@@ -374,7 +374,7 @@ export function SocialSecurityPlatform() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Sparkle size={24} weight="duotone" />
+                    <Sparkles size={24} weight="duotone" />
                     Simple Application - No Barriers
                   </CardTitle>
                   <CardDescription>
@@ -813,7 +813,7 @@ export function SocialSecurityPlatform() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkle size={24} weight="duotone" />
+            <Sparkles size={24} weight="duotone" />
             Your Journey to Independence
           </CardTitle>
           <CardDescription>

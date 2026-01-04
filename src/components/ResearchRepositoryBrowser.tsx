@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { GitBranch, Flask, Link as LinkIcon, CheckCircle, Package } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -35,8 +35,8 @@ interface RepoConnection {
 }
 
 export function ResearchRepositoryBrowser() {
-  const [tokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
-  const [connections, setConnections] = useLocalStorage<RepoConnection[]>('research-repo-connections', [])
+  const [tokens] = useKV<ResearchToken[]>('research-tokens', [])
+  const [connections, setConnections] = useKV<RepoConnection[]>('research-repo-connections', [])
   const [repoUrl, setRepoUrl] = useState('')
   const [selectedTokens, setSelectedTokens] = useState<string[]>([])
   const [isConnecting, setIsConnecting] = useState(false)

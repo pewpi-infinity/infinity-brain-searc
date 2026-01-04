@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { GitBranch, Download, Flask, CheckCircle, Sparkle, FolderOpen, FileCode, Star } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
@@ -53,7 +53,7 @@ interface GitHubRepo {
 }
 
 export function GitHubRepoImporter() {
-  const [tokens, setTokens] = useLocalStorage<ResearchToken[]>('research-tokens', [])
+  const [tokens, setTokens] = useKV<ResearchToken[]>('research-tokens', [])
   const [githubUsername, setGithubUsername] = useState('')
   const [specificRepoUrl, setSpecificRepoUrl] = useState('')
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)

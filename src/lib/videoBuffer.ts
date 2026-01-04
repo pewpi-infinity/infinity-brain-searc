@@ -1,5 +1,4 @@
 import { toast } from 'sonner'
-import { storage } from './storage'
 
 /**
  * QUANTUM VIDEO BUFFER SYSTEM
@@ -8,7 +7,7 @@ import { storage } from './storage'
  * Inspired by bismuth signal bouncing and mongoose.os retention techniques
  * 
  * No physical hardware needed - data stored in:
- * - localStorage (encrypted)
+ * - GitHub KV store (encrypted)
  * - Magnetic field simulation via vector embeddings
  * - Hydrogen logic patterns (distributed across nodes)
  * - Bismuth-like signal bouncing for retention
@@ -99,7 +98,7 @@ class MagneticFieldSimulator {
   public storeInMagneticField(frame: VideoFrame): Promise<void> {
     const fieldKey = `magnetic-field-${frame.timestamp}`
     
-    return storage.set(fieldKey, {
+    return window.spark.kv.set(fieldKey, {
       frame,
       fieldStrength: this.fieldStrength,
       timestamp: Date.now()
@@ -201,7 +200,7 @@ export const getLast30Seconds = async (): Promise<VideoClip> => {
     magneticFieldStrength: avgMagneticStrength
   }
   
-  await storage.set(`video-clip-${clip.id}`, clip)
+  await window.spark.kv.set(`video-clip-${clip.id}`, clip)
   
   return clip
 }

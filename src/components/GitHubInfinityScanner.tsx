@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { MagnifyingGlass, Code, GitBranch, Star, Sparkle, Link as LinkIcon, FolderOpen } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface FoundScript {
   repoUrl: string
@@ -38,8 +38,8 @@ export function GitHubInfinityScanner() {
   const [searchQuery, setSearchQuery] = useState('infinity ideology')
   const [isScanning, setIsScanning] = useState(false)
   const [foundScripts, setFoundScripts] = useState<FoundScript[]>([])
-  const [scanHistory, setScanHistory] = useLocalStorage<FoundScript[]>('infinity-scan-history', [])
-  const [smugLookIntegrations, setSmugLookIntegrations] = useLocalStorage<SmugLookIntegration[]>('smug-look-integrations', [])
+  const [scanHistory, setScanHistory] = useKV<FoundScript[]>('infinity-scan-history', [])
+  const [smugLookIntegrations, setSmugLookIntegrations] = useKV<SmugLookIntegration[]>('smug-look-integrations', [])
   const [filterType, setFilterType] = useState<string>('all')
 
   const scanGitHub = async () => {

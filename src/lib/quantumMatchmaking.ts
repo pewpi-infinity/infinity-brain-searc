@@ -1,6 +1,5 @@
 import { SlideCoin } from './slideCoinSystem'
 import { toast } from 'sonner'
-import { storage } from './storage'
 
 export interface Product {
   id: string
@@ -189,11 +188,11 @@ const searchOpportunities = async (
 }
 
 const findSimilarUsers = async (embedding: number[]): Promise<string[]> => {
-  const allSlideCoins = await storage.get<string[]>('all-slide-coins') || []
+  const allSlideCoins = await window.spark.kv.get<string[]>('all-slide-coins') || []
   const similarUsers: Map<string, number> = new Map()
   
   for (const coinId of allSlideCoins.slice(0, 100)) {
-    const coin = await storage.get<SlideCoin>(`slide-${coinId}`)
+    const coin = await window.spark.kv.get<SlideCoin>(`slide-${coinId}`)
     if (!coin) continue
     
     const similarity = calculateCosineSimilarity(embedding, coin.quantum.vectorEmbedding)
@@ -270,7 +269,7 @@ export const suggestMatchesForCoin = async (slideCoin: SlideCoin) => {
     })
   }
   
-  await storage.set(`quantum-match-${slideCoin.id}`, matches)
+  await window.spark.kv.set(`quantum-match-${slideCoin.id}`, matches)
   
   return matches
 }
@@ -280,5 +279,5 @@ const displayMatches = (matches: QuantumMatch) => {
 }
 
 export const getMatchesForCoin = async (coinId: string): Promise<QuantumMatch | null> => {
-  return await storage.get<QuantumMatch>(`quantum-match-${coinId}`)
+  return await window.spark.kv.get<QuantumMatch>(`quantum-match-${coinId}`)
 }

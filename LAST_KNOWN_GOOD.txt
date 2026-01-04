@@ -1,7 +1,0 @@
-# Last Known Good Commit
-# Update this every time Spark successfully loads
-
-commit: 5d83dbbe40aedd3b12bd9d80ffd2da2cfb81580f
-date: 2026-01-04 06:23:07
-note: Before OAuth changes, Spark loader working, authentication functional
-deploy_url: https://github.com/pewpi-infinity/infinity-brain-searc/tree/5d83dbbe40aedd3b12bd9d80ffd2da2cfb81580f
