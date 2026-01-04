@@ -73,6 +73,7 @@ import { BlockchainIntegration } from '@/components/BlockchainIntegration'
 import { LiveRepoManager } from '@/components/LiveRepoManager'
 import { AIPageRepair } from '@/components/AIPageRepair'
 import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
+import { AuthDebugPanel } from '@/components/AuthDebugPanel'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -683,6 +684,7 @@ function App() {
           <BackgroundChanger />
           <WelcomeFlow onNavigate={setActiveTab} />
           <SafetyFooter />
+          <AuthDebugPanel />
         </div>
       </TokenRedistributionServiceProvider>
     </AuthProvider>
