@@ -14,7 +14,7 @@ import { DeploymentStats } from '@/components/DeploymentStats'
 import { StaticSiteGenerator } from '@/components/StaticSiteGenerator'
 import { FileHtml, Download, Package, Rocket } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface ExportConfig {
   pageName: string
@@ -24,7 +24,7 @@ interface ExportConfig {
 }
 
 export function PageExporter() {
-  const [exports = [], setExports] = useLocalStorage<PageExport[]>('page-exports', [])
+  const [exports = [], setExports] = useKV<PageExport[]>('page-exports', [])
   const [isExporting, setIsExporting] = useState(false)
   const [config, setConfig] = useState<ExportConfig>({
     pageName: 'current-page',

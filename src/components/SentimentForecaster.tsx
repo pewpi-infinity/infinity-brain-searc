@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TrendUp, TrendDown, Minus, Sparkle, CalendarDots, ChartLine } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface SentimentDataPoint {
   timestamp: number
@@ -31,7 +31,7 @@ interface ModelMetrics {
 }
 
 export function SentimentForecaster() {
-  const [historicalData, setHistoricalData] = useLocalStorage<SentimentDataPoint[]>('sentiment-history', [])
+  const [historicalData, setHistoricalData] = useKV<SentimentDataPoint[]>('sentiment-history', [])
   const [forecasts, setForecasts] = useState<ForecastPoint[]>([])
   const [isForecasting, setIsForecasting] = useState(false)
   const [forecastPeriod, setForecastPeriod] = useState<'7' | '14' | '30'>('7')

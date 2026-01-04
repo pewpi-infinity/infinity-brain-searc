@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   CloudArrowUp,
   Cloud,
@@ -42,8 +42,8 @@ interface DeploymentRecord {
 }
 
 export function AzureGitHubDeployer() {
-  const [azureConfig, setAzureConfig] = useLocalStorage<AzureConfig | null>('azure-config', null)
-  const [deployments, setDeployments] = useLocalStorage<DeploymentRecord[]>('azure-gh-deployments', [])
+  const [azureConfig, setAzureConfig] = useKV<AzureConfig | null>('azure-config', null)
+  const [deployments, setDeployments] = useKV<DeploymentRecord[]>('azure-gh-deployments', [])
   const [isDeploying, setIsDeploying] = useState(false)
   const [deployProgress, setDeployProgress] = useState(0)
   const [generatedWorkflow, setGeneratedWorkflow] = useState<string>('')

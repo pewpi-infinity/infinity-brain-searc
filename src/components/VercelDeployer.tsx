@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { HTMLExporter } from '@/lib/htmlExporter'
 import { Lightning, CheckCircle, WarningCircle, Rocket, GithubLogo, Flask, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface VercelConfig {
   projectName: string
@@ -48,7 +48,7 @@ export function VercelDeployer() {
     installCommand: 'npm install'
   })
   const [isDeploying, setIsDeploying] = useState(false)
-  const [deploymentHistory = [], setDeploymentHistory] = useLocalStorage<VercelDeployment[]>('vercel-deployments', [])
+  const [deploymentHistory = [], setDeploymentHistory] = useKV<VercelDeployment[]>('vercel-deployments', [])
   const [showApiToken, setShowApiToken] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [testResults, setTestResults] = useState<TestResult[]>([])

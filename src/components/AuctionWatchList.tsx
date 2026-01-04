@@ -22,7 +22,7 @@ import {
   Lightning
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import type { TokenAuction } from './TokenAuction'
 
@@ -36,8 +36,8 @@ interface WatchListItem {
 
 export function AuctionWatchList() {
   const { userProfile, isAuthenticated } = useAuth()
-  const [auctions] = useLocalStorage<TokenAuction[]>('token-auctions', [])
-  const [watchList, setWatchList] = useLocalStorage<Record<string, WatchListItem>>('auction-watchlist', {})
+  const [auctions] = useKV<TokenAuction[]>('token-auctions', [])
+  const [watchList, setWatchList] = useKV<Record<string, WatchListItem>>('auction-watchlist', {})
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'time' | 'price' | 'bids' | 'activity'>('time')
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'ending-soon'>('all')

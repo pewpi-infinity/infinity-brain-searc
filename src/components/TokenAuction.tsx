@@ -22,7 +22,7 @@ import {
   Star
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/lib/auth'
 import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
 import { TokenMediaAttachment, MediaAttachment } from '@/components/TokenMediaAttachment'
@@ -62,12 +62,12 @@ export interface TokenAuction {
 
 export function TokenAuction() {
   const { userProfile, isAuthenticated, login, deductTokens, addTokens } = useAuth()
-  const [auctions, setAuctions] = useLocalStorage<TokenAuction[]>('token-auctions', [])
-  const [auctionHistory, setAuctionHistory] = useLocalStorage<any[]>('auction-history', [])
-  const [allProfiles, setAllProfiles] = useLocalStorage<Record<string, any>>('all-user-profiles', {})
-  const [allTokens] = useLocalStorage<Record<string, any>>('business-tokens', {})
-  const [userBidTracking, setUserBidTracking] = useLocalStorage<Record<string, { auctionId: string, amount: number, auctionName: string }>>('user-bid-tracking', {})
-  const [watchList, setWatchList] = useLocalStorage<Record<string, any>>('auction-watchlist', {})
+  const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
+  const [auctionHistory, setAuctionHistory] = useKV<any[]>('auction-history', [])
+  const [allProfiles, setAllProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
+  const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
+  const [userBidTracking, setUserBidTracking] = useKV<Record<string, { auctionId: string, amount: number, auctionName: string }>>('user-bid-tracking', {})
+  const [watchList, setWatchList] = useKV<Record<string, any>>('auction-watchlist', {})
 
   const [selectedToken, setSelectedToken] = useState('')
   const [auctionAmount, setAuctionAmount] = useState('')

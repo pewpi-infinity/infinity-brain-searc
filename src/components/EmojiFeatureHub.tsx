@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { 
   Planet,
   MagnetStraight,
@@ -39,7 +39,7 @@ interface EmojiFeature {
 }
 
 export function EmojiFeatureHub() {
-  const [features, setFeatures] = useLocalStorage<Record<string, boolean>>('emoji-features', {
+  const [features, setFeatures] = useKV<Record<string, boolean>>('emoji-features', {
     planet: true,
     magnet: true,
     posting: true,
@@ -61,15 +61,15 @@ export function EmojiFeatureHub() {
     import: true
   })
 
-  const [phoneNumber, setPhoneNumber] = useLocalStorage<string>('infinity-phone', '')
-  const [backupStatus, setBackupStatus] = useLocalStorage<{ local: boolean; full: boolean }>('backup-status', { local: false, full: false })
+  const [phoneNumber, setPhoneNumber] = useKV<string>('infinity-phone', '')
+  const [backupStatus, setBackupStatus] = useKV<{ local: boolean; full: boolean }>('backup-status', { local: false, full: false })
   const [scanningRepos, setScanningRepos] = useState(false)
-  const [repoCount, setRepoCount] = useLocalStorage<number>('scanned-repos', 0)
+  const [repoCount, setRepoCount] = useKV<number>('scanned-repos', 0)
   
   const [isListening, setIsListening] = useState(false)
-  const [voiceEnabled, setVoiceEnabled] = useLocalStorage<boolean>('voice-commands-enabled', false)
+  const [voiceEnabled, setVoiceEnabled] = useKV<boolean>('voice-commands-enabled', false)
   const [lastCommand, setLastCommand] = useState<string>('')
-  const [commandHistory, setCommandHistory] = useLocalStorage<string[]>('voice-command-history', [])
+  const [commandHistory, setCommandHistory] = useKV<string[]>('voice-command-history', [])
   const recognitionRef = useRef<any>(null)
 
   const toggleFeature = (featureKey: string) => {

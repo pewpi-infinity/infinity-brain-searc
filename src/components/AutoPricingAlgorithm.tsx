@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sparkle, TrendUp, Lightning, ChartLine, Robot, Cpu, Target, CheckCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 
 interface PricingConfig {
   enabled: boolean
@@ -49,7 +49,7 @@ interface AuctionAutoPricing {
 }
 
 export function AutoPricingAlgorithm() {
-  const [config, setConfig] = useLocalStorage<PricingConfig>('auto-pricing-config', {
+  const [config, setConfig] = useKV<PricingConfig>('auto-pricing-config', {
     enabled: false,
     baseMultiplier: 1.0,
     qualityWeight: 0.4,
@@ -62,8 +62,8 @@ export function AutoPricingAlgorithm() {
     updateInterval: 300000
   })
 
-  const [tokenPricings, setTokenPricings] = useLocalStorage<TokenPricing[]>('token-pricings', [])
-  const [auctionPricings, setAuctionPricings] = useLocalStorage<AuctionAutoPricing[]>('auction-auto-pricings', [])
+  const [tokenPricings, setTokenPricings] = useKV<TokenPricing[]>('token-pricings', [])
+  const [auctionPricings, setAuctionPricings] = useKV<AuctionAutoPricing[]>('auction-auto-pricings', [])
   const [isCalculating, setIsCalculating] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [algorithmStatus, setAlgorithmStatus] = useState<'idle' | 'running' | 'paused'>('idle')
@@ -79,7 +79,7 @@ export function AutoPricingAlgorithm() {
   }, [config?.enabled, config?.updateInterval])
 
   const calculateQualityScore = async (tokenId: string): Promise<number> => {
-    const qualityScores = localStorageUtils.get<any[]>('quality-scores', [])
+    const qualityScores = await window.spark.kv.get<any[]>('quality-scores') || []
     const score = qualityScores.find(s => s.tokenId === tokenId || s.repoUrl === tokenId)
     
     if (!score) return 50
@@ -97,7 +97,7 @@ export function AutoPricingAlgorithm() {
   }
 
   const calculateMarketDemand = async (symbol: string): Promise<number> => {
-    const tokens = localStorageUtils.get<any[]>('business-tokens', [])
+    const tokens = await window.spark.kv.get<any[]>('business-tokens') || []
     const token = tokens.find(t => t.symbol === symbol)
     
     if (!token) return 50
@@ -119,7 +119,7 @@ export function AutoPricingAlgorithm() {
   }
 
   const calculateRarityBonus = async (symbol: string): Promise<number> => {
-    const tokens = localStorageUtils.get<any[]>('business-tokens', [])
+    const tokens = await window.spark.kv.get<any[]>('business-tokens') || []
     const token = tokens.find(t => t.symbol === symbol)
     
     if (!token) return 1.0
@@ -220,8 +220,8 @@ export function AutoPricingAlgorithm() {
     setAlgorithmStatus('running')
 
     try {
-      const tokens = localStorageUtils.get<any[]>('business-tokens', [])
-      const researchTokens = localStorageUtils.get<any[]>('research-tokens', [])
+      const tokens = await window.spark.kv.get<any[]>('business-tokens') || []
+      const researchTokens = await window.spark.kv.get<any[]>('research-tokens') || []
       
       const allTokens = [
         ...tokens.map(t => ({ id: t.id, symbol: t.symbol })),
@@ -255,7 +255,7 @@ export function AutoPricingAlgorithm() {
 
   const applyPricingToAuction = async (auctionPricing: AuctionAutoPricing) => {
     try {
-      const auctions = localStorageUtils.get<any[]>('token-auctions', [])
+      const auctions = await window.spark.kv.get<any[]>('token-auctions') || []
       
       const newAuction = {
         id: auctionPricing.auctionId,
@@ -273,7 +273,7 @@ export function AutoPricingAlgorithm() {
         createdBy: 'auto-pricing-algorithm'
       }
 
-      localStorageUtils.set('token-auctions', [...auctions, newAuction])
+      await window.spark.kv.set('token-auctions', [...auctions, newAuction])
       
       toast.success(`Auto-priced auction created for ${auctionPricing.tokenSymbol}`, {
         description: `Start: ${auctionPricing.suggestedStartPrice} INF`

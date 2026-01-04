@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useKV } from '@github/spark/hooks'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Card } from '@/components/ui/card'
 import { Sparkle, Hammer, Book, Compass } from '@phosphor-icons/react'
@@ -37,7 +37,7 @@ const INTENT_OPTIONS = [
 ]
 
 export function WelcomeFlow({ onNavigate }: WelcomeFlowProps) {
-  const [hasSeenWelcome, setHasSeenWelcome] = useLocalStorage<boolean>('has-seen-welcome', false)
+  const [hasSeenWelcome, setHasSeenWelcome] = useKV<boolean>('has-seen-welcome', false)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {

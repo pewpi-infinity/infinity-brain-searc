@@ -1,5 +1,3 @@
-import { localStorageUtils } from '@/hooks/useLocalStorage'
-
 const ADMIN_GITHUB_ID = 'pewpi-infinity'
 
 export interface AdminProtection {
@@ -82,19 +80,18 @@ export const ADMIN_AUCTIONS_TEMPLATE = [
 ]
 
 export async function restoreAdminAuctions() {
-  if (typeof window === 'undefined') {
-    console.warn('restoreAdminAuctions requires browser environment')
+  if (typeof window === 'undefined' || !window.spark) {
+    console.warn('restoreAdminAuctions requires browser environment with Spark')
     return
   }
   
-  // Get cached auth data to check if user is admin
-  const cachedAuth = localStorageUtils.get<any>('cached-auth-data', null)
+  const ownerUser = await window.spark.user()
   
-  if (!cachedAuth || !adminProtection.isAdmin(cachedAuth.userId, cachedAuth.username)) {
+  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
     return
   }
 
-  const existingAuctions = localStorageUtils.get<any[]>('token-auctions', [])
+  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
   
   const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
   const hasAdminAuctions = existingAuctions.some(a => adminAuctionIds.includes(a.id))
@@ -106,42 +103,41 @@ export async function restoreAdminAuctions() {
   const mergedAuctions = [
     ...ADMIN_AUCTIONS_TEMPLATE.map(auction => ({
       ...auction,
-      creatorId: cachedAuth.userId,
-      creatorUsername: cachedAuth.username
+      creatorId: String(ownerUser.id),
+      creatorUsername: ownerUser.login
     })),
     ...existingAuctions.filter(a => !adminAuctionIds.includes(a.id))
   ]
 
-  localStorageUtils.set('token-auctions', mergedAuctions)
+  await window.spark.kv.set('token-auctions', mergedAuctions)
 }
 
 export async function protectAdminAuctions() {
-  if (typeof window === 'undefined') {
-    console.warn('protectAdminAuctions requires browser environment')
+  if (typeof window === 'undefined' || !window.spark) {
+    console.warn('protectAdminAuctions requires browser environment with Spark')
     return
   }
   
-  // Get cached auth data to check if user is admin
-  const cachedAuth = localStorageUtils.get<any>('cached-auth-data', null)
+  const ownerUser = await window.spark.user()
   
-  if (!cachedAuth || !adminProtection.isAdmin(cachedAuth.userId, cachedAuth.username)) {
+  if (!ownerUser || !adminProtection.isAdmin(String(ownerUser.id), ownerUser.login)) {
     return
   }
 
-  const existingAuctions = localStorageUtils.get<any[]>('token-auctions', [])
+  const existingAuctions = await window.spark.kv.get<any[]>('token-auctions') || []
   const adminAuctionIds = ADMIN_AUCTIONS_TEMPLATE.map(a => a.id)
   
   const protectedAuctions = existingAuctions.map(auction => {
-    if (adminAuctionIds.includes(auction.id) && auction.creatorId !== cachedAuth.userId) {
+    if (adminAuctionIds.includes(auction.id) && auction.creatorId !== String(ownerUser.id)) {
       return {
         ...ADMIN_AUCTIONS_TEMPLATE.find(a => a.id === auction.id),
-        creatorId: cachedAuth.userId,
-        creatorUsername: cachedAuth.username,
+        creatorId: String(ownerUser.id),
+        creatorUsername: ownerUser.login,
         bids: auction.bids || []
       }
     }
     return auction
   })
 
-  localStorageUtils.set('token-auctions', protectedAuctions)
+  await window.spark.kv.set('token-auctions', protectedAuctions)
 }
