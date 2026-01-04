@@ -53,8 +53,6 @@ export function RepoManagementHub() {
   const fetchPewpiInfinityRepos = async () => {
     setLoading(true)
     try {
-      // TODO: Remove Spark user() call - use auth context instead
-      // const user = await window.spark.user()
       
       const mockRepos: Repo[] = [
         {

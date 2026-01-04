@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorage, localStorageUtils } from '@/hooks/useLocalStorage'
+import { useAuth } from '@/lib/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +29,7 @@ interface NotificationSettings {
 }
 
 export function TokenRedistributionNotifier() {
+  const { currentUser } = useAuth()
   const [holdings, setHoldings] = useLocalStorage<TokenHolding[]>('user-token-holdings', [])
   const [notifications, setNotifications] = useLocalStorage<NotificationSettings>('notification-settings', {
     enabled: true,
@@ -110,11 +112,13 @@ export function TokenRedistributionNotifier() {
   }
 
   const refreshHoldings = async () => {
+    if (!currentUser) {
+      toast.error('Please login to refresh holdings')
+      return
+    }
+    
     const tokens = localStorageUtils.get<any[]>('minted-tokens', [])
-    // TODO: Remove Spark user() call - use auth context instead
-    // const user = await window.spark.user()
-    if (!user) return
-    const userTokens = tokens.filter(t => t.owner === user.login)
+    const userTokens = tokens.filter(t => t.owner === currentUser.username)
 
     const updatedHoldings = await Promise.all(
       userTokens.map(t => calculateTokenActivity(t.symbol))

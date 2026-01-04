@@ -84,8 +84,6 @@ export function useTokenRedistributionService() {
       tokens[tokenIndex].previousOwners = [...(token.previousOwners || []), fromOwner]
       localStorageUtils.set('minted-tokens', tokens)
 
-      // TODO: Remove Spark user() call - use auth context instead
-      // const user = await window.spark.user()
       if (user && user.login === fromOwner) {
         toast.error(`Token ${tokenSymbol} Redistributed`, {
           description: `Due to inactivity, your tokens have been redistributed to active traders`,
@@ -110,8 +108,6 @@ export function useTokenRedistributionService() {
     try {
       if (typeof window === 'undefined' || !window.spark) return
       
-      // TODO: Remove Spark user() call - use auth context instead
-      // const user = await window.spark.user()
       
       if (!user || user.login !== owner) return
 

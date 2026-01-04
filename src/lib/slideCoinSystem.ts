@@ -76,8 +76,6 @@ const handleInteraction = async (event: Event) => {
 
 export const createSlideCoin = async (event: Event): Promise<SlideCoin | null> => {
   try {
-    // TODO: Remove Spark user() call - use auth context instead
-    // const user = await window.spark.user()
     if (!user) return null
     
     const timestamp = Date.now()

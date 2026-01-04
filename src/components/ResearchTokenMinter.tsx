@@ -124,8 +124,6 @@ export function ResearchTokenMinter() {
     setIsMinting(true)
 
     try {
-      // TODO: Remove Spark user() call - use auth context instead
-      // const user = await window.spark.user()
       if (!user) {
         toast.error('User not authenticated')
         setIsMinting(false)
