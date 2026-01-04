@@ -72,6 +72,9 @@ import { BatchAutomation } from '@/components/BatchAutomation'
 import { PageHealthMonitor } from '@/components/PageHealthMonitor'
 import { RepoManagementHub } from '@/components/RepoManagementHub'
 import { BlockchainIntegration } from '@/components/BlockchainIntegration'
+import { LiveRepoManager } from '@/components/LiveRepoManager'
+import { AIPageRepair } from '@/components/AIPageRepair'
+import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -135,6 +138,7 @@ function App() {
   return (
     <AuthProvider>
       <TokenRedistributionServiceProvider>
+        <ContinuousPageMonitor />
         <div className="min-h-screen mesh-background">
         <div className="container mx-auto px-4 py-8">
           <header className="mb-8 text-center space-y-4">
@@ -362,6 +366,14 @@ function App() {
               <TabsTrigger value="blockchain" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
                 <CurrencyDollar size={20} weight="duotone" />
                 <span className="text-xs md:text-sm">Live Blockchain</span>
+              </TabsTrigger>
+              <TabsTrigger value="live-repos" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <GitBranch size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">Live Websites</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-repair" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white flex flex-col md:flex-row items-center gap-1 py-2">
+                <Sparkle size={20} weight="duotone" />
+                <span className="text-xs md:text-sm">AI Repair</span>
               </TabsTrigger>
             </TabsList>
 
@@ -651,6 +663,18 @@ function App() {
             <TabsContent value="blockchain">
               <div className="max-w-7xl mx-auto">
                 <BlockchainIntegration />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="live-repos">
+              <div className="max-w-7xl mx-auto">
+                <LiveRepoManager />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="ai-repair">
+              <div className="max-w-7xl mx-auto">
+                <AIPageRepair />
               </div>
             </TabsContent>
           </Tabs>

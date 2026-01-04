@@ -59,7 +59,7 @@ export function RepoManagementHub() {
         {
           name: 'smug_look',
           description: 'Advanced UI components and scripts collection',
-          url: 'https://github.com/pewpi-infinity/smug_look',
+          url: 'https://pewpi-infinity.github.io/smug_look/',
           stars: 42,
           language: 'TypeScript',
           topics: ['ui', 'components', 'scripts'],
@@ -69,7 +69,7 @@ export function RepoManagementHub() {
         {
           name: 'infinity-core',
           description: 'Core blockchain and tokenization infrastructure',
-          url: 'https://github.com/pewpi-infinity/infinity-core',
+          url: 'https://pewpi-infinity.github.io/infinity-core/',
           stars: 128,
           language: 'Solidity',
           topics: ['blockchain', 'tokens', 'web3'],
@@ -79,7 +79,7 @@ export function RepoManagementHub() {
         {
           name: 'infinity-ui-toolkit',
           description: 'Reusable UI patterns and design system',
-          url: 'https://github.com/pewpi-infinity/infinity-ui-toolkit',
+          url: 'https://pewpi-infinity.github.io/infinity-ui-toolkit/',
           stars: 67,
           language: 'React',
           topics: ['design-system', 'ui', 'react'],
@@ -276,6 +276,15 @@ export function RepoManagementHub() {
                 </div>
 
                 <div className="flex flex-col gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => window.open(repo.url, '_blank')}
+                    className="whitespace-nowrap bg-gradient-to-r from-green-500 to-emerald-600"
+                  >
+                    <Sparkle size={16} className="mr-2" />
+                    View Live
+                  </Button>
+                  
                   <Button
                     size="sm"
                     onClick={() => handleEditRepo(repo)}
