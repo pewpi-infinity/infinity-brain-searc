@@ -78,8 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     try {
-      // Try to fetch a small resource to verify actual connectivity
-      // Using GitHub's favicon as it's the same domain we'll authenticate with
+      // Try to fetch GitHub API to verify actual connectivity
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 3000)
       
@@ -102,20 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false
     }
 
-    try {
-      // Pre-flight check to ensure Spark API is responsive
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2000)
-      
-      // Just check if the API object exists and has the expected methods
-      const hasRequiredMethods = typeof window.spark.user === 'function' && 
-                                  typeof window.spark.kv === 'object'
-      
-      clearTimeout(timeoutId)
-      return hasRequiredMethods
-    } catch {
-      return false
-    }
+    // Pre-flight check to ensure Spark API is responsive
+    // Just check if the API object exists and has the expected methods
+    return typeof window.spark.user === 'function' && 
+           typeof window.spark.kv === 'object'
   }
 
   // Timeout wrapper for Spark user call
