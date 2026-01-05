@@ -706,45 +706,55 @@ function AuthProviderGuest({ children }: { children: ReactNode }) {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isReady, setIsReady] = useState(false)
-  const [noSpark, setNoSpark] = useState(false)
+  // Check if Spark is available immediately
+  const hasSparkInitially = typeof window !== 'undefined' && window.spark && window.spark.kv
+  
+  const [sparkState, setSparkState] = useState<'loading' | 'available' | 'unavailable'>(
+    hasSparkInitially ? 'available' : 'loading'
+  )
   
   // Wait for Spark to be ready before using useKV
   useEffect(() => {
+    // If we already detected Spark, no need to check
+    if (hasSparkInitially) return
+    
     let mounted = true
     let checkCount = 0
-    const maxChecks = 30 // 3 seconds (reduced from 10)
+    const maxChecks = 30 // 3 seconds
     
-    const checkSparkReady = () => {
-      if (!mounted) return
+    const checkInterval = setInterval(() => {
+      checkCount++
+      
+      if (!mounted) {
+        clearInterval(checkInterval)
+        return
+      }
       
       if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
-        setIsReady(true)
-      } else {
-        checkCount++
-        if (checkCount >= maxChecks) {
-          // Spark is not available - continue in guest mode
-          setNoSpark(true)
-          setIsReady(true) // Set ready anyway to allow guest mode
-        } else {
-          setTimeout(checkSparkReady, 100)
-        }
+        setSparkState('available')
+        clearInterval(checkInterval)
+        return
       }
-    }
-    checkSparkReady()
+      
+      if (checkCount >= maxChecks) {
+        setSparkState('unavailable')
+        clearInterval(checkInterval)
+      }
+    }, 100)
     
     return () => {
       mounted = false
+      clearInterval(checkInterval)
     }
-  }, [])
+  }, [hasSparkInitially])
   
-  // If Spark is not available, render children in guest mode (with simple context)
-  if (noSpark) {
+  // If Spark is not available, use guest mode provider
+  if (sparkState === 'unavailable') {
     return <AuthProviderGuest>{children}</AuthProviderGuest>
   }
   
-  // Don't render AuthProviderInner until Spark is ready
-  if (!isReady) {
+  // Still loading - show loading screen
+  if (sparkState === 'loading') {
     return <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -753,6 +763,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </div>
   }
   
+  // Spark is available - use full auth provider
   return <AuthProviderInner>{children}</AuthProviderInner>
 }
 

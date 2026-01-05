@@ -224,9 +224,10 @@ function App() {
               </div>
             </header>
 
-            <div className="mb-6">
+            {/* Temporarily disabled GuestBanner for debugging */}
+            {/* <div className="mb-6">
               <GuestBanner onSignInClick={() => setActiveTab('user')} />
-            </div>
+            </div> */}
 
             <div className="mb-6">
               <SearchBar onSearch={handleSearch} isLoading={isSearching} />
