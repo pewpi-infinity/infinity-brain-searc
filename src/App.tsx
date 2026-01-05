@@ -127,15 +127,15 @@ function App() {
     setIsSearching(true)
     setShowGraph(false)
 
-    if (mode === 'ai') {
-      setActiveTab('explore')
+    // Check if Spark is available
+    if (!window.spark || !window.spark.llm) {
+      toast.error('Search requires GitHub Spark environment')
       setIsSearching(false)
       return
     }
 
-    // Check if Spark is available
-    if (!window.spark || !window.spark.llm) {
-      toast.error('Search requires GitHub Spark environment')
+    if (mode === 'ai') {
+      setActiveTab('explore')
       setIsSearching(false)
       return
     }

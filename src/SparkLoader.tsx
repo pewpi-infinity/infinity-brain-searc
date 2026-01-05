@@ -18,7 +18,7 @@ const isGitHubPages = (): boolean => {
   
   // Check for GitHub Pages specific indicators
   const hostname = window.location.hostname
-  const isGHPages = hostname.includes('github.io') || hostname.includes('github.com')
+  const isGHPages = hostname.endsWith('.github.io')
   
   // Also check if Spark is not available after a reasonable time
   // This helps detect any non-Spark deployment
