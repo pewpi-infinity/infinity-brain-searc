@@ -23,7 +23,6 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import type { TokenAuction } from './TokenAuction'
 
 interface WatchListItem {
@@ -35,7 +34,6 @@ interface WatchListItem {
 }
 
 export function AuctionWatchList() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [auctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [watchList, setWatchList] = useKV<Record<string, WatchListItem>>('auction-watchlist', {})
   const [searchQuery, setSearchQuery] = useState('')

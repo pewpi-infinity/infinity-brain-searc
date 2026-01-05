@@ -4,29 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Shield, ArrowsClockwise, Database, CheckCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useAuth } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions, ADMIN_AUCTIONS_TEMPLATE } from '@/lib/adminProtection'
 import { useKV } from '@github/spark/hooks'
 
 export function AdminTools() {
-  const { currentUser, isAuthenticated } = useAuth()
   const [isRestoring, setIsRestoring] = useState(false)
   const [isProtecting, setIsProtecting] = useState(false)
   const [auctions] = useKV<any[]>('token-auctions', [])
-
-  if (!isAuthenticated || !currentUser?.isOwner) {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-8">
-          <Shield size={48} weight="duotone" className="mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold mb-2">Admin Access Required</h3>
-          <p className="text-sm text-muted-foreground">
-            This area is restricted to the system owner
-          </p>
-        </div>
-      </Card>
-    )
-  }
 
   const handleRestoreAuctions = async () => {
     setIsRestoring(true)

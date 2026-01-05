@@ -7,10 +7,8 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Robot, Sparkles, House, Hammer, Wheelchair, Heart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useAuth } from '@/lib/auth'
 
 export function AINeighborHelpMachine() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [description, setDescription] = useState('')
   const [neighborName, setNeighborName] = useState('')
   const [urgency, setUrgency] = useState<'immediate' | 'soon' | 'planned'>('soon')

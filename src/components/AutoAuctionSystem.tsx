@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Gavel, Robot, Clock, Coins, TrendUp, Sparkle, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 
 interface AutoAuctionRule {
   id: string
@@ -41,7 +40,6 @@ interface StaleToken {
 }
 
 export function AutoAuctionSystem() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [rules, setRules] = useKV<AutoAuctionRule[]>('auto-auction-rules', [])
   const [staleTokens, setStaleTokens] = useState<StaleToken[]>([])
   const [autoEnabled, setAutoEnabled] = useKV<boolean>('auto-auction-enabled', false)

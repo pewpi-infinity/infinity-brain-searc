@@ -16,7 +16,6 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 
 interface BackupRecord {
   id: string
@@ -30,7 +29,6 @@ interface BackupRecord {
 }
 
 export function RepoBackupSystem() {
-  const { userProfile, isAuthenticated, currentUser } = useAuth()
   const [backups, setBackups] = useKV<BackupRecord[]>('user-backups', [])
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [backupProgress, setBackupProgress] = useState(0)

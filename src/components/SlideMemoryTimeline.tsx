@@ -4,13 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sparkle, Clock, Tag, Brain, TrendUp } from '@phosphor-icons/react'
-import { useAuth } from '@/lib/auth'
 import { getUserSlideCoins, getTotalSlideValue, SlideCoin } from '@/lib/slideCoinSystem'
 import { format, formatDistanceToNow } from 'date-fns'
 import { toast } from 'sonner'
 
 export function SlideMemoryTimeline() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [slideCoins, setSlideCoins] = useState<SlideCoin[]>([])
   const [totalValue, setTotalValue] = useState(0)
   const [selectedCoin, setSelectedCoin] = useState<SlideCoin | null>(null)

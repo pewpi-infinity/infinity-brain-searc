@@ -4,7 +4,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ArrowUp, ArrowDown, ArrowsLeftRight, Clock, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 
 export interface Transaction {
   id: string
@@ -21,7 +20,6 @@ export interface Transaction {
 }
 
 export function TransactionHistory() {
-  const { userProfile } = useAuth()
   const [allTransactions] = useKV<Transaction[]>('all-transactions', [])
 
   if (!userProfile) {
