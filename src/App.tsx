@@ -86,6 +86,12 @@ function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      // Check if Spark is available before trying to use it
+      if (!window.spark) {
+        console.log('Spark not available - skipping auction protection initialization')
+        return
+      }
+      
       // Add delay to let Spark fully initialize
       await new Promise(resolve => setTimeout(resolve, 1000))
       
@@ -99,6 +105,11 @@ function App() {
     }
     
     initializeApp()
+    
+    // Only set up protection interval if Spark is available
+    if (!window.spark) {
+      return
+    }
     
     const protectionInterval = setInterval(async () => {
       try {
@@ -115,6 +126,13 @@ function App() {
     setSearchQuery(query)
     setIsSearching(true)
     setShowGraph(false)
+
+    // Check if Spark is available
+    if (!window.spark || !window.spark.llm) {
+      toast.error('Search requires GitHub Spark environment')
+      setIsSearching(false)
+      return
+    }
 
     if (mode === 'ai') {
       setActiveTab('explore')
