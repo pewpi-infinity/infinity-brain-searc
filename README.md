@@ -66,7 +66,8 @@ A compassionate, decentralized social security system that provides universal ba
 - Capability search and filtering
 
 ### 👤 User Management
-- GitHub authentication
+- GitHub authentication (Spark + OAuth Device Flow)
+- Dual authentication system (Spark/GitHub Pages)
 - Persistent sessions
 - Transaction history
 - Token balances and transfers
@@ -185,6 +186,7 @@ vercel --prod
 
 ## 📚 Documentation
 
+- **[GitHub Auth Setup](./GITHUB-AUTH-SETUP.md)** - OAuth configuration for GitHub Pages
 - **[Deployment Guide](./DEPLOYMENT-GUIDE.md)** - Complete deployment documentation
 - **[PRD](./PRD.md)** - Product requirements and design system
 - **[Security](./SECURITY.md)** - Security policies and best practices
