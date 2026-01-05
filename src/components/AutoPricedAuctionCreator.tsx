@@ -27,6 +27,9 @@ interface AuctionAutoPricing {
 }
 
 export function AutoPricedAuctionCreator() {
+  const staticUserId = 'guest-user'
+  const staticUsername = 'Guest'
+  const staticBusinessTokens: Record<string, number> = {}
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [auctionPricings, setAuctionPricings] = useKV<AuctionAutoPricing[]>('auction-auto-pricings', [])
   const [businessTokens] = useKV<any[]>('business-tokens', [])
@@ -46,7 +49,7 @@ export function AutoPricedAuctionCreator() {
 
   const availableTokens = userProfile 
     ? allTokens.filter(token => {
-        const balance = userProfile.businessTokens[token.symbol] || 0
+        const balance = staticBusinessTokens[token.symbol] || 0
         return balance > 0 && token.symbol !== 'INF'
       })
     : []
@@ -181,7 +184,7 @@ export function AutoPricedAuctionCreator() {
   }
 
   const createAutoPricedAuction = async () => {
-    if (!isAuthenticated) {
+    if (false) {
       login()
       return
     }
@@ -197,7 +200,7 @@ export function AutoPricedAuctionCreator() {
       return
     }
 
-    const userBalance = userProfile?.businessTokens[selectedToken] || 0
+    const userBalance = staticBusinessTokens[selectedToken] || 0
     if (amount > userBalance) {
       toast.error(`Insufficient balance. You have ${userBalance} ${selectedToken}`)
       return
@@ -265,7 +268,7 @@ export function AutoPricedAuctionCreator() {
                 Create auctions with AI-powered pricing based on quality, demand, and rarity analysis
               </CardDescription>
             </div>
-            {!isAuthenticated && (
+            {false && (
               <Button onClick={login} size="lg" className="gap-2">
                 <CheckCircle size={20} weight="duotone" />
                 Sign In to Create
@@ -274,7 +277,7 @@ export function AutoPricedAuctionCreator() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {isAuthenticated ? (
+          {true ? (
             <>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
@@ -293,7 +296,7 @@ export function AutoPricedAuctionCreator() {
                               <div className="flex items-center justify-between gap-3">
                                 <span className="font-medium">{token.symbol}</span>
                                 <Badge variant="secondary">
-                                  {userProfile?.businessTokens[token.symbol] || 0} available
+                                  {staticBusinessTokens[token.symbol] || 0} available
                                 </Badge>
                               </div>
                             </SelectItem>

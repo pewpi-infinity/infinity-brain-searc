@@ -56,6 +56,10 @@ export interface ScheduledAuction {
 }
 
 export function AuctionTemplates() {
+  const staticUserId = 'guest-user'
+  const staticUsername = 'Guest'
+  const staticBusinessTokens: Record<string, number> = {}
+
   const [templates, setTemplates] = useKV<AuctionTemplate[]>('auction-templates', [])
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
@@ -75,11 +79,9 @@ export function AuctionTemplates() {
   const [recurringUnit, setRecurringUnit] = useState<'hours' | 'days' | 'weeks'>('days')
   const [autoStart, setAutoStart] = useState(false)
 
-  const availableTokens = userProfile 
-    ? Object.keys(userProfile.businessTokens).filter(
-        symbol => userProfile.businessTokens[symbol] > 0 && symbol !== 'INF'
-      )
-    : []
+  const availableTokens = Object.keys(staticBusinessTokens).filter(
+    symbol => staticBusinessTokens[symbol] > 0 && symbol !== 'INF'
+  )
 
   const resetForm = () => {
     setTemplateName('')
@@ -112,7 +114,7 @@ export function AuctionTemplates() {
   }
 
   const handleSaveTemplate = async () => {
-    if (!isAuthenticated || !userProfile) {
+    if (false) {
       toast.error('Please log in to create templates')
       return
     }
@@ -160,7 +162,7 @@ export function AuctionTemplates() {
         recurringUnit,
         autoStart,
         createdAt: editingTemplate?.createdAt || Date.now(),
-        createdBy: userProfile.userId,
+        createdBy: staticUserId,
         isActive: editingTemplate?.isActive ?? true,
         scheduledAuctions: editingTemplate?.scheduledAuctions || []
       }
@@ -200,12 +202,12 @@ export function AuctionTemplates() {
   }
 
   const handleLaunchFromTemplate = async (template: AuctionTemplate) => {
-    if (!isAuthenticated || !userProfile) {
+    if (false) {
       toast.error('Please log in to launch auctions')
       return
     }
 
-    const userBalance = userProfile.businessTokens[template.tokenSymbol] || 0
+    const userBalance = staticBusinessTokens[template.tokenSymbol] || 0
     if (template.amount > userBalance) {
       toast.error(`Insufficient ${template.tokenSymbol} balance`)
       return
@@ -223,8 +225,8 @@ export function AuctionTemplates() {
         startingBid: template.startingBid,
         currentBid: template.startingBid,
         reservePrice: template.reservePrice,
-        creatorId: userProfile.userId,
-        creatorUsername: userProfile.username,
+        creatorId: staticUserId,
+        creatorUsername: staticUsername,
         startTime: Date.now(),
         endTime: Date.now() + (template.duration * 60 * 60 * 1000),
         status: 'active',
@@ -332,7 +334,7 @@ export function AuctionTemplates() {
     })
   }
 
-  const myTemplates = (templates || []).filter(t => t.createdBy === userProfile?.userId)
+  const myTemplates = (templates || []).filter(t => t.createdBy === staticUserId)
   const activeTemplates = myTemplates.filter(t => t.isActive)
   const recurringTemplates = activeTemplates.filter(t => t.recurring)
 
@@ -407,7 +409,7 @@ export function AuctionTemplates() {
                     <option value="">Select token</option>
                     {availableTokens.map((symbol) => (
                       <option key={symbol} value={symbol}>
-                        {symbol} (Balance: {userProfile?.businessTokens[symbol]?.toLocaleString()})
+                        {symbol} (Balance: {staticBusinessTokens[symbol]?.toLocaleString()})
                       </option>
                     ))}
                   </select>
@@ -523,7 +525,7 @@ export function AuctionTemplates() {
                   <Button
                     onClick={handleSaveTemplate}
                     className="flex-1 bg-gradient-to-r from-primary to-accent"
-                    disabled={isCreating || !isAuthenticated}
+                    disabled={isCreating}
                   >
                     <Check size={20} weight="bold" className="mr-2" />
                     {editingTemplate ? 'Update' : 'Create'} Template

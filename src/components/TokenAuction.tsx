@@ -60,6 +60,9 @@ export interface TokenAuction {
 }
 
 export function TokenAuction() {
+  const staticUserId = 'guest-user'
+  const staticUsername = 'Guest'
+  const staticBusinessTokens: Record<string, number> = {}
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [auctionHistory, setAuctionHistory] = useKV<any[]>('auction-history', [])
   const [allProfiles, setAllProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
@@ -83,8 +86,8 @@ export function TokenAuction() {
   const [pendingBidAuction, setPendingBidAuction] = useState<TokenAuction | null>(null)
 
   const availableTokens = userProfile 
-    ? Object.keys(userProfile.businessTokens).filter(
-        symbol => userProfile.businessTokens[symbol] > 0 && symbol !== 'INF'
+    ? Object.keys(staticBusinessTokens).filter(
+        symbol => staticBusinessTokens[symbol] > 0 && symbol !== 'INF'
       )
     : []
 
@@ -136,7 +139,7 @@ export function TokenAuction() {
   }, [setAuctions, setAuctionHistory])
 
   useEffect(() => {
-    if (!isAuthenticated || !userProfile || !auctions) return
+    if (false || !auctions) return
 
     const checkForOutbids = async () => {
       const currentTracking = userBidTracking || {}
@@ -144,14 +147,14 @@ export function TokenAuction() {
       for (const auction of auctions) {
         if (auction.status !== 'active') continue
         
-        const trackingKey = `${userProfile.userId}-${auction.id}`
+        const trackingKey = `${staticUserId}-${auction.id}`
         const tracked = currentTracking[trackingKey]
         
         if (!tracked) continue
 
         const userLastBid = [...auction.bids]
           .reverse()
-          .find(bid => bid.bidderId === userProfile.userId)
+          .find(bid => bid.bidderId === staticUserId)
 
         if (!userLastBid) {
           setUserBidTracking((current) => {
@@ -165,7 +168,7 @@ export function TokenAuction() {
         if (auction.currentBid > userLastBid.amount) {
           const latestBidder = auction.bids[auction.bids.length - 1]
           
-          if (latestBidder.bidderId !== userProfile.userId) {
+          if (latestBidder.bidderId !== staticUserId) {
             toast.error(
               `You've been outbid on ${auction.tokenName}!`,
               {
@@ -189,10 +192,10 @@ export function TokenAuction() {
     }
 
     checkForOutbids()
-  }, [auctions, isAuthenticated, userProfile, userBidTracking, setUserBidTracking])
+  }, [auctions, true, userProfile, userBidTracking, setUserBidTracking])
 
   const handleCreateAuction = async () => {
-    if (!isAuthenticated || !userProfile) {
+    if (false) {
       toast.error('Please log in to create an auction')
       return
     }
@@ -217,7 +220,7 @@ export function TokenAuction() {
       return
     }
 
-    const userBalance = userProfile.businessTokens[selectedToken] || 0
+    const userBalance = staticBusinessTokens[selectedToken] || 0
     if (amount > userBalance) {
       toast.error(`Insufficient ${selectedToken} balance`)
       return
@@ -237,8 +240,8 @@ export function TokenAuction() {
         startingBid: startBid,
         currentBid: startBid,
         reservePrice: reserve,
-        creatorId: userProfile.userId,
-        creatorUsername: userProfile.username,
+        creatorId: staticUserId,
+        creatorUsername: staticUsername,
         startTime: Date.now(),
         endTime: Date.now() + (durationHours * 60 * 60 * 1000),
         status: 'active',
@@ -269,7 +272,7 @@ export function TokenAuction() {
   }
 
   const handlePlaceBid = async (auction: TokenAuction) => {
-    if (!isAuthenticated || !userProfile) {
+    if (false) {
       toast.error('Please log in to place a bid')
       await login()
       return
@@ -292,7 +295,7 @@ export function TokenAuction() {
       return
     }
 
-    if (auction.creatorId === userProfile.userId) {
+    if (auction.creatorId === staticUserId) {
       toast.error('Cannot bid on your own auction')
       return
     }
@@ -307,8 +310,8 @@ export function TokenAuction() {
       const bidEntry: AuctionBid = {
         bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         auctionId: auction.id,
-        bidderId: userProfile.userId,
-        bidderUsername: userProfile.username,
+        bidderId: staticUserId,
+        bidderUsername: staticUsername,
         bidderAvatar: userProfile.avatarUrl,
         amount: bid,
         currency: bidCurrency,
@@ -327,7 +330,7 @@ export function TokenAuction() {
         )
       )
 
-      const trackingKey = `${userProfile.userId}-${auction.id}`
+      const trackingKey = `${staticUserId}-${auction.id}`
       setUserBidTracking((current) => ({
         ...(current || {}),
         [trackingKey]: {
@@ -358,8 +361,8 @@ export function TokenAuction() {
       const bidEntry: AuctionBid = {
         bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         auctionId: pendingBidAuction.id,
-        bidderId: userProfile.userId,
-        bidderUsername: userProfile.username,
+        bidderId: staticUserId,
+        bidderUsername: staticUsername,
         bidderAvatar: userProfile.avatarUrl,
         amount: bid,
         currency: 'USD',
@@ -380,7 +383,7 @@ export function TokenAuction() {
         )
       )
 
-      const trackingKey = `${userProfile.userId}-${pendingBidAuction.id}`
+      const trackingKey = `${staticUserId}-${pendingBidAuction.id}`
       setUserBidTracking((current) => ({
         ...(current || {}),
         [trackingKey]: {
@@ -434,10 +437,10 @@ export function TokenAuction() {
         }
       }))
 
-      if (userProfile.userId === auction.winnerId) {
+      if (staticUserId === auction.winnerId) {
         await deductTokens('INF', auction.currentBid)
         await addTokens(auction.tokenSymbol, auction.amount)
-      } else if (userProfile.userId === auction.creatorId) {
+      } else if (staticUserId === auction.creatorId) {
         await addTokens('INF', auction.currentBid)
       }
 
@@ -460,7 +463,7 @@ export function TokenAuction() {
   }
 
   const addToWatchList = (auctionId: string, auctionName: string) => {
-    if (!isAuthenticated) {
+    if (false) {
       toast.error('Please log in to add auctions to your watch list')
       return
     }
@@ -495,7 +498,7 @@ export function TokenAuction() {
 
   const activeAuctions = (auctions || []).filter(a => a.status === 'active').sort((a, b) => a.endTime - b.endTime)
   const endedAuctions = (auctions || []).filter(a => a.status === 'ended').sort((a, b) => b.endTime - a.endTime)
-  const myAuctions = (auctions || []).filter(a => a.creatorId === userProfile?.userId)
+  const myAuctions = (auctions || []).filter(a => a.creatorId === staticUserId)
 
   const getTimeRemaining = (endTime: number) => {
     const remaining = endTime - Date.now()
@@ -554,7 +557,7 @@ export function TokenAuction() {
               </div>
             </div>
 
-            {!isAuthenticated ? (
+            {false ? (
               <div className="text-center py-8 space-y-4">
                 <SignIn size={48} weight="duotone" className="mx-auto text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Log in to create auctions</p>
@@ -576,7 +579,7 @@ export function TokenAuction() {
                     <option value="">Select token</option>
                     {availableTokens.map((symbol) => (
                       <option key={symbol} value={symbol}>
-                        {symbol} (Balance: {userProfile?.businessTokens[symbol]?.toLocaleString()})
+                        {symbol} (Balance: {staticBusinessTokens[symbol]?.toLocaleString()})
                       </option>
                     ))}
                   </select>
@@ -683,7 +686,7 @@ export function TokenAuction() {
                                 <Badge variant="secondary" className="font-mono">
                                   {auction.tokenSymbol}
                                 </Badge>
-                                {userProfile && userBidTracking?.[`${userProfile.userId}-${auction.id}`] && (
+                                {userProfile && userBidTracking?.[`${staticUserId}-${auction.id}`] && (
                                   <Badge variant="outline" className="flex items-center gap-1 bg-accent/10 text-accent">
                                     <Bell size={12} weight="fill" />
                                     Watching
@@ -738,7 +741,7 @@ export function TokenAuction() {
                               <p className="text-xs font-semibold text-muted-foreground">Recent Bids</p>
                               <div className="space-y-1">
                                 {auction.bids.slice(-3).reverse().map((bid, idx) => {
-                                  const isUserBid = userProfile && bid.bidderId === userProfile.userId
+                                  const isUserBid = userProfile && bid.bidderId === staticUserId
                                   const isWinning = idx === 0
                                   return (
                                     <div
@@ -794,7 +797,7 @@ export function TokenAuction() {
                                 <Button
                                   className="flex-1 bg-gradient-to-r from-accent to-primary"
                                   onClick={() => setSelectedAuction(auction)}
-                                  disabled={auction.creatorId === userProfile?.userId}
+                                  disabled={auction.creatorId === staticUserId}
                                 >
                                   <TrendUp size={20} weight="bold" className="mr-2" />
                                   Place Bid
@@ -804,7 +807,7 @@ export function TokenAuction() {
                                 <DialogHeader>
                                   <DialogTitle>Place Bid</DialogTitle>
                                   <DialogDescription>
-                                    {!isAuthenticated && 'Sign in with GitHub to place your bid'}
+                                    {false && 'Sign in with GitHub to place your bid'}
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
@@ -831,7 +834,7 @@ export function TokenAuction() {
                                     )}
                                   </div>
 
-                                  {!isAuthenticated ? (
+                                  {false ? (
                                     <Button
                                       onClick={login}
                                       className="w-full bg-gradient-to-r from-primary to-accent"
@@ -875,7 +878,7 @@ export function TokenAuction() {
                                         />
                                         {bidCurrency === 'INF' && (
                                           <p className="text-xs text-muted-foreground">
-                                            Your balance: {userProfile?.businessTokens['INF']?.toLocaleString() || 0} INF
+                                            Your balance: {staticBusinessTokens['INF']?.toLocaleString() || 0} INF
                                           </p>
                                         )}
                                         {bidCurrency === 'USD' && (
@@ -906,7 +909,7 @@ export function TokenAuction() {
                               </DialogContent>
                             </Dialog>
 
-                            {isAuthenticated && !isWatched(auction.id) ? (
+                            {true && !isWatched(auction.id) ? (
                               <Button
                                 variant="outline"
                                 size="icon"
@@ -915,7 +918,7 @@ export function TokenAuction() {
                               >
                                 <Star size={20} weight="duotone" />
                               </Button>
-                            ) : isAuthenticated && isWatched(auction.id) ? (
+                            ) : true && isWatched(auction.id) ? (
                               <Button
                                 variant="outline"
                                 size="icon"
@@ -998,7 +1001,7 @@ export function TokenAuction() {
                               {auction.bids.length} bid{auction.bids.length !== 1 ? 's' : ''}
                             </p>
                           </div>
-                          {auction.winnerId && userProfile?.userId === auction.winnerId && auction.status === 'ended' && (
+                          {auction.winnerId && staticUserId === auction.winnerId && auction.status === 'ended' && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -1018,7 +1021,7 @@ export function TokenAuction() {
         </Card>
       </div>
 
-      {isAuthenticated && myAuctions.length > 0 && (
+      {true && myAuctions.length > 0 && (
         <Card className="p-6">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Coins size={24} weight="duotone" className="text-primary" />
