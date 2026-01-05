@@ -77,9 +77,10 @@ export async function pollForToken(
 ): Promise<string> {
   const startTime = Date.now()
   const maxDuration = 15 * 60 * 1000 // 15 minutes
+  let currentInterval = interval // Use local copy to avoid mutating parameter
 
   while (Date.now() - startTime < maxDuration) {
-    await new Promise(resolve => setTimeout(resolve, interval * 1000))
+    await new Promise(resolve => setTimeout(resolve, currentInterval * 1000))
 
     try {
       const response = await fetch('https://github.com/login/oauth/access_token', {
@@ -108,7 +109,7 @@ export async function pollForToken(
 
       if (data.error === 'slow_down') {
         // Increase interval as requested by GitHub
-        interval += 5
+        currentInterval += 5
         onProgress?.('Slowing down polling...')
         continue
       }

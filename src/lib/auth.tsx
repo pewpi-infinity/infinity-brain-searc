@@ -14,6 +14,7 @@ export interface UserSession {
   username: string
   email: string
   avatarUrl: string
+  isOwner: boolean
   loginTime: number
   lastActive: number
   sessionId: string
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username: user.login,
         email: user.email || '',
         avatarUrl: user.avatar_url,
+        isOwner: false, // Device Flow doesn't provide owner info, default to false
         loginTime: Date.now(),
         lastActive: Date.now(),
         sessionId: `session-${Date.now()}`
@@ -148,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username: user.login,
         email: user.email || '',
         avatarUrl: user.avatar_url,
+        isOwner: false, // Device Flow doesn't provide owner info, default to false
         loginTime: Date.now(),
         lastActive: Date.now(),
         sessionId
