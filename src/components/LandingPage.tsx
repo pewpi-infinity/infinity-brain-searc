@@ -2,6 +2,7 @@ import { Sparkle, GitBranch, ArrowRight, GithubLogo } from '@phosphor-icons/reac
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertTriangleIcon } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useState, useEffect } from 'react'
 
@@ -9,13 +10,19 @@ export const LandingPage = () => {
   const { login, continueAsGuest, deviceCode, connectionState } = useAuth()
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   const handleSignIn = async () => {
     setIsAuthenticating(true)
+    setAuthError(null)
     try {
       await login()
     } catch (error) {
       console.error('Sign in failed:', error)
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Authentication failed. Please try again.'
+      setAuthError(errorMessage)
     } finally {
       setIsAuthenticating(false)
     }
@@ -59,6 +66,20 @@ export const LandingPage = () => {
         {/* Authentication Section */}
         {!deviceCode && connectionState !== 'connected' && (
           <div className="space-y-4">
+            {/* Show error message if authentication failed */}
+            {authError && (
+              <Alert variant="destructive" className="border-2 border-destructive/50 bg-card/80 backdrop-blur">
+                <AlertTriangleIcon className="h-5 w-5" />
+                <AlertTitle>Authentication Failed</AlertTitle>
+                <AlertDescription className="space-y-2">
+                  <p>{authError}</p>
+                  <p className="text-sm">
+                    You can retry signing in or continue as a guest to browse the app.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <Card className="bg-card/80 backdrop-blur border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 justify-center">
@@ -77,7 +98,12 @@ export const LandingPage = () => {
                   disabled={isAuthenticating}
                 >
                   <GithubLogo className="mr-2 h-5 w-5" />
-                  {isAuthenticating ? 'Connecting...' : 'Sign in with GitHub'}
+                  {isAuthenticating 
+                    ? 'Connecting...'
+                    : authError 
+                      ? 'Retry Sign In'
+                      : 'Sign in with GitHub'
+                  }
                 </Button>
                 <Button 
                   onClick={continueAsGuest} 
