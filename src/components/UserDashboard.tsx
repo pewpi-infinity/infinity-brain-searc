@@ -11,7 +11,7 @@ import { TransactionHistory } from './TransactionHistory'
 import { useState, useEffect } from 'react'
 
 export function UserDashboard() {
-  const { currentUser, userProfile, isAuthenticated, connectionState, login, logout, syncWallet, retryConnection } = useAuth()
+  const { currentUser, userProfile, isAuthenticated, isGuest, authMethod, connectionState, login, loginWithGitHub, continueAsGuest, logout, syncWallet, retryConnection } = useAuth()
   const [isSyncing, setIsSyncing] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [isRetrying, setIsRetrying] = useState(false)
@@ -144,46 +144,100 @@ export function UserDashboard() {
             <User size={48} weight="duotone" className="text-muted-foreground" />
           </div>
           <div>
-            <h3 className="text-xl font-bold mb-2">Welcome to Infinity</h3>
+            <h3 className="text-xl font-bold mb-2">Welcome to Infinity Brain</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Log in to access the tokenized business ecosystem
+              {isGuest ? 'You\'re browsing as a guest' : 'Choose how you\'d like to continue'}
             </p>
-            {!sparkReady && (
+            {!sparkReady && !isGuest && (
               <p className="text-xs text-yellow-600 mb-2">
                 ⏳ Initializing Spark API...
               </p>
             )}
-          </div>
-          <Button
-            onClick={handleLogin}
-            disabled={isLoggingIn || !sparkReady}
-            className="bg-gradient-to-r from-primary to-accent min-w-[200px]"
-          >
-            {isLoggingIn ? (
-              <>
-                <ArrowsClockwise size={20} weight="bold" className="mr-2 animate-spin" />
-                Authenticating...
-              </>
-            ) : (
-              <>
-                <SignIn size={20} weight="bold" className="mr-2" />
-                {sparkReady ? 'Sign in with GitHub' : 'Loading...'}
-              </>
+            {isGuest && (
+              <Badge variant="outline" className="mb-4 bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-400">
+                Guest Mode - Limited Features
+              </Badge>
             )}
-          </Button>
-          {sparkReady && (
-            <div className="mt-2 text-xs text-muted-foreground max-w-md">
-              <p className="mb-1">🔒 We need GitHub authentication to:</p>
-              <ul className="list-disc list-inside text-left space-y-1">
-                <li>Identify your account securely</li>
-                <li>Give you 10 free INF tokens to start</li>
-                <li>Save your tokens and transactions</li>
-              </ul>
-              <p className="mt-2 text-xs opacity-75">
-                Your data is stored securely and never shared.
-              </p>
+          </div>
+          
+          <div className="w-full max-w-md space-y-3">
+            {/* Spark Authentication */}
+            {sparkReady && (
+              <Button
+                onClick={handleLogin}
+                disabled={isLoggingIn}
+                className="bg-gradient-to-r from-primary to-accent w-full"
+                size="lg"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <ArrowsClockwise size={20} weight="bold" className="mr-2 animate-spin" />
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    <SignIn size={20} weight="bold" className="mr-2" />
+                    Sign in with Spark (Recommended)
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {/* GitHub OAuth (backup option) */}
+            <Button
+              onClick={async () => {
+                try {
+                  await loginWithGitHub()
+                } catch (error) {
+                  console.error('GitHub login failed:', error)
+                }
+              }}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              <SignIn size={20} weight="bold" className="mr-2" />
+              Sign in with GitHub OAuth
+            </Button>
+            
+            {/* Continue as Guest */}
+            {!isGuest && (
+              <Button
+                onClick={continueAsGuest}
+                variant="ghost"
+                className="w-full"
+                size="lg"
+              >
+                Continue as Guest
+              </Button>
+            )}
+          </div>
+          
+          <div className="mt-4 text-xs text-muted-foreground max-w-md">
+            <p className="mb-2 font-semibold">What you can do:</p>
+            <div className="grid grid-cols-2 gap-3 text-left">
+              <div>
+                <p className="font-medium text-green-600 dark:text-green-400">✓ As Guest:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs">
+                  <li>Browse UI</li>
+                  <li>View tokens</li>
+                  <li>See auctions</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-medium text-blue-600 dark:text-blue-400">✓ When Signed In:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs">
+                  <li>Create tokens</li>
+                  <li>Place bids</li>
+                  <li>AI features</li>
+                  <li>Save progress</li>
+                </ul>
+              </div>
             </div>
-          )}
+            <p className="mt-3 text-xs opacity-75">
+              🔒 Your data is stored securely and never shared.
+            </p>
+          </div>
         </div>
       </Card>
     )
@@ -213,6 +267,12 @@ export function UserDashboard() {
                       Owner
                     </Badge>
                   )}
+                  <Badge 
+                    variant={authMethod === 'spark' ? 'default' : 'secondary'} 
+                    className="text-xs"
+                  >
+                    {authMethod === 'spark' ? '✓ Spark Auth' : authMethod === 'github' ? '✓ GitHub Auth' : 'Guest'}
+                  </Badge>
                   <Badge variant="secondary" className="text-xs">
                     Active
                   </Badge>
