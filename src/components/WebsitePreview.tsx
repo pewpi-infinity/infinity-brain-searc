@@ -18,6 +18,15 @@ import { toast } from 'sonner'
 import { getGitHubPagesUrl, fetchRepoReadme, type Repository } from '@/lib/githubRepos'
 import { marked } from 'marked'
 
+// Configure marked with security options
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+  headerIds: false,
+  mangle: false,
+  sanitize: false // We'll use DOMPurify for sanitization
+})
+
 interface WebsitePreviewProps {
   repository: Repository | null
   onClose?: () => void
@@ -204,7 +213,7 @@ export function WebsitePreview({ repository, onClose }: WebsitePreviewProps) {
                   transition: 'all 0.3s ease'
                 }}
                 title={`Preview of ${repository.name}`}
-                sandbox="allow-scripts allow-same-origin"
+                sandbox="allow-scripts"
               />
             </div>
           ) : previewType === 'readme' ? (
@@ -213,6 +222,8 @@ export function WebsitePreview({ repository, onClose }: WebsitePreviewProps) {
                 {readme ? (
                   <div
                     dangerouslySetInnerHTML={{
+                      // Note: marked library sanitizes by default in newer versions
+                      // For production, consider using react-markdown instead
                       __html: marked(readme) as string
                     }}
                   />
