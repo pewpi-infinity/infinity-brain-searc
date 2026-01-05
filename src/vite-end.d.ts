@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-interface User {
+export interface User {
   avatarUrl: string
   email: string
   id: number
@@ -19,5 +19,6 @@ interface Window {
     }
   }
 }
+
 declare const GITHUB_RUNTIME_PERMANENT_NAME: string
 declare const BASE_KV_SERVICE_URL: string

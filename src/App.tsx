@@ -1,12 +1,5 @@
 import { useState, useEffect } from 'react'
-
-interface User {
-  avatarUrl: string
-  email: string
-  id: number
-  isOwner: boolean
-  login: string
-}
+import type { User } from './vite-end'
 
 function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined)
