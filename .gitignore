@@ -32,7 +32,3 @@ pids
 .devcontainer/
 
 .spark-workbench-id
-dist/
-
-# Test files
-test-modals.html
