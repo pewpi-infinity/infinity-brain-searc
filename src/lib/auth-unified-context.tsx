@@ -21,12 +21,14 @@ import {
   type Transaction
 } from '@/lib/auth-unified';
 import { earnTokens, spendTokens, getWalletStatus, type CurrencyType } from '@/lib/wallet-unified';
+import * as SimpleAuth from '@/lib/simple-auth';
 
 interface UnifiedAuthContextType {
   isAuthenticated: boolean;
   username: string | null;
   user: UnifiedUser | null;
   balances: Record<string, number>;
+  authMethod: 'unified' | 'simple' | null;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => void;
   register: (username: string, password: string, email?: string) => Promise<void>;
@@ -44,13 +46,62 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
   const [user, setUser] = useState<UnifiedUser | null>(null);
   const [balances, setBalances] = useState<Record<string, number>>({});
+  const [authMethod, setAuthMethod] = useState<'unified' | 'simple' | null>(null);
 
   const refreshAuth = () => {
-    setAuthenticated(isAuthenticated());
-    setUsername(getCurrentUsername());
-    setUser(getCurrentUser());
-    setBalances(getAllBalances());
-    syncSession();
+    // Check both authentication systems
+    const unifiedAuth = isAuthenticated();
+    const simpleAuth = SimpleAuth.isLoggedIn();
+
+    if (unifiedAuth) {
+      setAuthenticated(true);
+      setUsername(getCurrentUsername());
+      setUser(getCurrentUser());
+      setBalances(getAllBalances());
+      setAuthMethod('unified');
+      syncSession();
+    } else if (simpleAuth) {
+      const simpleUserData = SimpleAuth.getUserData();
+      if (simpleUserData) {
+        setAuthenticated(true);
+        setUsername(simpleUserData.username);
+        // Convert simple user data to unified user format
+        setUser({
+          passwordHash: simpleUserData.apiKeyHash,
+          createdAt: simpleUserData.createdAt,
+          lastLogin: simpleUserData.lastLoginAt,
+          ipFingerprint: '',
+          wallet: {
+            infinity_tokens: simpleUserData.tokenBalance,
+            research_tokens: 0,
+            art_tokens: 0,
+            music_tokens: 0
+          },
+          profile: {
+            displayName: simpleUserData.username,
+            avatar: '🔑',
+            preferences: {}
+          },
+          transactions: [],
+          achievements: ['api-key-login'],
+          sessions: []
+        } as UnifiedUser);
+        setBalances({
+          infinity_tokens: simpleUserData.tokenBalance,
+          research_tokens: 0,
+          art_tokens: 0,
+          music_tokens: 0
+        });
+        setAuthMethod('simple');
+        SimpleAuth.refreshSession();
+      }
+    } else {
+      setAuthenticated(false);
+      setUsername(null);
+      setUser(null);
+      setBalances({});
+      setAuthMethod(null);
+    }
   };
 
   useEffect(() => {
@@ -90,7 +141,9 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSignOut = () => {
+    // Sign out from both systems
     signOut();
+    SimpleAuth.logout();
     refreshAuth();
   };
 
@@ -105,7 +158,14 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
     source: string,
     description: string
   ) => {
-    earnTokens(currency, amount, source, description);
+    if (authMethod === 'simple') {
+      // Update simple auth token balance
+      if (currency === 'infinity_tokens') {
+        SimpleAuth.updateTokenBalance(amount);
+      }
+    } else {
+      earnTokens(currency, amount, source, description);
+    }
     refreshAuth();
   };
 
@@ -115,11 +175,25 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
     target: string,
     description: string
   ): boolean => {
-    const success = spendTokens(currency, amount, target, description);
-    if (success) {
-      refreshAuth();
+    if (authMethod === 'simple') {
+      // Handle simple auth token spending
+      if (currency === 'infinity_tokens') {
+        const userData = SimpleAuth.getUserData();
+        if (userData && userData.tokenBalance >= amount) {
+          SimpleAuth.updateTokenBalance(-amount);
+          refreshAuth();
+          return true;
+        }
+        return false;
+      }
+      return false;
+    } else {
+      const success = spendTokens(currency, amount, target, description);
+      if (success) {
+        refreshAuth();
+      }
+      return success;
     }
-    return success;
   };
 
   const getBalance = (currency: CurrencyType): number => {
@@ -137,6 +211,7 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
         username,
         user,
         balances,
+        authMethod,
         signIn: handleSignIn,
         signOut: handleSignOut,
         register: handleRegister,
