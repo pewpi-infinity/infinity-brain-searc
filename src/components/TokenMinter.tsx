@@ -110,6 +110,8 @@ export function TokenMinter() {
     }
   }
 
+  // Static site mode - no user session, so token balance is always empty
+  // In a real deployment, this would be populated from user authentication
   const userTokens = {}
   const allTokensList = allTokens ? Object.values(allTokens) : []
 

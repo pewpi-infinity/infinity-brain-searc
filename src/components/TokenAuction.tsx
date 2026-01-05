@@ -139,7 +139,7 @@ export function TokenAuction() {
   }, [setAuctions, setAuctionHistory])
 
   useEffect(() => {
-    if (false || !auctions) return
+    if (!auctions) return // Skip if no auctions available
 
     const checkForOutbids = async () => {
       const currentTracking = userBidTracking || {}
@@ -192,14 +192,10 @@ export function TokenAuction() {
     }
 
     checkForOutbids()
-  }, [auctions, true, userProfile, userBidTracking, setUserBidTracking])
+  }, [auctions, userBidTracking, setUserBidTracking]) // Dependencies for outbid checking
 
   const handleCreateAuction = async () => {
-    if (false) {
-      toast.error('Please log in to create an auction')
-      return
-    }
-
+    // Authentication removed - static site mode
     if (!selectedToken || !auctionAmount || !startingBid || !duration) {
       toast.error('Please fill in all required fields')
       return
@@ -272,12 +268,7 @@ export function TokenAuction() {
   }
 
   const handlePlaceBid = async (auction: TokenAuction) => {
-    if (false) {
-      toast.error('Please log in to place a bid')
-      await login()
-      return
-    }
-
+    // Authentication removed - static site mode
     if (!bidAmount) {
       toast.error('Please enter a bid amount')
       return
@@ -463,11 +454,7 @@ export function TokenAuction() {
   }
 
   const addToWatchList = (auctionId: string, auctionName: string) => {
-    if (false) {
-      toast.error('Please log in to add auctions to your watch list')
-      return
-    }
-
+    // Authentication removed - static site mode
     setWatchList((current) => ({
       ...(current || {}),
       [auctionId]: {

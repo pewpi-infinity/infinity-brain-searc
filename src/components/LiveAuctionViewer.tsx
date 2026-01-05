@@ -28,6 +28,10 @@ interface LiveAuctionViewerProps {
 }
 
 export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerProps) {
+  const staticUserId = 'guest-user'
+  const staticUsername = 'Guest'
+  const staticAvatarUrl = ''
+
   const [auctions, setAuctions] = useKV<Auction[]>('token-auctions', [])
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({})
   const [bidCurrency, setBidCurrency] = useState<Record<string, 'INF' | 'USD'>>({})
@@ -54,10 +58,6 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
   }
 
   const handlePlaceBid = async (auction: Auction) => {
-    const staticUserId = 'guest-user'
-    const staticUsername = 'Guest'
-    const staticAvatarUrl = ''
-
     const bid = parseFloat(bidAmount[auction.id] || '0')
     const currency = bidCurrency[auction.id] || 'INF'
 
@@ -78,10 +78,6 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
     }
 
     try {
-      const staticUserId = 'guest-user'
-      const staticUsername = 'Guest'
-      const staticAvatarUrl = ''
-
       const bidEntry: AuctionBid = {
         bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         auctionId: auction.id,
