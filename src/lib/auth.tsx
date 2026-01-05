@@ -711,10 +711,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Wait for Spark to be ready before using useKV
   useEffect(() => {
+    let mounted = true
     let checkCount = 0
     const maxChecks = 30 // 3 seconds (reduced from 10)
     
     const checkSparkReady = () => {
+      if (!mounted) return
+      
       if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
         setIsReady(true)
       } else {
@@ -729,6 +732,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     checkSparkReady()
+    
+    return () => {
+      mounted = false
+    }
   }, [])
   
   // If Spark is not available, render children in guest mode (with simple context)

@@ -52,7 +52,7 @@ import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
 import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { AuthProvider } from '@/lib/auth'
+import { AuthProvider, useAuth } from '@/lib/auth'
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
 import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService.tsx'
 import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
@@ -82,6 +82,7 @@ import { RepoHub } from '@/components/RepoHub'
 import { WebsitePreview } from '@/components/WebsitePreview'
 import { VisualEditor } from '@/components/VisualEditor'
 import { BrainStatus } from '@/components/BrainStatus'
+import { GuestBanner } from '@/components/GuestBanner'
 import { type Repository } from '@/lib/githubRepos'
 
 function App() {
@@ -222,6 +223,10 @@ function App() {
                 </div>
               </div>
             </header>
+
+            <div className="mb-6">
+              <GuestBanner onSignInClick={() => setActiveTab('user')} />
+            </div>
 
             <div className="mb-6">
               <SearchBar onSearch={handleSearch} isLoading={isSearching} />
