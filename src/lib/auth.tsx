@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import { adminProtection, restoreAdminAuctions } from './adminProtection'
+import * as githubAuth from './githubAuth'
 
 export interface UserSession {
   userId: string
@@ -60,6 +61,192 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+// GitHub Pages Authentication Provider (uses localStorage)
+function GitHubPagesAuthProvider({ children }: { children: ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
+
+  const isAuthenticated = currentUser !== null
+
+  // Load profile from localStorage
+  const loadProfile = (userId: string): UserProfile | null => {
+    const stored = localStorage.getItem(`github_user_profile_${userId}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  // Save profile to localStorage
+  const saveProfile = (profile: UserProfile) => {
+    localStorage.setItem(`github_user_profile_${profile.userId}`, JSON.stringify(profile))
+    setUserProfile(profile)
+  }
+
+  // Check for existing GitHub OAuth session on mount
+  useEffect(() => {
+    const initializeGitHubAuth = async () => {
+      if (githubAuth.isAuthenticated()) {
+        try {
+          setConnectionState('connecting')
+          const ghUser = await githubAuth.getUser()
+          
+          if (ghUser) {
+            const sessionId = `session-gh-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            const session: UserSession = {
+              userId: String(ghUser.id),
+              username: ghUser.login,
+              email: ghUser.email,
+              avatarUrl: ghUser.avatar_url,
+              isOwner: false,
+              loginTime: Date.now(),
+              lastActive: Date.now(),
+              sessionId
+            }
+
+            setCurrentUser(session)
+            setConnectionState('connected')
+
+            // Load or create profile
+            let profile = loadProfile(String(ghUser.id))
+            if (!profile) {
+              profile = {
+                userId: String(ghUser.id),
+                username: ghUser.login,
+                email: ghUser.email,
+                avatarUrl: ghUser.avatar_url,
+                createdAt: Date.now(),
+                businessTokens: { 'INF': 10 },
+                preferences: {}
+              }
+              saveProfile(profile)
+              toast.success(`Welcome, ${ghUser.login}! You received 10 free INF tokens! 🎉`)
+            } else {
+              setUserProfile(profile)
+              toast.success(`Welcome back, ${ghUser.login}! 👋`)
+            }
+          }
+        } catch (error) {
+          console.error('Failed to initialize GitHub auth:', error)
+          setConnectionState('error')
+        }
+      }
+    }
+
+    initializeGitHubAuth()
+  }, [])
+
+  const login = async () => {
+    try {
+      setConnectionState('connecting')
+      await githubAuth.loginWithGitHub()
+      // Will redirect, won't reach here
+    } catch (error) {
+      setConnectionState('error')
+      toast.error('Login failed', {
+        description: error instanceof Error ? error.message : 'Unknown error'
+      })
+      throw error
+    }
+  }
+
+  const logout = () => {
+    if (currentUser) {
+      githubAuth.logout()
+      localStorage.removeItem(`github_user_profile_${currentUser.userId}`)
+    }
+    setCurrentUser(null)
+    setUserProfile(null)
+    setConnectionState('disconnected')
+    toast.success('Logged out successfully')
+  }
+
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!userProfile) return
+    const updatedProfile = { ...userProfile, ...updates }
+    saveProfile(updatedProfile)
+  }
+
+  const addTokens = async (tokenSymbol: string, amount: number) => {
+    if (!userProfile) throw new Error('No user profile')
+    const currentBalance = userProfile.businessTokens[tokenSymbol] || 0
+    const updatedProfile = {
+      ...userProfile,
+      businessTokens: {
+        ...userProfile.businessTokens,
+        [tokenSymbol]: currentBalance + amount
+      }
+    }
+    saveProfile(updatedProfile)
+  }
+
+  const deductTokens = async (tokenSymbol: string, amount: number) => {
+    if (!userProfile) throw new Error('No user profile')
+    const currentBalance = userProfile.businessTokens[tokenSymbol] || 0
+    const updatedProfile = {
+      ...userProfile,
+      businessTokens: {
+        ...userProfile.businessTokens,
+        [tokenSymbol]: Math.max(0, currentBalance - amount)
+      }
+    }
+    saveProfile(updatedProfile)
+  }
+
+  const getTokenBalance = (tokenSymbol: string): number => {
+    if (!userProfile) return 0
+    return userProfile.businessTokens[tokenSymbol] || 0
+  }
+
+  const syncWallet = async () => {
+    toast.info('Wallet sync is only available in Spark environment')
+  }
+
+  const retryConnection = async () => {
+    await login()
+  }
+
+  // Update last active timestamp
+  useEffect(() => {
+    if (currentUser) {
+      const interval = setInterval(() => {
+        setCurrentUser(prev => {
+          if (!prev) return null
+          return { ...prev, lastActive: Date.now() }
+        })
+      }, 60000)
+      return () => clearInterval(interval)
+    }
+  }, [currentUser])
+
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        userProfile,
+        isAuthenticated,
+        connectionState,
+        login,
+        logout,
+        updateProfile,
+        addTokens,
+        deductTokens,
+        getTokenBalance,
+        syncWallet,
+        retryConnection
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+// Spark Authentication Provider (uses useKV)
 function AuthProviderInner({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
@@ -70,6 +257,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
 
   const isAuthenticated = currentUser !== null
+
+  // Detect if we're in Spark environment or GitHub Pages
+  const isSparkEnvironment = (): boolean => {
+    return typeof window !== 'undefined' && !!window.spark
+  }
 
   // Network connectivity check
   const checkNetworkConnectivity = async (): Promise<boolean> => {
@@ -130,6 +322,15 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     try {
       setConnectionState('connecting')
       
+      // Check if we're in Spark environment or GitHub Pages
+      if (!isSparkEnvironment()) {
+        // GitHub Pages - use OAuth
+        await githubAuth.loginWithGitHub()
+        // loginWithGitHub will redirect, so we won't reach here
+        return
+      }
+      
+      // Spark environment - use Spark authentication
       // Check if Spark is loaded
       if (!window.spark) {
         setConnectionState('error')
@@ -405,11 +606,20 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 
   const logout = () => {
     if (currentUser) {
-      setAllSessions((currentSessions) => 
-        (currentSessions || []).filter(s => s.sessionId !== currentUser.sessionId)
-      )
+      // Handle Spark sessions
+      if (isSparkEnvironment()) {
+        setAllSessions((currentSessions) => 
+          (currentSessions || []).filter(s => s.sessionId !== currentUser.sessionId)
+        )
+      } else {
+        // Handle GitHub OAuth logout
+        githubAuth.logout()
+        // Clear localStorage profile
+        localStorage.removeItem(`github_user_profile_${currentUser.userId}`)
+      }
     }
     setCurrentUser(null)
+    setConnectionState('disconnected')
   }
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -598,7 +808,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Wait for Spark to be ready before using useKV
   useEffect(() => {
     let checkCount = 0
-    const maxChecks = 100 // 10 seconds
+    const maxChecks = 50 // 5 seconds
     
     const checkSparkReady = () => {
       if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
@@ -606,9 +816,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         checkCount++
         if (checkCount >= maxChecks) {
-          // Spark is not available - this is expected on GitHub Pages
+          // Spark is not available - use GitHub Pages auth instead
           setNoSpark(true)
-          setIsReady(true) // Set ready anyway to prevent infinite loading
+          setIsReady(true)
         } else {
           setTimeout(checkSparkReady, 100)
         }
@@ -617,17 +827,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkSparkReady()
   }, [])
   
-  // If Spark is not available, render a minimal version without useKV
+  // If Spark is not available, use GitHub Pages auth provider
   if (noSpark) {
-    return <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center max-w-md p-6">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading authentication...</p>
-        <p className="text-xs text-muted-foreground mt-2">
-          Note: Full authentication requires GitHub Spark environment
-        </p>
-      </div>
-    </div>
+    return <GitHubPagesAuthProvider>{children}</GitHubPagesAuthProvider>
   }
   
   // Don't render AuthProviderInner until Spark is ready

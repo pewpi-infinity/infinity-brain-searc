@@ -2,8 +2,19 @@ import { Sparkle, GitBranch, ArrowRight } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useAuth } from '@/lib/auth'
 
 export const LandingPage = () => {
+  const { login, connectionState } = useAuth()
+
+  const handleSignIn = async () => {
+    try {
+      await login()
+    } catch (error) {
+      console.error('Sign in error:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen mesh-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl space-y-8">
@@ -27,13 +38,26 @@ export const LandingPage = () => {
         {/* Important Notice */}
         <Alert className="border-accent/50 bg-card/80 backdrop-blur">
           <Sparkle className="h-5 w-5 text-accent" />
-          <AlertTitle className="text-lg">Requires GitHub Spark Environment</AlertTitle>
+          <AlertTitle className="text-lg">Welcome to Infinity Brain on GitHub Pages</AlertTitle>
           <AlertDescription className="text-base mt-2">
-            Infinity Brain is designed to run in the GitHub Spark environment, which provides 
-            authentication, storage, and AI capabilities. This demo page shows what's possible, 
-            but the full app requires the Spark runtime.
+            Sign in with your GitHub account to access all features including token creation, 
+            trading, and building websites. Your data will be stored securely in your browser.
           </AlertDescription>
         </Alert>
+
+        {/* Sign In Button */}
+        <div className="flex justify-center">
+          <Button
+            size="lg"
+            onClick={handleSignIn}
+            disabled={connectionState === 'connecting'}
+            className="bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-lg px-8 py-6 h-auto"
+          >
+            <GitBranch size={24} weight="duotone" className="mr-2" />
+            {connectionState === 'connecting' ? 'Connecting...' : 'Sign in with GitHub'}
+            <ArrowRight size={24} className="ml-2" />
+          </Button>
+        </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 gap-6">
