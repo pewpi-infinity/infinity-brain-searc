@@ -553,8 +553,8 @@ function AppContent() {
             </Tabs>
 
           <IntentBasedHelper onNavigate={setActiveTab} />
-          <BackgroundChanger />
-          <WelcomeFlow onNavigate={setActiveTab} />
+          {typeof window !== 'undefined' && window.spark && <BackgroundChanger />}
+          {typeof window !== 'undefined' && window.spark && <WelcomeFlow onNavigate={setActiveTab} />}
           <SafetyFooter />
           <AuthDebugPanel />
           <AIDebugger />
