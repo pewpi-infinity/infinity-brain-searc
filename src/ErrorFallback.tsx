@@ -23,6 +23,18 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
   if (import.meta.env.DEV) throw error;
 
   const isAuth = isAuthError(error);
+  
+  // For guest mode, we'll reset the error boundary and let the app handle the state
+  // The auth context should already be in guest/error state from the failed login
+  const handleContinueAsGuest = () => {
+    // Clear any auth errors from localStorage that might cause issues
+    try {
+      localStorage.removeItem('github_device_flow_auth');
+    } catch (e) {
+      console.error('Failed to clear auth state:', e);
+    }
+    resetErrorBoundary();
+  };
 
   // Handle authentication errors with user-friendly messaging
   if (isAuth) {
@@ -49,10 +61,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
           
           <div className="space-y-3">
             <Button 
-              onClick={() => {
-                // Reset error and start in guest mode
-                resetErrorBoundary()
-              }} 
+              onClick={handleContinueAsGuest} 
               className="w-full"
               size="lg"
             >
@@ -113,7 +122,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
           </Button>
           
           <Button 
-            onClick={resetErrorBoundary} 
+            onClick={handleContinueAsGuest} 
             className="w-full"
             variant="outline"
             size="lg"

@@ -217,7 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Check if we should retry
       if (retryCount < MAX_RETRIES) {
-        const delay = BASE_DELAY * Math.pow(2, retryCount) // Exponential backoff
+        // Exponential backoff: 1s (2^0), 2s (2^1), 4s (2^2) for attempts 1, 2, 3
+        const delay = BASE_DELAY * Math.pow(2, retryCount)
         
         toast.warning(`Authentication failed - retrying in ${delay / 1000}s...`, {
           description: errorMessage,
