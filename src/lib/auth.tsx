@@ -593,18 +593,42 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false)
+  const [noSpark, setNoSpark] = useState(false)
   
   // Wait for Spark to be ready before using useKV
   useEffect(() => {
+    let checkCount = 0
+    const maxChecks = 100 // 10 seconds
+    
     const checkSparkReady = () => {
       if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
         setIsReady(true)
       } else {
-        setTimeout(checkSparkReady, 100)
+        checkCount++
+        if (checkCount >= maxChecks) {
+          // Spark is not available - this is expected on GitHub Pages
+          setNoSpark(true)
+          setIsReady(true) // Set ready anyway to prevent infinite loading
+        } else {
+          setTimeout(checkSparkReady, 100)
+        }
       }
     }
     checkSparkReady()
   }, [])
+  
+  // If Spark is not available, render a minimal version without useKV
+  if (noSpark) {
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center max-w-md p-6">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading authentication...</p>
+        <p className="text-xs text-muted-foreground mt-2">
+          Note: Full authentication requires GitHub Spark environment
+        </p>
+      </div>
+    </div>
+  }
   
   // Don't render AuthProviderInner until Spark is ready
   if (!isReady) {

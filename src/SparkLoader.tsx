@@ -3,12 +3,27 @@ import { Sparkle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { AlertTriangleIcon } from 'lucide-react'
+import { LandingPage } from '@/components/LandingPage'
 
 interface SparkLoaderProps {
   children: ReactNode
 }
 
-type LoadingState = 'loading' | 'ready' | 'timeout' | 'error'
+type LoadingState = 'loading' | 'ready' | 'timeout' | 'error' | 'no-spark'
+
+// Detect if we're running on GitHub Pages (or any non-Spark environment)
+const isGitHubPages = (): boolean => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') return false
+  
+  // Check for GitHub Pages specific indicators
+  const hostname = window.location.hostname
+  const isGHPages = hostname.includes('github.io') || hostname.includes('github.com')
+  
+  // Also check if Spark is not available after a reasonable time
+  // This helps detect any non-Spark deployment
+  return isGHPages
+}
 
 export const SparkLoader = ({ children }: SparkLoaderProps) => {
   const [state, setState] = useState<LoadingState>('loading')
@@ -22,6 +37,12 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
     const checkSpark = () => {
       if (!mounted) return
 
+      // Early detection: if we're on GitHub Pages, show landing page immediately
+      if (checkCount === 0 && isGitHubPages()) {
+        setState('no-spark')
+        return
+      }
+
       // Check if window.spark is available
       if (typeof window !== 'undefined' && window.spark) {
         setState('ready')
@@ -30,9 +51,9 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
 
       checkCount++
       
-      // Timeout after 10 seconds
+      // Timeout after 10 seconds - assume no Spark environment
       if (checkCount >= maxChecks) {
-        setState('timeout')
+        setState('no-spark')
         return
       }
 
@@ -70,6 +91,11 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
     return <>{children}</>
   }
 
+  // No Spark environment detected - show landing page
+  if (state === 'no-spark') {
+    return <LandingPage />
+  }
+
   // Loading state
   if (state === 'loading') {
     return (
@@ -100,7 +126,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
     )
   }
 
-  // Timeout or error state
+  // Timeout or error state (fallback for development environment)
   return (
     <div className="min-h-screen mesh-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
