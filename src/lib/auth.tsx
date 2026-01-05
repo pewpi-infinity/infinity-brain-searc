@@ -23,7 +23,8 @@ export interface CachedAuthData {
   cachedAt: number
 }
 
-export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error'
+export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error' | 'guest'
+export type AuthMethod = 'spark' | 'github' | 'guest'
 
 // Troubleshooting tips for different error scenarios
 const TROUBLESHOOTING_TIPS = {
@@ -47,8 +48,12 @@ interface AuthContextType {
   currentUser: UserSession | null
   userProfile: UserProfile | null
   isAuthenticated: boolean
+  isGuest: boolean
+  authMethod: AuthMethod
   connectionState: ConnectionState
   login: () => Promise<void>
+  loginWithGitHub: () => Promise<void>
+  continueAsGuest: () => void
   logout: () => void
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>
   addTokens: (tokenSymbol: string, amount: number) => Promise<void>
@@ -68,6 +73,8 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const [allProfiles, setAllProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
   const [cachedAuth, setCachedAuth] = useKV<CachedAuthData | null>('cached-auth-data', null)
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('guest')
+  const [isGuest, setIsGuest] = useState(true)
 
   const isAuthenticated = currentUser !== null
 
@@ -285,6 +292,8 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 
       setCurrentUser(session)
       setConnectionState('connected')
+      setAuthMethod('spark')
+      setIsGuest(false)
 
       setAllSessions((currentSessions) => [...(currentSessions || []), session])
 
@@ -403,6 +412,39 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     await login()
   }
 
+  // Continue as guest (no authentication)
+  const continueAsGuest = () => {
+    setConnectionState('guest')
+    setAuthMethod('guest')
+    setIsGuest(true)
+    setCurrentUser(null)
+    toast.success('Browsing as guest', {
+      description: 'Sign in to access all features'
+    })
+  }
+
+  // Login with GitHub OAuth
+  const loginWithGitHub = async () => {
+    try {
+      setConnectionState('connecting')
+      toast.info('GitHub OAuth is not fully configured', {
+        description: 'This feature requires backend setup. Please use Spark authentication or continue as guest.'
+      })
+      
+      // Import the GitHub OAuth module
+      const { initiateGitHubLogin } = await import('./github-oauth')
+      
+      // This will redirect to GitHub
+      initiateGitHubLogin()
+    } catch (error) {
+      setConnectionState('error')
+      toast.error('GitHub authentication unavailable', {
+        description: 'Please use Spark authentication or continue as guest.'
+      })
+      throw error
+    }
+  }
+
   const logout = () => {
     if (currentUser) {
       setAllSessions((currentSessions) => 
@@ -410,6 +452,9 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       )
     }
     setCurrentUser(null)
+    setConnectionState('guest')
+    setAuthMethod('guest')
+    setIsGuest(true)
   }
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -575,8 +620,12 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         currentUser,
         userProfile: userProfile ?? null,
         isAuthenticated,
+        isGuest,
+        authMethod,
         connectionState,
         login,
+        loginWithGitHub,
+        continueAsGuest,
         logout,
         updateProfile,
         addTokens,
@@ -591,6 +640,71 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   )
 }
 
+// Guest mode provider (no Spark available)
+function AuthProviderGuest({ children }: { children: ReactNode }) {
+  const [connectionState] = useState<ConnectionState>('guest')
+  const [authMethod] = useState<AuthMethod>('guest')
+
+  const notAvailable = () => {
+    toast.error('Authentication required', {
+      description: 'This feature requires GitHub Spark environment or sign in with GitHub OAuth'
+    })
+  }
+
+  const continueAsGuest = () => {
+    toast.info('Already in guest mode', {
+      description: 'Browse freely or sign in for full features'
+    })
+  }
+
+  const loginWithGitHub = async () => {
+    try {
+      toast.info('Redirecting to GitHub...', {
+        description: 'You will be redirected to authorize with GitHub'
+      })
+      
+      const { initiateGitHubLogin } = await import('./github-oauth')
+      initiateGitHubLogin()
+    } catch (error) {
+      toast.error('GitHub login unavailable', {
+        description: 'Please check your connection and try again'
+      })
+    }
+  }
+
+  const login = async () => {
+    toast.error('Spark not available', {
+      description: 'Please use GitHub OAuth or continue as guest'
+    })
+    throw new Error('Spark authentication not available')
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser: null,
+        userProfile: null,
+        isAuthenticated: false,
+        isGuest: true,
+        authMethod,
+        connectionState,
+        login,
+        loginWithGitHub,
+        continueAsGuest,
+        logout: () => {},
+        updateProfile: async () => { notAvailable() },
+        addTokens: async () => { notAvailable() },
+        deductTokens: async () => { notAvailable() },
+        getTokenBalance: () => 0,
+        syncWallet: async () => { notAvailable() },
+        retryConnection: async () => { notAvailable() }
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false)
   const [noSpark, setNoSpark] = useState(false)
@@ -598,7 +712,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Wait for Spark to be ready before using useKV
   useEffect(() => {
     let checkCount = 0
-    const maxChecks = 100 // 10 seconds
+    const maxChecks = 30 // 3 seconds (reduced from 10)
     
     const checkSparkReady = () => {
       if (typeof window !== 'undefined' && window.spark && window.spark.kv) {
@@ -606,9 +720,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         checkCount++
         if (checkCount >= maxChecks) {
-          // Spark is not available - this is expected on GitHub Pages
+          // Spark is not available - continue in guest mode
           setNoSpark(true)
-          setIsReady(true) // Set ready anyway to prevent infinite loading
+          setIsReady(true) // Set ready anyway to allow guest mode
         } else {
           setTimeout(checkSparkReady, 100)
         }
@@ -617,17 +731,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkSparkReady()
   }, [])
   
-  // If Spark is not available, render a minimal version without useKV
+  // If Spark is not available, render children in guest mode (with simple context)
   if (noSpark) {
-    return <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center max-w-md p-6">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading authentication...</p>
-        <p className="text-xs text-muted-foreground mt-2">
-          Note: Full authentication requires GitHub Spark environment
-        </p>
-      </div>
-    </div>
+    return <AuthProviderGuest>{children}</AuthProviderGuest>
   }
   
   // Don't render AuthProviderInner until Spark is ready
