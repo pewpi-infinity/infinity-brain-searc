@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { CurrencyDollar, Coins, TrendUp, Wallet, ArrowsClockwise } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
 import { trackTokenMetric } from '@/lib/tokenMetrics'
@@ -25,7 +24,6 @@ interface BusinessToken {
 }
 
 export function TokenMinter() {
-  const { userProfile, isAuthenticated, addTokens, syncWallet } = useAuth()
   const [allTokens, setAllTokens] = useKV<Record<string, BusinessToken>>('business-tokens', {})
   const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
   const [tokenName, setTokenName] = useState('')
@@ -35,11 +33,6 @@ export function TokenMinter() {
   const [isSyncing, setIsSyncing] = useState(false)
 
   const handleMintToken = async () => {
-    if (!isAuthenticated || !userProfile) {
-      toast.error('Please log in to mint tokens')
-      return
-    }
-
     if (!tokenName || !tokenSymbol || !initialSupply || !businessName) {
       toast.error('Please fill in all fields')
       return
@@ -58,6 +51,9 @@ export function TokenMinter() {
       return
     }
 
+    const staticUserId = 'guest-user'
+    const staticUsername = 'Guest'
+
     const newToken: BusinessToken = {
       symbol: symbolUpper,
       name: tokenName,
@@ -66,26 +62,24 @@ export function TokenMinter() {
       businessName,
       createdAt: Date.now(),
       backedBy: 'infinity',
-      mintedBy: userProfile.userId,
+      mintedBy: staticUserId,
       initialPrice: 1.0
     }
 
     const updatedTokens = { ...(allTokens || {}), [symbolUpper]: newToken }
     setAllTokens(updatedTokens)
 
-    await addTokens(symbolUpper, supply)
-
-    await trackTokenMetric(symbolUpper, 'mint', userProfile.userId, supply)
+    await trackTokenMetric(symbolUpper, 'mint', staticUserId, supply)
 
     const mintTransaction: Transaction = {
       id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type: 'mint',
       tokenSymbol: symbolUpper,
       amount: supply,
-      from: userProfile.userId,
-      fromUsername: userProfile.username,
-      to: userProfile.userId,
-      toUsername: userProfile.username,
+      from: staticUserId,
+      fromUsername: staticUsername,
+      to: staticUserId,
+      toUsername: staticUsername,
       timestamp: Date.now(),
       status: 'completed',
       note: `Minted ${tokenName} for ${businessName}`
@@ -107,7 +101,8 @@ export function TokenMinter() {
   const handleSyncWallet = async () => {
     setIsSyncing(true)
     try {
-      await syncWallet()
+      // Sync wallet functionality removed for static site
+      toast.info('Wallet sync is not available in static mode')
     } catch (error) {
       console.error('Sync failed:', error)
     } finally {
@@ -115,7 +110,7 @@ export function TokenMinter() {
     }
   }
 
-  const userTokens = userProfile?.businessTokens || {}
+  const userTokens = {}
   const allTokensList = allTokens ? Object.values(allTokens) : []
 
   return (
@@ -191,17 +186,10 @@ export function TokenMinter() {
             <Button
               onClick={handleMintToken}
               className="w-full bg-gradient-to-r from-primary to-accent"
-              disabled={!isAuthenticated}
             >
               <Coins size={20} weight="bold" className="mr-2" />
               Mint Token
             </Button>
-
-            {!isAuthenticated && (
-              <p className="text-xs text-center text-muted-foreground">
-                Please log in to mint tokens
-              </p>
-            )}
           </div>
         </Card>
 
@@ -214,7 +202,7 @@ export function TokenMinter() {
               </div>
               <Button
                 onClick={handleSyncWallet}
-                disabled={isSyncing || !isAuthenticated}
+                disabled={isSyncing}
                 variant="outline"
                 size="sm"
                 className="gap-2"
@@ -246,11 +234,9 @@ export function TokenMinter() {
                   <p className="text-sm text-muted-foreground mb-3">
                     No tokens yet. Mint your first token!
                   </p>
-                  {isAuthenticated && (
-                    <p className="text-xs text-muted-foreground">
-                      If you previously minted tokens, click <strong>Sync</strong> to restore them.
-                    </p>
-                  )}
+                  <p className="text-xs text-muted-foreground">
+                    If you previously minted tokens, click <strong>Sync</strong> to restore them.
+                  </p>
                 </div>
               )}
             </div>

@@ -24,7 +24,7 @@ import { LiveAuctionViewer } from '@/components/LiveAuctionViewer'
 import { TokenMetricsDashboard } from '@/components/TokenMetricsDashboard'
 import { AuctionTemplates } from '@/components/AuctionTemplates'
 import { AuctionWatchList } from '@/components/AuctionWatchList'
-import { UserDashboard } from '@/components/UserDashboard'
+
 import { MarketOverview } from '@/components/MarketOverview'
 import { PageExporter } from '@/components/PageExporter'
 import { DeploymentHub } from '@/components/DeploymentHub'
@@ -52,7 +52,7 @@ import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
 import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { AuthProvider, useAuth } from '@/lib/auth'
+
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
 import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService.tsx'
 import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
@@ -73,7 +73,7 @@ import { BlockchainIntegration } from '@/components/BlockchainIntegration'
 import { LiveRepoManager } from '@/components/LiveRepoManager'
 import { AIPageRepair } from '@/components/AIPageRepair'
 import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
-import { AuthDebugPanel } from '@/components/AuthDebugPanel'
+
 import { AIDebugger } from '@/components/AIDebugger'
 import { BismuthSignalReader } from '@/components/BismuthSignalReader'
 import { Navigation } from '@/components/Navigation'
@@ -82,13 +82,10 @@ import { RepoHub } from '@/components/RepoHub'
 import { WebsitePreview } from '@/components/WebsitePreview'
 import { VisualEditor } from '@/components/VisualEditor'
 import { BrainStatus } from '@/components/BrainStatus'
-import { GuestBanner } from '@/components/GuestBanner'
+
 import { type Repository } from '@/lib/githubRepos'
 
-import { LandingPage } from '@/components/LandingPage'
-
-function AppContent() {
-  const { isAuthenticated, connectionState } = useAuth()
+function App() {
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -189,11 +186,6 @@ function AppContent() {
     }
   }
 
-  // Show landing page if not authenticated and not in guest mode
-  if (!isAuthenticated && connectionState !== 'guest' && connectionState !== 'connected') {
-    return <LandingPage />
-  }
-
   return (
     <TokenRedistributionServiceProvider>
       <div className="min-h-screen mesh-background">
@@ -230,11 +222,6 @@ function AppContent() {
                 </div>
               </div>
             </header>
-
-            {/* Temporarily disabled GuestBanner for debugging */}
-            {/* <div className="mb-6">
-              <GuestBanner onSignInClick={() => setActiveTab('user')} />
-            </div> */}
 
             <div className="mb-6">
               <SearchBar onSearch={handleSearch} isLoading={isSearching} />
@@ -333,17 +320,6 @@ function AppContent() {
                     <div>
                       <div className="font-bold">AI Chat</div>
                       <div className="text-sm opacity-90">Talk with AI assistant</div>
-                    </div>
-                  </Button>
-
-                  <Button
-                    onClick={() => setActiveTab('user')}
-                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
-                  >
-                    <ShieldCheck size={32} weight="duotone" />
-                    <div>
-                      <div className="font-bold">My Dashboard</div>
-                      <div className="text-sm opacity-90">View your assets</div>
                     </div>
                   </Button>
 
@@ -515,7 +491,6 @@ function AppContent() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="user"><UserDashboard /></TabsContent>
               <TabsContent value="admin"><AdminTools /></TabsContent>
               <TabsContent value="buy-inf"><InfinityTokenSale /></TabsContent>
               <TabsContent value="social-security"><SocialSecurityPlatform /></TabsContent>
@@ -556,21 +531,12 @@ function AppContent() {
           {typeof window !== 'undefined' && window.spark && <BackgroundChanger />}
           {typeof window !== 'undefined' && window.spark && <WelcomeFlow onNavigate={setActiveTab} />}
           <SafetyFooter />
-          <AuthDebugPanel />
           <AIDebugger />
           <BismuthSignalReader />
           <BrainStatus />
         </div>
       </div>
     </TokenRedistributionServiceProvider>
-  )
-}
-
-function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   )
 }
 

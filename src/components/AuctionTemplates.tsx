@@ -26,7 +26,6 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { TokenAuction } from './TokenAuction'
 
 export interface AuctionTemplate {

@@ -24,7 +24,6 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { PayPalPaymentDialog, PayPalBadge } from '@/components/PayPalIntegration'
 import { ActionPreview, ACTION_PREVIEWS } from '@/components/ActionPreview'
 

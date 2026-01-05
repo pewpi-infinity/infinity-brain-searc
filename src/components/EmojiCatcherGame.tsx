@@ -6,7 +6,6 @@ import { Progress } from '@/components/ui/progress'
 import { Trophy, Star, Crown, Play, Pause, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 
 interface FallingEmoji {
   id: string

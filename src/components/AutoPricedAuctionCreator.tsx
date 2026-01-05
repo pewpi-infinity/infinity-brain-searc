@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sparkle, Robot, Lightning, TrendUp, CheckCircle, Gavel, Coins, Clock, Target, ArrowRight } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { TokenAuction } from '@/components/TokenAuction'
 
 interface AuctionAutoPricing {

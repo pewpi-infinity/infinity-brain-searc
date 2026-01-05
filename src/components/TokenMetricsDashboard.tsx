@@ -15,7 +15,6 @@ import {
   generateValueHistory,
   trackTokenMetric 
 } from '@/lib/tokenMetrics'
-import { useAuth } from '@/lib/auth'
 
 interface MetricsDashboardProps {
   tokenSymbol?: string

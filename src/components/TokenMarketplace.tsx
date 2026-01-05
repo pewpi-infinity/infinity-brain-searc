@@ -23,7 +23,6 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { TokenPriceChart } from './TokenPriceChart'
 import { trackTokenMetric } from '@/lib/tokenMetrics'

@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { PaperPlaneTilt, User, Coins } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 import { Transaction } from './TransactionHistory'
 import { trackTokenMetric } from '@/lib/tokenMetrics'
 

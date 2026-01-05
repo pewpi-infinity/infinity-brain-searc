@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertTriangleIcon } from 'lucide-react'
-import { useAuth } from '@/lib/auth'
 import { useState, useEffect } from 'react'
 
 export const LandingPage = () => {

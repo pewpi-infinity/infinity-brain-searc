@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Gavel, Robot, Clock, Coins, TrendUp, Sparkle, CheckCircle, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
-import { useAuth } from '@/lib/auth'
 
 interface AutoAuctionRule {
   id: string
