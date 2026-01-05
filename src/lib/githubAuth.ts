@@ -70,7 +70,10 @@ export async function pollForAccessToken(deviceCode: string, interval: number): 
   }
 
   return new Promise((resolve, reject) => {
-    const pollInterval = setInterval(async () => {
+    let currentInterval = interval * 1000
+    let pollIntervalId: NodeJS.Timeout
+
+    const poll = async () => {
       try {
         const response = await fetch('https://github.com/login/oauth/access_token', {
           method: 'POST',
@@ -92,34 +95,39 @@ export async function pollForAccessToken(deviceCode: string, interval: number): 
         const data: AccessTokenResponse = await response.json()
 
         if (data.access_token) {
-          clearInterval(pollInterval)
+          clearInterval(pollIntervalId)
           localStorage.setItem(STORAGE_KEY, data.access_token)
           resolve(data.access_token)
         } else if (data.error === 'authorization_pending') {
-          // Continue polling
+          // Continue polling with same interval
           return
         } else if (data.error === 'slow_down') {
-          // GitHub wants us to slow down, but we'll keep the same interval
+          // GitHub wants us to slow down - increase interval by 5 seconds
+          clearInterval(pollIntervalId)
+          currentInterval += 5000
+          pollIntervalId = setInterval(poll, currentInterval)
           return
         } else if (data.error === 'expired_token') {
-          clearInterval(pollInterval)
+          clearInterval(pollIntervalId)
           reject(new Error('Device code expired. Please try again.'))
         } else if (data.error === 'access_denied') {
-          clearInterval(pollInterval)
+          clearInterval(pollIntervalId)
           reject(new Error('Authorization was denied'))
         } else if (data.error) {
-          clearInterval(pollInterval)
+          clearInterval(pollIntervalId)
           reject(new Error(data.error_description || data.error))
         }
       } catch (error) {
-        clearInterval(pollInterval)
+        clearInterval(pollIntervalId)
         reject(error)
       }
-    }, interval * 1000)
+    }
+
+    pollIntervalId = setInterval(poll, currentInterval)
 
     // Set timeout after 10 minutes
     setTimeout(() => {
-      clearInterval(pollInterval)
+      clearInterval(pollIntervalId)
       reject(new Error('Device flow timed out'))
     }, 600000)
   })
