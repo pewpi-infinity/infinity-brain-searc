@@ -70,12 +70,12 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
       checkAuth();
     });
 
-    // Heartbeat sync every 5 seconds
+    // Heartbeat sync every 30 seconds (reduced for efficiency)
     const interval = setInterval(() => {
       if (isAuthenticated()) {
         checkAuth();
       }
-    }, 5000);
+    }, 30000);
 
     return () => {
       clearInterval(interval);

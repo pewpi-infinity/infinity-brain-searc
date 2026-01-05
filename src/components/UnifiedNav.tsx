@@ -43,12 +43,12 @@ export function UnifiedNav({ onAuthClick }: UnifiedNavProps) {
       updateAuthState();
     });
 
-    // Heartbeat sync every 5 seconds
+    // Heartbeat sync every 30 seconds (reduced from 5s for efficiency)
     const interval = setInterval(() => {
       if (isAuthenticated()) {
         updateAuthState();
       }
-    }, 5000);
+    }, 30000);
 
     return () => {
       clearInterval(interval);

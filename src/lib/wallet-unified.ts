@@ -83,7 +83,7 @@ export function transferTokens(
     return false; // Insufficient balance
   }
 
-  const convertedAmount = Math.round(amount * exchangeRate);
+  const convertedAmount = Math.floor(amount * exchangeRate);
 
   // Deduct from source currency
   updateWallet(fromCurrency, -amount, 'exchange', `Exchange to ${toCurrency}`);
@@ -170,22 +170,10 @@ export function exportWallet(): string {
 
 /**
  * Import wallet data (merge with existing)
+ * @throws Error if data format is invalid
  */
 export function importWallet(data: string): boolean {
-  try {
-    const walletData = JSON.parse(data);
-    
-    if (!walletData.wallet || !walletData.transactions) {
-      throw new Error('Invalid wallet data format');
-    }
-
-    // This would need to be implemented with proper merge logic
-    // For now, we'll just validate the format
-    return true;
-  } catch (error) {
-    console.error('Failed to import wallet:', error);
-    return false;
-  }
+  throw new Error('Wallet import not yet implemented. This feature requires careful merge logic to prevent data loss.');
 }
 
 /**

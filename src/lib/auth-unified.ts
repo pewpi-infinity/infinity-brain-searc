@@ -75,14 +75,20 @@ function getIPFingerprint(): string {
   return `${screen}-${timezone}-${language}`;
 }
 
-// Generate unique session token
+// Generate unique session token with crypto API
 function generateToken(): string {
-  return `token_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  const randomPart = Array.from(array, byte => byte.toString(36)).join('').substring(0, 9);
+  return `token_${Date.now()}_${randomPart}`;
 }
 
-// Generate transaction ID
+// Generate transaction ID with crypto API
 function generateTransactionId(): string {
-  return `tx_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  const randomPart = Array.from(array, byte => byte.toString(36)).join('').substring(0, 9);
+  return `tx_${Date.now()}_${randomPart}`;
 }
 
 // Get auth data from localStorage
@@ -338,7 +344,19 @@ export function updateWallet(
     throw new Error('User not found');
   }
 
-  user.wallet[currency] = (user.wallet[currency] || 0) + amount;
+  // Validate amount is integer and within bounds
+  if (!Number.isInteger(amount) || Math.abs(amount) > Number.MAX_SAFE_INTEGER) {
+    throw new Error('Invalid token amount');
+  }
+
+  const newBalance = (user.wallet[currency] || 0) + amount;
+  
+  // Prevent negative balances
+  if (newBalance < 0) {
+    throw new Error('Insufficient balance');
+  }
+
+  user.wallet[currency] = newBalance;
 
   // Record transaction
   const transaction: Transaction = {
