@@ -76,8 +76,16 @@ import { ContinuousPageMonitor } from '@/components/ContinuousPageMonitor'
 import { AuthDebugPanel } from '@/components/AuthDebugPanel'
 import { AIDebugger } from '@/components/AIDebugger'
 import { BismuthSignalReader } from '@/components/BismuthSignalReader'
+import { Navigation } from '@/components/Navigation'
+import { ProfessionalDashboard } from '@/components/ProfessionalDashboard'
+import { RepoHub } from '@/components/RepoHub'
+import { WebsitePreview } from '@/components/WebsitePreview'
+import { VisualEditor } from '@/components/VisualEditor'
+import { BrainStatus } from '@/components/BrainStatus'
+import { type Repository } from '@/lib/githubRepos'
 
 function App() {
+  const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
@@ -166,193 +174,8 @@ function App() {
           <div className="container mx-auto px-4 py-6 max-w-7xl">
             <header className="mb-6 space-y-4">
               <div className="flex items-center justify-between">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="bg-card/90 backdrop-blur-md hover:bg-accent/20 border-2 shadow-lg"
-                    >
-                      <List size={24} weight="bold" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-80">
-                    <SheetHeader>
-                      <SheetTitle className="flex items-center gap-2 text-xl">
-                        <Sparkle size={28} weight="duotone" className="text-accent" />
-                        Advanced Controls
-                      </SheetTitle>
-                    </SheetHeader>
-                    <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
-                      <div className="space-y-6">
-                        
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">👤 Account & Identity</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('user')}
-                            >
-                              <ShieldCheck size={20} weight="duotone" />
-                              My Dashboard
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('admin')}
-                            >
-                              <ShieldCheck size={20} weight="duotone" />
-                              Admin Tools
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('buy-inf')}
-                            >
-                              <Coin size={20} weight="duotone" />
-                              Buy INF Tokens
-                            </Button>
-                          </div>
-                        </div>
+                <Navigation onNavigate={setActiveTab} currentTab={activeTab} />
 
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">💰 Token Economy</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('charts')}
-                            >
-                              <ChartLine size={18} weight="duotone" />
-                              Token Charts
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('blockchain')}
-                            >
-                              <CurrencyDollar size={18} weight="duotone" />
-                              Live Blockchain
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('templates')}
-                            >
-                              <Coin size={18} weight="duotone" />
-                              Auction Templates
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('auction-analytics')}
-                            >
-                              <ChartLine size={18} weight="duotone" />
-                              Auction Analytics
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">🤖 Automation</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('autopilot')}
-                            >
-                              <Robot size={18} weight="duotone" />
-                              Auto-Pilot Dashboard
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('batch-automation')}
-                            >
-                              <Robot size={18} weight="duotone" />
-                              Batch Automation
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">💻 Development</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('scanner')}
-                            >
-                              <GitBranch size={18} weight="duotone" />
-                              GitHub Scanner
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('batch-analyzer')}
-                            >
-                              <GitBranch size={18} weight="duotone" />
-                              Batch Analyzer
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('backup')}
-                            >
-                              <GitBranch size={18} weight="duotone" />
-                              Backup System
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">⚡ Special</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('social-security')}
-                            >
-                              <HandHeart size={20} weight="duotone" />
-                              Social Security
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('ss-pay')}
-                            >
-                              <Coin size={20} weight="duotone" />
-                              Admin Distribution
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('mario')}
-                            >
-                              <GameController size={20} weight="duotone" />
-                              Mario Scene
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold text-sm text-muted-foreground mb-3">⚙️ Settings</h3>
-                          <div className="space-y-1">
-                            <Button 
-                              variant="ghost" 
-                              className="w-full justify-start gap-2 h-10"
-                              onClick={() => setActiveTab('theme')}
-                            >
-                              <Sparkle size={18} weight="duotone" />
-                              Theme Customizer
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </ScrollArea>
-                  </SheetContent>
-                </Sheet>
                 
                 <div className="flex items-center gap-3">
                   <Sparkle size={40} weight="duotone" className="text-accent animate-pulse" />
@@ -415,6 +238,8 @@ function App() {
               </TabsList>
 
               <TabsContent value="home" className="space-y-8">
+                <ProfessionalDashboard onNavigate={setActiveTab} />
+
                 <div className="bg-card/80 backdrop-blur rounded-lg p-8 border-2 border-accent/20">
                   <div className="text-center space-y-4">
                     <h2 className="text-3xl font-bold">Welcome to Infinity Brain</h2>
@@ -674,6 +499,20 @@ function App() {
               <TabsContent value="backup"><RepoBackupSystem /></TabsContent>
               <TabsContent value="ss-pay"><SocialSecurityDistributor /></TabsContent>
               <TabsContent value="mario"><MarioScene /></TabsContent>
+              
+              {/* New Repo Hub Tab */}
+              <TabsContent value="repo-hub" className="space-y-6">
+                <div className="grid lg:grid-cols-2 gap-6">
+                  <RepoHub onRepoSelect={setSelectedRepo} />
+                  <WebsitePreview repository={selectedRepo} />
+                </div>
+              </TabsContent>
+              
+              {/* New Visual Editor Tab */}
+              <TabsContent value="visual-editor">
+                <VisualEditor repository={selectedRepo} mode="standalone" />
+              </TabsContent>
+              
               <TabsContent value="theme">
                 <div className="bg-card/80 backdrop-blur rounded-lg p-6">
                   <h2 className="text-2xl font-bold mb-4">Theme Customizer</h2>
@@ -690,6 +529,7 @@ function App() {
           <AuthDebugPanel />
           <AIDebugger />
           <BismuthSignalReader />
+          <BrainStatus />
         </div>
       </TokenRedistributionServiceProvider>
     </AuthProvider>

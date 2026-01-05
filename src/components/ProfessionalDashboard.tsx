@@ -12,7 +12,7 @@ import {
   Sparkle,
   TrendUp,
   Users,
-  Activity
+  ChartLine
 } from '@phosphor-icons/react'
 
 interface ProfessionalDashboardProps {
@@ -76,7 +76,7 @@ export function ProfessionalDashboard({ onNavigate }: ProfessionalDashboardProps
     { label: 'Total Repos', value: '12', icon: GitBranch, trend: '+2' },
     { label: 'Active Users', value: '∞', icon: Users, trend: '+15%' },
     { label: 'Token Value', value: '$∞', icon: Coin, trend: '+8%' },
-    { label: 'Page Views', value: '∞K', icon: Activity, trend: '+24%' }
+    { label: 'Page Views', value: '∞K', icon: ChartLine, trend: '+24%' }
   ]
 
   return (
@@ -161,7 +161,7 @@ export function ProfessionalDashboard({ onNavigate }: ProfessionalDashboardProps
       <Card className="border-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Activity size={24} />
+            <ChartLine size={24} />
             Recent Activity
           </CardTitle>
           <CardDescription>Latest updates from your ecosystem</CardDescription>
