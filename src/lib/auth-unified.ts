@@ -145,6 +145,152 @@ export function getCurrentRepo(): string {
 }
 
 /**
+ * Validate GitHub PAT format
+ */
+export function isValidGitHubPAT(token: string): boolean {
+  // GitHub PATs start with ghp_ (classic) or github_pat_ (fine-grained)
+  return token.startsWith('ghp_') || token.startsWith('github_pat_');
+}
+
+/**
+ * Register with GitHub PAT
+ * Auto-creates account on first use with GitHub token
+ */
+export async function registerWithPAT(token: string): Promise<boolean> {
+  if (!token || token.length < 8) {
+    throw new Error('Invalid token');
+  }
+
+  if (!isValidGitHubPAT(token)) {
+    throw new Error('Invalid GitHub PAT format. Token must start with "ghp_" or "github_pat_"');
+  }
+
+  const data = getAuthData();
+  
+  // Use token hash as username to make it unique
+  const tokenHash = await hashPassword(token);
+  const username = `github_${tokenHash.substring(0, 12)}`;
+
+  // Check if user already exists with this token
+  if (data.users[username]) {
+    throw new Error('This GitHub PAT is already registered. Please sign in instead.');
+  }
+
+  const now = new Date().toISOString();
+
+  const newUser: UnifiedUser = {
+    passwordHash: tokenHash, // Store hashed token
+    createdAt: now,
+    lastLogin: now,
+    ipFingerprint: getIPFingerprint(),
+    wallet: {
+      infinity_tokens: 1000, // Higher welcome bonus for GitHub PAT users!
+      research_tokens: 0,
+      art_tokens: 0,
+      music_tokens: 0
+    },
+    profile: {
+      displayName: `GitHub User ${tokenHash.substring(0, 6)}`,
+      avatar: '🐙', // GitHub octocat
+      preferences: {
+        authType: 'github_pat'
+      }
+    },
+    transactions: [
+      {
+        id: generateTransactionId(),
+        type: 'earn',
+        amount: 1000,
+        currency: 'infinity_tokens',
+        source: 'github_pat_registration',
+        description: 'GitHub PAT welcome bonus',
+        timestamp: now
+      }
+    ],
+    achievements: ['registered', 'github_user'],
+    sessions: []
+  };
+
+  data.users[username] = newUser;
+  
+  // Automatically sign in
+  const token_session = generateToken();
+  const session: SessionInfo = {
+    token: token_session,
+    loginTime: now,
+    lastActive: now,
+    ipFingerprint: getIPFingerprint()
+  };
+
+  newUser.sessions.push(session);
+
+  data.currentSession = {
+    username,
+    token: token_session,
+    loginTime: now,
+    activeRepo: getCurrentRepo()
+  };
+
+  saveAuthData(data);
+
+  return true;
+}
+
+/**
+ * Sign in with GitHub PAT
+ */
+export async function signInWithPAT(token: string): Promise<boolean> {
+  if (!token || token.length < 8) {
+    throw new Error('Invalid token');
+  }
+
+  if (!isValidGitHubPAT(token)) {
+    throw new Error('Invalid GitHub PAT format');
+  }
+
+  const data = getAuthData();
+  const tokenHash = await hashPassword(token);
+  const username = `github_${tokenHash.substring(0, 12)}`;
+
+  const user = data.users[username];
+
+  if (!user) {
+    throw new Error('GitHub PAT not registered. Please register first.');
+  }
+
+  // Verify token hash matches
+  if (tokenHash !== user.passwordHash) {
+    throw new Error('Invalid GitHub PAT');
+  }
+
+  // Create session
+  const now = new Date().toISOString();
+  const token_session = generateToken();
+  const ipFingerprint = getIPFingerprint();
+
+  const session: SessionInfo = {
+    token: token_session,
+    loginTime: now,
+    lastActive: now,
+    ipFingerprint
+  };
+
+  user.sessions.push(session);
+  user.lastLogin = now;
+
+  data.currentSession = {
+    username,
+    token: token_session,
+    loginTime: now,
+    activeRepo: getCurrentRepo()
+  };
+
+  saveAuthData(data);
+
+  return true;
+}
+
+/**
  * Register a new user
  */
 export async function register(username: string, password: string, email?: string): Promise<boolean> {
