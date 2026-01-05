@@ -1,18 +1,28 @@
+import { useState } from 'react'
 import { Sparkle, GitBranch, ArrowRight } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { useAuth } from '@/lib/auth'
+import { DeviceFlowAuth } from '@/components/DeviceFlowAuth'
 
 export const LandingPage = () => {
-  const { login, connectionState } = useAuth()
+  const [showAuth, setShowAuth] = useState(false)
 
-  const handleSignIn = async () => {
-    try {
-      await login()
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
+  const handleSignIn = () => {
+    setShowAuth(true)
+  }
+
+  const handleAuthSuccess = () => {
+    // Reload the page to initialize with authenticated session
+    window.location.reload()
+  }
+
+  const handleAuthCancel = () => {
+    setShowAuth(false)
+  }
+
+  if (showAuth) {
+    return <DeviceFlowAuth onSuccess={handleAuthSuccess} onCancel={handleAuthCancel} />
   }
 
   return (
@@ -50,11 +60,10 @@ export const LandingPage = () => {
           <Button
             size="lg"
             onClick={handleSignIn}
-            disabled={connectionState === 'connecting'}
             className="bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-lg px-8 py-6 h-auto"
           >
             <GitBranch size={24} weight="duotone" className="mr-2" />
-            {connectionState === 'connecting' ? 'Connecting...' : 'Sign in with GitHub'}
+            Sign in with GitHub
             <ArrowRight size={24} className="ml-2" />
           </Button>
         </div>

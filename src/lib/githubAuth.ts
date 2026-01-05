@@ -2,7 +2,7 @@
  * GitHub OAuth Authentication Service
  * 
  * Provides OAuth authentication for GitHub Pages deployment
- * Uses GitHub OAuth App with PKCE for secure authentication
+ * Uses GitHub Device Flow which works without a backend server
  */
 
 export interface GitHubUser {
@@ -13,142 +13,168 @@ export interface GitHubUser {
   name: string | null
 }
 
-interface OAuthState {
-  codeVerifier: string
-  state: string
-  redirectTo?: string
+interface DeviceCodeResponse {
+  device_code: string
+  user_code: string
+  verification_uri: string
+  expires_in: number
+  interval: number
+}
+
+interface AccessTokenResponse {
+  access_token?: string
+  token_type?: string
+  scope?: string
+  error?: string
+  error_description?: string
+  error_uri?: string
 }
 
 const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID
-const REDIRECT_URI = `${window.location.origin}/infinity-brain-searc/callback`
 const STORAGE_KEY = 'github_oauth_token'
-const STATE_KEY = 'github_oauth_state'
 
 /**
- * Generate a random string for PKCE code verifier
+ * Initiate GitHub Device Flow authentication
+ * Returns device code and user code that user needs to enter on GitHub
  */
-function generateRandomString(length: number): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'
-  let result = ''
-  const randomValues = new Uint8Array(length)
-  crypto.getRandomValues(randomValues)
-  for (let i = 0; i < length; i++) {
-    result += chars[randomValues[i] % chars.length]
-  }
-  return result
-}
-
-/**
- * Generate SHA-256 hash and encode as base64url
- */
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(verifier)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(hash)))
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
-/**
- * Initiate GitHub OAuth flow
- */
-export async function loginWithGitHub(redirectTo?: string): Promise<void> {
+export async function initiateDeviceFlow(): Promise<DeviceCodeResponse> {
   if (!GITHUB_CLIENT_ID) {
     throw new Error('GitHub Client ID is not configured')
   }
 
-  // Generate PKCE parameters
-  const codeVerifier = generateRandomString(128)
-  const codeChallenge = await generateCodeChallenge(codeVerifier)
-  const state = generateRandomString(32)
-
-  // Store state for validation
-  const oauthState: OAuthState = {
-    codeVerifier,
-    state,
-    redirectTo
-  }
-  localStorage.setItem(STATE_KEY, JSON.stringify(oauthState))
-
-  // Build OAuth URL
-  const params = new URLSearchParams({
-    client_id: GITHUB_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    scope: 'user:email read:user',
-    state,
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256'
+  const response = await fetch('https://github.com/login/device/code', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      client_id: GITHUB_CLIENT_ID,
+      scope: 'user:email read:user'
+    })
   })
 
-  const authUrl = `https://github.com/login/oauth/authorize?${params.toString()}`
-  
-  // Redirect to GitHub
-  window.location.href = authUrl
+  if (!response.ok) {
+    throw new Error('Failed to initiate device flow')
+  }
+
+  return await response.json()
 }
 
 /**
- * Handle OAuth callback and exchange code for token
+ * Poll for access token after user has authorized the device
  */
-export async function handleOAuthCallback(code: string, state: string): Promise<GitHubUser> {
-  // Validate state
-  const storedStateStr = localStorage.getItem(STATE_KEY)
-  if (!storedStateStr) {
-    throw new Error('No OAuth state found')
+export async function pollForAccessToken(deviceCode: string, interval: number): Promise<string> {
+  if (!GITHUB_CLIENT_ID) {
+    throw new Error('GitHub Client ID is not configured')
   }
 
-  const storedState: OAuthState = JSON.parse(storedStateStr)
-  if (storedState.state !== state) {
-    throw new Error('Invalid OAuth state')
-  }
+  return new Promise((resolve, reject) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('https://github.com/login/oauth/access_token', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            client_id: GITHUB_CLIENT_ID,
+            device_code: deviceCode,
+            grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+          })
+        })
 
-  // Exchange code for token
-  // Note: This requires a proxy server because GitHub's token endpoint doesn't support CORS
-  // For now, we'll use the GitHub Device Flow as a fallback, or a serverless function
+        if (!response.ok) {
+          throw new Error('Failed to poll for access token')
+        }
+
+        const data: AccessTokenResponse = await response.json()
+
+        if (data.access_token) {
+          clearInterval(pollInterval)
+          localStorage.setItem(STORAGE_KEY, data.access_token)
+          resolve(data.access_token)
+        } else if (data.error === 'authorization_pending') {
+          // Continue polling
+          return
+        } else if (data.error === 'slow_down') {
+          // GitHub wants us to slow down, but we'll keep the same interval
+          return
+        } else if (data.error === 'expired_token') {
+          clearInterval(pollInterval)
+          reject(new Error('Device code expired. Please try again.'))
+        } else if (data.error === 'access_denied') {
+          clearInterval(pollInterval)
+          reject(new Error('Authorization was denied'))
+        } else if (data.error) {
+          clearInterval(pollInterval)
+          reject(new Error(data.error_description || data.error))
+        }
+      } catch (error) {
+        clearInterval(pollInterval)
+        reject(error)
+      }
+    }, interval * 1000)
+
+    // Set timeout after 10 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval)
+      reject(new Error('Device flow timed out'))
+    }, 600000)
+  })
+}
+
+/**
+ * Start the device flow authentication process
+ * This will open the GitHub authorization page and poll for completion
+ */
+export async function loginWithGitHub(): Promise<void> {
+  // Initiate device flow
+  const deviceFlow = await initiateDeviceFlow()
+  
+  // Open GitHub authorization page in a new window
+  window.open(deviceFlow.verification_uri, '_blank', 'width=500,height=700')
+  
+  // Store device code info for polling component
+  sessionStorage.setItem('github_device_flow', JSON.stringify({
+    device_code: deviceFlow.device_code,
+    user_code: deviceFlow.user_code,
+    verification_uri: deviceFlow.verification_uri,
+    interval: deviceFlow.interval,
+    expires_in: deviceFlow.expires_in,
+    started_at: Date.now()
+  }))
+}
+
+/**
+ * Check if there's an active device flow waiting for authorization
+ */
+export function getActiveDeviceFlow(): DeviceCodeResponse & { started_at: number } | null {
+  const stored = sessionStorage.getItem('github_device_flow')
+  if (!stored) {
+    return null
+  }
   
   try {
-    // Try to exchange code for token using GitHub's web flow
-    // This will fail due to CORS unless we have a proxy
-    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        client_id: GITHUB_CLIENT_ID,
-        code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: storedState.codeVerifier
-      })
-    })
-
-    if (!tokenResponse.ok) {
-      throw new Error('Failed to exchange code for token')
-    }
-
-    const tokenData = await tokenResponse.json()
-    
-    if (tokenData.error) {
-      throw new Error(tokenData.error_description || tokenData.error)
-    }
-
-    const accessToken = tokenData.access_token
-    
-    // Store token
-    localStorage.setItem(STORAGE_KEY, accessToken)
-    
-    // Fetch user data
-    const user = await fetchGitHubUser(accessToken)
-    
-    // Clean up OAuth state
-    localStorage.removeItem(STATE_KEY)
-    
-    return user
-  } catch (error) {
-    // Clean up on error
-    localStorage.removeItem(STATE_KEY)
-    throw error
+    return JSON.parse(stored)
+  } catch {
+    return null
   }
+}
+
+/**
+ * Clear device flow data
+ */
+export function clearDeviceFlow(): void {
+  sessionStorage.removeItem('github_device_flow')
+}
+
+/**
+ * Handle OAuth callback - not used in device flow but kept for compatibility
+ */
+export async function handleOAuthCallback(code: string, state: string): Promise<GitHubUser> {
+  throw new Error('OAuth callback is not supported in device flow. Please use device flow authentication.')
 }
 
 /**
@@ -217,7 +243,7 @@ export async function getUser(): Promise<GitHubUser | null> {
  */
 export function logout(): void {
   localStorage.removeItem(STORAGE_KEY)
-  localStorage.removeItem(STATE_KEY)
+  clearDeviceFlow()
 }
 
 /**
@@ -235,18 +261,8 @@ export function getAccessToken(): string | null {
 }
 
 /**
- * Get redirect path from OAuth state
+ * Get redirect path - not used in device flow but kept for compatibility
  */
 export function getRedirectPath(): string | undefined {
-  const storedStateStr = localStorage.getItem(STATE_KEY)
-  if (!storedStateStr) {
-    return undefined
-  }
-  
-  try {
-    const storedState: OAuthState = JSON.parse(storedStateStr)
-    return storedState.redirectTo
-  } catch {
-    return undefined
-  }
+  return undefined
 }
