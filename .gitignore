@@ -33,3 +33,6 @@ pids
 
 .spark-workbench-id
 dist/
+
+# Test files
+test-modals.html

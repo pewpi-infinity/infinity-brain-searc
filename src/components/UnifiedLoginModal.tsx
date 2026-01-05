@@ -1,6 +1,7 @@
 /**
  * Unified Login Modal
  * Consistent login interface across all repositories
+ * Now supports GitHub PAT authentication
  */
 
 import { useState } from 'react';
@@ -9,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { signIn, register, signInWithPAT, isValidGitHubPAT } from '@/lib/auth-unified';
+import { RegisterModal } from './RegisterModal';
 import { signIn, register } from '@/lib/auth-unified';
 import { login as simpleLogin, validateApiKey } from '@/lib/simple-auth';
 
@@ -26,12 +29,25 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
   const [email, setEmail] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      if (mode === 'login') {
+        // Check if password is a GitHub PAT
+        if (isValidGitHubPAT(password)) {
+          await signInWithPAT(password);
+          toast.success('Welcome back!', {
+            description: 'Signed in with GitHub PAT across all Pewpi repositories'
+          });
+        } else {
+          await signIn(username, password);
+          toast.success('Welcome back!', {
+            description: 'You are now signed in across all Pewpi repositories'
+          });
       if (authMethod === 'pat') {
         // PAT/API Key authentication
         const result = await simpleLogin(apiKey);
@@ -86,6 +102,22 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const openGitHubPATPage = () => {
+    window.open('https://github.com/settings/tokens/new', '_blank', 'noopener,noreferrer');
+    toast.info('GitHub PAT creation page opened', {
+      description: 'Follow the steps to create your token, then paste it here'
+    });
+  };
+
+  const handleRegisterWithGitHub = () => {
+    setShowRegisterModal(true);
+    onClose();
+  };
+
+  const handleRegisterSuccess = () => {
+    onSuccess();
   };
 
   return (
@@ -233,6 +265,86 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
             color: #93c5fd;
           }
 
+          .github-pat-helper {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+
+          .github-pat-link {
+            color: #10b981;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s;
+          }
+
+          .github-pat-link:hover {
+            color: #34d399;
+          }
+
+          .github-register-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            width: 100%;
+          }
+
+          .github-register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+          }
+
+          .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #64748b;
+            font-size: 0.85rem;
+          }
+
+          .divider::before,
+          .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #334155;
+          }
+
+          .divider:not(:empty)::before {
+            margin-right: 12px;
+          }
+
+          .divider:not(:empty)::after {
+            margin-left: 12px;
+          }
+
+          .info-text {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 12px;
           .auth-method-toggle {
             display: flex;
             gap: 8px;
@@ -305,6 +417,22 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
         </div>
 
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <Label htmlFor="username" className="form-label">
+              Username {mode === 'login' && '(or use GitHub PAT below)'}
+            </Label>
+            <Input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              className="form-input"
+              required={mode === 'register'}
+              minLength={3}
+              autoComplete="username"
+            />
+          </div>
           {authMethod === 'pat' ? (
             // PAT/API Key Login Form
             <>
@@ -403,6 +531,44 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
             </>
           )}
 
+          <div className="form-group">
+            <Label htmlFor="password" className="form-label">
+              Password {mode === 'login' && 'or GitHub PAT'}
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={mode === 'login' ? 'Password or ghp_...' : 'Enter your password'}
+              className="form-input"
+              required
+              minLength={6}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            />
+            {mode === 'login' && (
+              <div className="github-pat-helper">
+                <span>Don't have a GitHub PAT?</span>
+                <a
+                  onClick={openGitHubPATPage}
+                  className="github-pat-link"
+                >
+                  🔗 Create one here →
+                </a>
+              </div>
+            )}
+          </div>
+
+          <div className="wallet-preview">
+            <div className="wallet-preview-title">
+              🌟 Unified Wallet System
+            </div>
+            <div className="wallet-preview-text">
+              Your wallet works across all Pewpi repos: Search, Dashboard, Banksy, and Research.
+              {mode === 'register' && ' Get 100 free Infinity Tokens when you register!'}
+            </div>
+          </div>
+
           <div className="modal-actions">
             <button
               type="button"
@@ -427,6 +593,47 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
             </button>
           </div>
 
+          {mode === 'login' && (
+            <>
+              <div className="divider">OR</div>
+              <button
+                type="button"
+                onClick={handleRegisterWithGitHub}
+                className="github-register-btn"
+                disabled={loading}
+              >
+                <span>🐙</span>
+                <span>Register with GitHub PAT</span>
+              </button>
+              <div className="info-text">
+                ⚡ Get 1000 tokens instantly with GitHub PAT!
+              </div>
+            </>
+          )}
+
+          <div className="mode-toggle">
+            {mode === 'login' ? (
+              <>
+                Don't have an account?{' '}
+                <span
+                  className="mode-toggle-link"
+                  onClick={() => setMode('register')}
+                >
+                  Register here
+                </span>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <span
+                  className="mode-toggle-link"
+                  onClick={() => setMode('login')}
+                >
+                  Sign in here
+                </span>
+              </>
+            )}
+          </div>
           {authMethod === 'unified' && (
             <div className="mode-toggle">
               {mode === 'login' ? (
@@ -454,6 +661,12 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
           )}
         </form>
       </DialogContent>
+
+      <RegisterModal
+        open={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSuccess={handleRegisterSuccess}
+      />
     </Dialog>
   );
 }
