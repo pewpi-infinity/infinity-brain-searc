@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { signIn, register, signInWithPAT, isValidGitHubPAT } from '@/lib/auth-unified';
 import { RegisterModal } from './RegisterModal';
+import { signIn, register } from '@/lib/auth-unified';
+import { login as simpleLogin, validateApiKey } from '@/lib/simple-auth';
 
 interface UnifiedLoginModalProps {
   open: boolean;
@@ -20,10 +22,12 @@ interface UnifiedLoginModalProps {
 }
 
 export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModalProps) {
+  const [authMethod, setAuthMethod] = useState<'unified' | 'pat'>('unified');
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
@@ -44,20 +48,41 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
           toast.success('Welcome back!', {
             description: 'You are now signed in across all Pewpi repositories'
           });
+      if (authMethod === 'pat') {
+        // PAT/API Key authentication
+        const result = await simpleLogin(apiKey);
+        if (result.success) {
+          toast.success('Welcome!', {
+            description: 'You are now signed in with your API key'
+          });
+          onSuccess();
+          onClose();
+          resetForm();
+        } else {
+          throw new Error(result.error || 'Invalid API key');
         }
       } else {
-        await register(username, password, email);
-        await signIn(username, password);
-        toast.success('Account created successfully!', {
-          description: 'You received 100 Infinity Tokens as a welcome bonus! 🎉'
-        });
+        // Unified authentication
+        if (mode === 'login') {
+          await signIn(username, password);
+          toast.success('Welcome back!', {
+            description: 'You are now signed in across all Pewpi repositories'
+          });
+        } else {
+          await register(username, password, email);
+          await signIn(username, password);
+          toast.success('Account created successfully!', {
+            description: 'You received 100 Infinity Tokens as a welcome bonus! 🎉'
+          });
+        }
+        onSuccess();
+        onClose();
+        resetForm();
       }
-      
-      onSuccess();
-      onClose();
-      resetForm();
     } catch (error) {
-      toast.error(mode === 'login' ? 'Login failed' : 'Registration failed', {
+      const errorTitle = authMethod === 'pat' ? 'API Key Login Failed' : 
+                         mode === 'login' ? 'Login failed' : 'Registration failed';
+      toast.error(errorTitle, {
         description: error instanceof Error ? error.message : 'Please try again'
       });
     } finally {
@@ -69,7 +94,9 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
     setUsername('');
     setPassword('');
     setEmail('');
+    setApiKey('');
     setMode('login');
+    setAuthMethod('unified');
   };
 
   const handleClose = () => {
@@ -318,18 +345,76 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
             color: #94a3b8;
             text-align: center;
             margin-top: 12px;
+          .auth-method-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+          }
+
+          .auth-method-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+          }
+
+          .auth-method-btn.active {
+            background: #2563eb;
+            color: white;
+          }
+
+          .auth-method-btn:hover:not(.active) {
+            background: rgba(37, 99, 235, 0.2);
+            color: #cbd5e1;
+          }
+
+          .api-key-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: #93c5fd;
+            line-height: 1.5;
           }
         `}</style>
 
         <DialogHeader className="modal-header-content">
           <DialogTitle className="modal-title">
             <span>🧠</span>
-            <span>Pewpi Infinity {mode === 'login' ? 'Login' : 'Register'}</span>
+            <span>Pewpi Infinity {authMethod === 'pat' ? 'Quick Login' : mode === 'login' ? 'Login' : 'Register'}</span>
           </DialogTitle>
           <DialogDescription className="modal-subtitle">
-            One account, all repositories
+            {authMethod === 'pat' ? 'Sign in with API Key or GitHub PAT' : 'One account, all repositories'}
           </DialogDescription>
         </DialogHeader>
+
+        {/* Auth Method Toggle */}
+        <div className="auth-method-toggle">
+          <button
+            type="button"
+            className={`auth-method-btn ${authMethod === 'unified' ? 'active' : ''}`}
+            onClick={() => setAuthMethod('unified')}
+          >
+            Username & Password
+          </button>
+          <button
+            type="button"
+            className={`auth-method-btn ${authMethod === 'pat' ? 'active' : ''}`}
+            onClick={() => setAuthMethod('pat')}
+          >
+            API Key / PAT
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -348,22 +433,102 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
               autoComplete="username"
             />
           </div>
+          {authMethod === 'pat' ? (
+            // PAT/API Key Login Form
+            <>
+              <div className="api-key-info">
+                💡 <strong>Quick Login:</strong> Enter any API key (min 8 characters) or your GitHub Personal Access Token.
+                Your session will last 24 hours.
+              </div>
+              <div className="form-group">
+                <Label htmlFor="apiKey" className="form-label">
+                  API Key / GitHub PAT
+                </Label>
+                <Input
+                  id="apiKey"
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Enter your API key or GitHub PAT"
+                  className="form-input"
+                  required
+                  minLength={8}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="wallet-preview">
+                <div className="wallet-preview-title">
+                  🎁 Welcome Bonus
+                </div>
+                <div className="wallet-preview-text">
+                  New users start with 1,000 tokens! Your session is compatible with infinity-brain-111.
+                </div>
+              </div>
+            </>
+          ) : (
+            // Traditional Username/Password Form
+            <>
+              <div className="form-group">
+                <Label htmlFor="username" className="form-label">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  className="form-input"
+                  required
+                  minLength={3}
+                  autoComplete="username"
+                />
+              </div>
 
-          {mode === 'register' && (
-            <div className="form-group">
-              <Label htmlFor="email" className="form-label">
-                Email (optional)
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="form-input"
-                autoComplete="email"
-              />
-            </div>
+              {mode === 'register' && (
+                <div className="form-group">
+                  <Label htmlFor="email" className="form-label">
+                    Email (optional)
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="form-input"
+                    autoComplete="email"
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <Label htmlFor="password" className="form-label">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="form-input"
+                  required
+                  minLength={6}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                />
+              </div>
+
+              <div className="wallet-preview">
+                <div className="wallet-preview-title">
+                  🌟 Unified Wallet System
+                </div>
+                <div className="wallet-preview-text">
+                  Your wallet works across all Pewpi repos: Search, Dashboard, Banksy, and Research.
+                  {mode === 'register' && ' Get 100 free Infinity Tokens when you register!'}
+                </div>
+              </div>
+            </>
           )}
 
           <div className="form-group">
@@ -419,8 +584,10 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
               disabled={loading}
             >
               {loading ? (
+                authMethod === 'pat' ? 'Signing in...' :
                 mode === 'login' ? 'Signing in...' : 'Creating account...'
               ) : (
+                authMethod === 'pat' ? 'Sign In with API Key' :
                 mode === 'login' ? 'Sign In' : 'Create Account'
               )}
             </button>
@@ -467,6 +634,31 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
               </>
             )}
           </div>
+          {authMethod === 'unified' && (
+            <div className="mode-toggle">
+              {mode === 'login' ? (
+                <>
+                  Don't have an account?{' '}
+                  <span
+                    className="mode-toggle-link"
+                    onClick={() => setMode('register')}
+                  >
+                    Register here
+                  </span>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <span
+                    className="mode-toggle-link"
+                    onClick={() => setMode('login')}
+                  >
+                    Sign in here
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </form>
       </DialogContent>
 
