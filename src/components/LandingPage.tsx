@@ -1,9 +1,41 @@
-import { Sparkle, GitBranch, ArrowRight } from '@phosphor-icons/react'
+import { Sparkle, GitBranch, ArrowRight, GithubLogo } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useAuth } from '@/lib/auth'
+import { useState, useEffect } from 'react'
 
 export const LandingPage = () => {
+  const { login, continueAsGuest, deviceCode, connectionState } = useAuth()
+  const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleSignIn = async () => {
+    setIsAuthenticating(true)
+    try {
+      await login()
+    } catch (error) {
+      console.error('Sign in failed:', error)
+    } finally {
+      setIsAuthenticating(false)
+    }
+  }
+
+  const handleCopyCode = () => {
+    if (deviceCode?.user_code) {
+      navigator.clipboard.writeText(deviceCode.user_code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  // Open GitHub verification page automatically
+  useEffect(() => {
+    if (deviceCode?.verification_uri) {
+      window.open(deviceCode.verification_uri, '_blank')
+    }
+  }, [deviceCode])
+
   return (
     <div className="min-h-screen mesh-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl space-y-8">
@@ -24,16 +56,79 @@ export const LandingPage = () => {
           </p>
         </div>
 
-        {/* Important Notice */}
-        <Alert className="border-accent/50 bg-card/80 backdrop-blur">
-          <Sparkle className="h-5 w-5 text-accent" />
-          <AlertTitle className="text-lg">Requires GitHub Spark Environment</AlertTitle>
-          <AlertDescription className="text-base mt-2">
-            Infinity Brain is designed to run in the GitHub Spark environment, which provides 
-            authentication, storage, and AI capabilities. This demo page shows what's possible, 
-            but the full app requires the Spark runtime.
-          </AlertDescription>
-        </Alert>
+        {/* Authentication Section */}
+        {!deviceCode && connectionState !== 'connected' && (
+          <div className="space-y-4">
+            <Card className="bg-card/80 backdrop-blur border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 justify-center">
+                  <GithubLogo className="h-6 w-6" />
+                  Sign in with GitHub
+                </CardTitle>
+                <CardDescription className="text-center">
+                  Authenticate to access all features
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button 
+                  onClick={handleSignIn} 
+                  className="w-full" 
+                  size="lg"
+                  disabled={isAuthenticating}
+                >
+                  <GithubLogo className="mr-2 h-5 w-5" />
+                  {isAuthenticating ? 'Connecting...' : 'Sign in with GitHub'}
+                </Button>
+                <Button 
+                  onClick={continueAsGuest} 
+                  variant="outline" 
+                  className="w-full" 
+                  size="lg"
+                >
+                  Continue as Guest
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Device Code Display */}
+        {deviceCode && (
+          <Alert className="border-accent/50 bg-card/80 backdrop-blur">
+            <GithubLogo className="h-5 w-5 text-accent" />
+            <AlertTitle className="text-lg">Complete GitHub Authorization</AlertTitle>
+            <AlertDescription className="text-base mt-2 space-y-3">
+              <p>A new tab has been opened. Please enter this code on GitHub:</p>
+              <div className="flex items-center gap-2">
+                <code className="bg-muted px-4 py-2 rounded text-2xl font-mono font-bold tracking-wider">
+                  {deviceCode.user_code}
+                </code>
+                <Button 
+                  onClick={handleCopyCode} 
+                  variant="outline" 
+                  size="sm"
+                >
+                  {copied ? 'Copied!' : 'Copy'}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Waiting for authorization... This will complete automatically once you authorize on GitHub.
+              </p>
+              {!window.opener && (
+                <a 
+                  href={deviceCode.verification_uri} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block"
+                >
+                  <Button variant="link" size="sm">
+                    Open GitHub in new tab <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </a>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -121,16 +216,16 @@ export const LandingPage = () => {
         {/* Action Buttons */}
         <div className="space-y-4">
           <div className="bg-card/80 backdrop-blur rounded-lg p-6 border-2 border-accent/20">
-            <h3 className="text-xl font-semibold mb-4 text-center">How to Run Infinity Brain</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center">Getting Started</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <div className="rounded-full bg-primary/20 p-2 mt-1">
                   <span className="text-sm font-bold">1</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold">Open in GitHub Spark</h4>
+                  <h4 className="font-semibold">Sign in with GitHub</h4>
                   <p className="text-sm text-muted-foreground">
-                    Visit the repository on GitHub and open it in the Spark environment
+                    Click "Sign in with GitHub" above to authenticate using GitHub Device Flow
                   </p>
                 </div>
               </div>
@@ -140,9 +235,9 @@ export const LandingPage = () => {
                   <span className="text-sm font-bold">2</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold">Or Run Locally (Development)</h4>
+                  <h4 className="font-semibold">Or Continue as Guest</h4>
                   <p className="text-sm text-muted-foreground">
-                    Clone the repository and run with npm: <code className="bg-muted px-2 py-1 rounded">npm install && npm run dev</code>
+                    Browse all features in read-only mode without authentication
                   </p>
                 </div>
               </div>
@@ -186,8 +281,8 @@ export const LandingPage = () => {
         {/* Footer Note */}
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            This is a static landing page. The full Infinity Brain experience 
-            requires GitHub Spark authentication and runtime features.
+            Sign in with your GitHub account to access all features. No server required - 
+            authentication uses GitHub's Device Flow for secure, serverless auth.
           </p>
         </div>
       </div>

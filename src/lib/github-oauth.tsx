@@ -1,6 +1,7 @@
 /**
- * GitHub OAuth Authentication Library
- * Provides OAuth-based authentication as an alternative to Spark
+ * GitHub Device Flow Authentication Library
+ * Provides Device Flow OAuth authentication for static sites (GitHub Pages)
+ * No server or client secret required!
  */
 
 export interface GitHubUser {
@@ -17,97 +18,125 @@ export interface GitHubAuthState {
   token: string | null
 }
 
-const STORAGE_KEY = 'github_oauth_auth'
-const GITHUB_CLIENT_ID = 'Ov23lijJ7WlzWBDHdhHH' // Same as infinity-brain-111
-
-/**
- * Get OAuth redirect URI
- */
-export function getRedirectUri(): string {
-  return window.location.origin + '/callback.html'
+export interface DeviceCodeResponse {
+  device_code: string
+  user_code: string
+  verification_uri: string
+  expires_in: number
+  interval: number
 }
 
-/**
- * Initiate GitHub OAuth login flow
- */
-export function initiateGitHubLogin(): void {
-  const redirectUri = getRedirectUri()
-  const scope = 'read:user user:email'
-  const state = generateRandomState()
-  
-  // Store state for CSRF protection
-  sessionStorage.setItem('github_oauth_state', state)
-  
-  const authUrl = `https://github.com/login/oauth/authorize?` +
-    `client_id=${GITHUB_CLIENT_ID}&` +
-    `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-    `scope=${encodeURIComponent(scope)}&` +
-    `state=${state}`
-  
-  window.location.href = authUrl
+export interface DeviceTokenResponse {
+  access_token: string
+  token_type: string
+  scope: string
 }
 
-/**
- * Generate random state for CSRF protection
- */
-function generateRandomState(): string {
-  const array = new Uint8Array(16)
-  crypto.getRandomValues(array)
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
-}
+const STORAGE_KEY = 'github_device_flow_auth'
+const GITHUB_CLIENT_ID = 'Ov23lijJ7WlzWBDHdhHH' // Device Flow OAuth App
 
 /**
- * Handle OAuth callback
- * Call this from callback.html
+ * Initiate GitHub Device Flow login
+ * Step 1: Request device and user codes from GitHub
  */
-export async function handleOAuthCallback(code: string, state: string): Promise<void> {
-  // Verify state for CSRF protection
-  const savedState = sessionStorage.getItem('github_oauth_state')
-  if (state !== savedState) {
-    throw new Error('Invalid state parameter - possible CSRF attack')
+export async function initiateDeviceFlow(): Promise<DeviceCodeResponse> {
+  const response = await fetch('https://github.com/login/device/code', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      client_id: GITHUB_CLIENT_ID,
+      scope: 'read:user user:email'
+    })
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to initiate device flow')
   }
-  sessionStorage.removeItem('github_oauth_state')
-  
-  // Exchange code for token using GitHub Actions workflow
-  const token = await exchangeCodeForToken(code)
-  
-  // Fetch user info
-  const user = await fetchGitHubUser(token)
-  
-  // Save to localStorage
-  const authState: GitHubAuthState = {
-    isAuthenticated: true,
-    user,
-    token
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(authState))
-  
-  // Redirect back to main app
-  window.opener?.postMessage({ type: 'github_auth_success' }, window.location.origin)
-  window.close()
-}
 
-/**
- * Exchange authorization code for access token
- * Uses GitHub Actions workflow as proxy to keep client secret secure
- */
-async function exchangeCodeForToken(code: string): Promise<string> {
-  try {
-    // Try to use GitHub Actions workflow dispatch as proxy
-    // Note: This is a simplified version - in production, you'd need proper workflow setup
-    // For now, we'll use a direct approach that works without server
-    
-    // Since we can't securely exchange without exposing client secret,
-    // we'll use a different approach: store the code and let user know to complete setup
-    throw new Error('Token exchange requires server-side proxy - see AUTHENTICATION.md')
-  } catch (error) {
-    console.error('Token exchange failed:', error)
-    throw new Error('Failed to exchange code for token. Please try Spark authentication instead.')
+  const data = await response.json()
+  return {
+    device_code: data.device_code,
+    user_code: data.user_code,
+    verification_uri: data.verification_uri,
+    expires_in: data.expires_in,
+    interval: data.interval
   }
 }
 
 /**
- * Fetch GitHub user info
+ * Poll for access token
+ * Step 2: Poll GitHub to check if user has authorized the device
+ */
+export async function pollForToken(
+  deviceCode: string,
+  interval: number,
+  onProgress?: (message: string) => void
+): Promise<string> {
+  const startTime = Date.now()
+  const maxDuration = 15 * 60 * 1000 // 15 minutes
+  let currentInterval = interval // Use local copy to avoid mutating parameter
+
+  while (Date.now() - startTime < maxDuration) {
+    await new Promise(resolve => setTimeout(resolve, currentInterval * 1000))
+
+    try {
+      const response = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          client_id: GITHUB_CLIENT_ID,
+          device_code: deviceCode,
+          grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.access_token) {
+        return data.access_token
+      }
+
+      if (data.error === 'authorization_pending') {
+        onProgress?.('Waiting for authorization...')
+        continue
+      }
+
+      if (data.error === 'slow_down') {
+        // Increase interval as requested by GitHub
+        currentInterval += 5
+        onProgress?.('Slowing down polling...')
+        continue
+      }
+
+      if (data.error === 'expired_token') {
+        throw new Error('Device code expired. Please try again.')
+      }
+
+      if (data.error === 'access_denied') {
+        throw new Error('Authorization denied by user.')
+      }
+
+      throw new Error(data.error_description || data.error || 'Unknown error')
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Device code expired')) {
+        throw error
+      }
+      // Continue polling on network errors
+      onProgress?.('Connection error, retrying...')
+    }
+  }
+
+  throw new Error('Authorization timed out. Please try again.')
+}
+
+/**
+ * Fetch GitHub user info using access token
  */
 async function fetchGitHubUser(token: string): Promise<GitHubUser> {
   const response = await fetch('https://api.github.com/user', {
@@ -125,7 +154,33 @@ async function fetchGitHubUser(token: string): Promise<GitHubUser> {
 }
 
 /**
- * Get current GitHub OAuth auth state
+ * Complete authentication flow
+ * Combines token polling and user fetch, then saves to localStorage
+ */
+export async function completeDeviceFlow(
+  deviceCode: string,
+  interval: number,
+  onProgress?: (message: string) => void
+): Promise<GitHubUser> {
+  // Get access token
+  const token = await pollForToken(deviceCode, interval, onProgress)
+  
+  // Fetch user info
+  const user = await fetchGitHubUser(token)
+  
+  // Save to localStorage
+  const authState: GitHubAuthState = {
+    isAuthenticated: true,
+    user,
+    token
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(authState))
+  
+  return user
+}
+
+/**
+ * Get current GitHub auth state
  */
 export function getGitHubAuthState(): GitHubAuthState {
   const stored = localStorage.getItem(STORAGE_KEY)
@@ -149,15 +204,14 @@ export function getGitHubAuthState(): GitHubAuthState {
 }
 
 /**
- * Sign out from GitHub OAuth
+ * Sign out from GitHub
  */
 export function signOutGitHub(): void {
   localStorage.removeItem(STORAGE_KEY)
-  sessionStorage.removeItem('github_oauth_state')
 }
 
 /**
- * Check if user is authenticated with GitHub OAuth
+ * Check if user is authenticated
  */
 export function isGitHubAuthenticated(): boolean {
   return getGitHubAuthState().isAuthenticated

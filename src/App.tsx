@@ -85,7 +85,10 @@ import { BrainStatus } from '@/components/BrainStatus'
 import { GuestBanner } from '@/components/GuestBanner'
 import { type Repository } from '@/lib/githubRepos'
 
-function App() {
+import { LandingPage } from '@/components/LandingPage'
+
+function AppContent() {
+  const { isAuthenticated, connectionState } = useAuth()
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -186,20 +189,24 @@ function App() {
     }
   }
 
-  return (
-    <AuthProvider>
-      <TokenRedistributionServiceProvider>
-        <div className="min-h-screen mesh-background">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
-            <header className="mb-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <Navigation onNavigate={setActiveTab} currentTab={activeTab} />
+  // Show landing page if not authenticated and not in guest mode
+  if (!isAuthenticated && connectionState !== 'guest' && connectionState !== 'connected') {
+    return <LandingPage />
+  }
 
-                
-                <div className="flex items-center gap-3">
-                  <Sparkle size={40} weight="duotone" className="text-accent animate-pulse" />
-                  <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                    Infinity Brain
+  return (
+    <TokenRedistributionServiceProvider>
+      <div className="min-h-screen mesh-background">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          <header className="mb-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <Navigation onNavigate={setActiveTab} currentTab={activeTab} />
+
+              
+              <div className="flex items-center gap-3">
+                <Sparkle size={40} weight="duotone" className="text-accent animate-pulse" />
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                  Infinity Brain
                   </h1>
                 </div>
                 
@@ -544,18 +551,25 @@ function App() {
                 </div>
               </TabsContent>
             </Tabs>
-          </div>
 
           <IntentBasedHelper onNavigate={setActiveTab} />
-          <BackgroundChanger />
-          <WelcomeFlow onNavigate={setActiveTab} />
+          {typeof window !== 'undefined' && window.spark && <BackgroundChanger />}
+          {typeof window !== 'undefined' && window.spark && <WelcomeFlow onNavigate={setActiveTab} />}
           <SafetyFooter />
           <AuthDebugPanel />
           <AIDebugger />
           <BismuthSignalReader />
           <BrainStatus />
         </div>
-      </TokenRedistributionServiceProvider>
+      </div>
+    </TokenRedistributionServiceProvider>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   )
 }
