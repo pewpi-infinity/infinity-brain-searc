@@ -23,6 +23,32 @@ import {
 import { earnTokens, spendTokens, getWalletStatus, type CurrencyType } from '@/lib/wallet-unified';
 import * as SimpleAuth from '@/lib/simple-auth';
 
+/**
+ * Convert simple auth user data to unified user format
+ */
+function convertSimpleUserToUnified(simpleUserData: SimpleAuth.SimpleUserData): UnifiedUser {
+  return {
+    passwordHash: simpleUserData.apiKeyHash,
+    createdAt: simpleUserData.createdAt,
+    lastLogin: simpleUserData.lastLoginAt,
+    ipFingerprint: '',
+    wallet: {
+      infinity_tokens: simpleUserData.tokenBalance,
+      research_tokens: 0,
+      art_tokens: 0,
+      music_tokens: 0
+    },
+    profile: {
+      displayName: simpleUserData.username,
+      avatar: '🔑',
+      preferences: {}
+    },
+    transactions: [],
+    achievements: ['api-key-login'],
+    sessions: []
+  };
+}
+
 interface UnifiedAuthContextType {
   isAuthenticated: boolean;
   username: string | null;
@@ -66,32 +92,9 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
         setAuthenticated(true);
         setUsername(simpleUserData.username);
         // Convert simple user data to unified user format
-        setUser({
-          passwordHash: simpleUserData.apiKeyHash,
-          createdAt: simpleUserData.createdAt,
-          lastLogin: simpleUserData.lastLoginAt,
-          ipFingerprint: '',
-          wallet: {
-            infinity_tokens: simpleUserData.tokenBalance,
-            research_tokens: 0,
-            art_tokens: 0,
-            music_tokens: 0
-          },
-          profile: {
-            displayName: simpleUserData.username,
-            avatar: '🔑',
-            preferences: {}
-          },
-          transactions: [],
-          achievements: ['api-key-login'],
-          sessions: []
-        } as UnifiedUser);
-        setBalances({
-          infinity_tokens: simpleUserData.tokenBalance,
-          research_tokens: 0,
-          art_tokens: 0,
-          music_tokens: 0
-        });
+        const unifiedUser = convertSimpleUserToUnified(simpleUserData);
+        setUser(unifiedUser);
+        setBalances(unifiedUser.wallet);
         setAuthMethod('simple');
         SimpleAuth.refreshSession();
       }

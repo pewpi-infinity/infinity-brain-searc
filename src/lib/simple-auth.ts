@@ -13,6 +13,9 @@ const STORAGE_KEYS = {
 };
 
 const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const SESSION_ID_LENGTH = 16;
+const USER_ID_LENGTH = 16;
+const TOKEN_ID_RANDOM_LENGTH = 7;
 
 export interface SimpleUserData {
   userId: string;
@@ -49,7 +52,7 @@ async function simpleHash(str: string): Promise<string> {
 function generateSessionId(): string {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
-  const randomPart = Array.from(array, byte => byte.toString(36)).join('').substring(0, 16);
+  const randomPart = Array.from(array, byte => byte.toString(36)).join('').substring(0, SESSION_ID_LENGTH);
   return `session_${Date.now()}_${randomPart}`;
 }
 
@@ -71,7 +74,8 @@ export function validateApiKey(apiKey: string): boolean {
   }
 
   // Allow alphanumeric characters, dashes, underscores, and dots
-  const validPattern = /^[a-zA-Z0-9_\-\.]+$/;
+  // Dash placed at end of character class for clarity
+  const validPattern = /^[a-zA-Z0-9_.\-]+$/;
   return validPattern.test(apiKey);
 }
 
@@ -103,7 +107,7 @@ export async function createUserData(apiKey: string): Promise<SimpleUserData> {
   const apiKeyHash = await simpleHash(apiKey);
 
   return {
-    userId: userId.substring(0, 16),
+    userId: userId.substring(0, USER_ID_LENGTH),
     username,
     tokenBalance: 1000, // Starting balance
     tokens: [],
@@ -264,7 +268,7 @@ export function addToken(token: Omit<Token, 'id' | 'createdAt'>): boolean {
 
   const newToken: Token = {
     ...token,
-    id: `token_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+    id: `token_${Date.now()}_${Math.random().toString(36).substring(TOKEN_ID_RANDOM_LENGTH)}`,
     createdAt: new Date().toISOString()
   };
 
