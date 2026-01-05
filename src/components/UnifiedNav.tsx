@@ -37,7 +37,7 @@ export function UnifiedNav({ onAuthClick }: UnifiedNavProps) {
     updateAuthState();
 
     // Setup cross-tab sync
-    setupStorageListener(() => {
+    const cleanupListener = setupStorageListener(() => {
       updateAuthState();
     });
 
@@ -48,7 +48,11 @@ export function UnifiedNav({ onAuthClick }: UnifiedNavProps) {
       }
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      cleanupListener();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSignOut = () => {

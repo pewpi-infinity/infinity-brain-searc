@@ -109,13 +109,8 @@ function getAuthData(): UnifiedAuthData {
 // Save auth data to localStorage
 function saveAuthData(data: UnifiedAuthData): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  // Trigger storage event for cross-tab sync
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: STORAGE_KEY,
-    newValue: JSON.stringify(data),
-    oldValue: localStorage.getItem(STORAGE_KEY),
-    storageArea: localStorage
-  }));
+  // Note: Storage events are automatically fired for other tabs/windows
+  // We don't manually dispatch to avoid infinite loops
 }
 
 // Get current repository name from URL
@@ -428,12 +423,19 @@ export function getTransactionHistory(limit: number = 50): Transaction[] {
 /**
  * Setup storage event listener for cross-tab sync
  */
-export function setupStorageListener(callback: () => void): void {
-  window.addEventListener('storage', (e) => {
+export function setupStorageListener(callback: () => void): () => void {
+  const handler = (e: StorageEvent) => {
     if (e.key === STORAGE_KEY) {
       callback();
     }
-  });
+  };
+  
+  window.addEventListener('storage', handler);
+  
+  // Return cleanup function
+  return () => {
+    window.removeEventListener('storage', handler);
+  };
 }
 
 /**

@@ -55,21 +55,34 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    refreshAuth();
+    // Initial auth check
+    const checkAuth = () => {
+      setAuthenticated(isAuthenticated());
+      setUsername(getCurrentUsername());
+      setUser(getCurrentUser());
+      setBalances(getAllBalances());
+      syncSession();
+    };
+
+    checkAuth();
 
     // Setup cross-tab sync
-    setupStorageListener(() => {
-      refreshAuth();
+    const cleanupListener = setupStorageListener(() => {
+      checkAuth();
     });
 
     // Heartbeat sync every 5 seconds
     const interval = setInterval(() => {
       if (isAuthenticated()) {
-        refreshAuth();
+        checkAuth();
       }
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      cleanupListener();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSignIn = async (username: string, password: string) => {
