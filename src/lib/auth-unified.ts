@@ -77,12 +77,12 @@ function getIPFingerprint(): string {
 
 // Generate unique session token
 function generateToken(): string {
-  return `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `token_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 // Generate transaction ID
 function generateTransactionId(): string {
-  return `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `tx_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 // Get auth data from localStorage
@@ -113,18 +113,29 @@ function saveAuthData(data: UnifiedAuthData): void {
   // We don't manually dispatch to avoid infinite loops
 }
 
+// Repository configuration
+export const REPO_CONFIG = {
+  REPOS: [
+    { key: 'infinity-brain-searc', name: 'Search', emoji: '🔍', url: 'https://pewpi-infinity.github.io/infinity-brain-searc/' },
+    { key: 'repo-dashboard-hub', name: 'Dashboard', emoji: '📊', url: 'https://pewpi-infinity.github.io/repo-dashboard-hub/' },
+    { key: 'banksy', name: 'Banksy', emoji: '🎨', url: 'https://pewpi-infinity.github.io/banksy/' },
+    { key: 'smug_look', name: 'Research', emoji: '🔬', url: 'https://pewpi-infinity.github.io/smug_look/' }
+  ],
+  DEFAULT: 'infinity-brain-searc'
+};
+
 // Get current repository name from URL
-function getCurrentRepo(): string {
+export function getCurrentRepo(): string {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  if (hostname.includes('infinity-brain-searc')) return 'infinity-brain-searc';
-  if (pathname.includes('infinity-brain-searc')) return 'infinity-brain-searc';
-  if (pathname.includes('repo-dashboard-hub')) return 'repo-dashboard-hub';
-  if (pathname.includes('banksy')) return 'banksy';
-  if (pathname.includes('smug_look')) return 'smug_look';
+  for (const repo of REPO_CONFIG.REPOS) {
+    if (hostname.includes(repo.key) || pathname.includes(repo.key)) {
+      return repo.key;
+    }
+  }
   
-  return 'infinity-brain-searc'; // default
+  return REPO_CONFIG.DEFAULT;
 }
 
 /**

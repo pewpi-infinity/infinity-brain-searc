@@ -10,7 +10,9 @@ import {
   getCurrentUsername,
   signOut,
   getAllBalances,
-  setupStorageListener
+  setupStorageListener,
+  getCurrentRepo,
+  REPO_CONFIG
 } from '@/lib/auth-unified';
 
 interface UnifiedNavProps {
@@ -60,43 +62,8 @@ export function UnifiedNav({ onAuthClick }: UnifiedNavProps) {
     updateAuthState();
   };
 
-  const getCurrentRepoName = () => {
-    const pathname = window.location.pathname;
-    if (pathname.includes('infinity-brain-searc')) return 'infinity-brain-searc';
-    if (pathname.includes('repo-dashboard-hub')) return 'repo-dashboard-hub';
-    if (pathname.includes('banksy')) return 'banksy';
-    if (pathname.includes('smug_look')) return 'smug_look';
-    return 'infinity-brain-searc';
-  };
-
-  const currentRepo = getCurrentRepoName();
-
-  const repos = [
-    {
-      name: 'Search',
-      emoji: '🔍',
-      url: 'https://pewpi-infinity.github.io/infinity-brain-searc/',
-      key: 'infinity-brain-searc'
-    },
-    {
-      name: 'Dashboard',
-      emoji: '📊',
-      url: 'https://pewpi-infinity.github.io/repo-dashboard-hub/',
-      key: 'repo-dashboard-hub'
-    },
-    {
-      name: 'Banksy',
-      emoji: '🎨',
-      url: 'https://pewpi-infinity.github.io/banksy/',
-      key: 'banksy'
-    },
-    {
-      name: 'Research',
-      emoji: '🔬',
-      url: 'https://pewpi-infinity.github.io/smug_look/',
-      key: 'smug_look'
-    }
-  ];
+  const currentRepo = getCurrentRepo();
+  const repos = REPO_CONFIG.REPOS;
 
   return (
     <nav className="unified-nav">

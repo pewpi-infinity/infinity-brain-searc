@@ -83,7 +83,7 @@ export function transferTokens(
     return false; // Insufficient balance
   }
 
-  const convertedAmount = Math.floor(amount * exchangeRate);
+  const convertedAmount = Math.round(amount * exchangeRate);
 
   // Deduct from source currency
   updateWallet(fromCurrency, -amount, 'exchange', `Exchange to ${toCurrency}`);
@@ -103,24 +103,24 @@ export function transferTokens(
   return true;
 }
 
+// Exchange rates configuration (relative to infinity_tokens as base)
+const EXCHANGE_RATES: Record<CurrencyType, number> = {
+  infinity_tokens: 1.0,
+  research_tokens: 2.0,  // Research tokens worth 2x
+  art_tokens: 1.5,       // Art tokens worth 1.5x
+  music_tokens: 0.8      // Music tokens worth 0.8x
+};
+
 /**
  * Calculate total wallet value
- * Uses approximate exchange rates to infinity_tokens as base
+ * Uses exchange rates to infinity_tokens as base
  */
 export function getTotalValue(): number {
   const balances = getAllBalances();
   
-  // Exchange rates relative to infinity_tokens
-  const rates: Record<CurrencyType, number> = {
-    infinity_tokens: 1.0,
-    research_tokens: 2.0,  // Research tokens worth 2x
-    art_tokens: 1.5,       // Art tokens worth 1.5x
-    music_tokens: 0.8      // Music tokens worth 0.8x
-  };
-
   let total = 0;
   for (const [currency, amount] of Object.entries(balances)) {
-    total += amount * rates[currency as CurrencyType];
+    total += amount * EXCHANGE_RATES[currency as CurrencyType];
   }
 
   return Math.floor(total);

@@ -18,10 +18,9 @@ import {
   setupStorageListener,
   syncSession,
   type UnifiedUser,
-  type Transaction,
-  type CurrencyType
+  type Transaction
 } from '@/lib/auth-unified';
-import { earnTokens, spendTokens, getWalletStatus } from '@/lib/wallet-unified';
+import { earnTokens, spendTokens, getWalletStatus, type CurrencyType } from '@/lib/wallet-unified';
 
 interface UnifiedAuthContextType {
   isAuthenticated: boolean;
