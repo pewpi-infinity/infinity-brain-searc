@@ -23,7 +23,6 @@ interface DailyProgress {
 }
 
 export function EmojiCatcherGame() {
-  const { userProfile, isAuthenticated, addTokens } = useAuth()
   const [dailyProgress, setDailyProgress] = useKV<DailyProgress[]>('emoji-catcher-progress', [])
   
   const [isPlaying, setIsPlaying] = useState(false)

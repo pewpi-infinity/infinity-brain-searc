@@ -60,7 +60,6 @@ export interface TokenAuction {
 }
 
 export function TokenAuction() {
-  const { userProfile, isAuthenticated, login, deductTokens, addTokens } = useAuth()
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [auctionHistory, setAuctionHistory] = useKV<any[]>('auction-history', [])
   const [allProfiles, setAllProfiles] = useKV<Record<string, any>>('all-user-profiles', {})

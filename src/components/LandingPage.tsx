@@ -6,7 +6,6 @@ import { AlertTriangleIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export const LandingPage = () => {
-  const { login, continueAsGuest, deviceCode, connectionState } = useAuth()
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [copied, setCopied] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)

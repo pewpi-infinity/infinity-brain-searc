@@ -69,7 +69,6 @@ const TOKEN_PACKAGES: TokenPackage[] = [
 ]
 
 export function InfinityTokenSale() {
-  const { userProfile, isAuthenticated, login, addTokens } = useAuth()
   const [usdBids, setUsdBids] = useKV<UsdBid[]>('usd-bids', [])
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
   

@@ -40,7 +40,6 @@ interface StaleToken {
 }
 
 export function AutoAuctionSystem() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [rules, setRules] = useKV<AutoAuctionRule[]>('auto-auction-rules', [])
   const [staleTokens, setStaleTokens] = useState<StaleToken[]>([])
   const [autoEnabled, setAutoEnabled] = useKV<boolean>('auto-auction-enabled', false)

@@ -21,7 +21,6 @@ interface UserProfile {
 }
 
 export function TokenTransfer() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [allProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})
   const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
   const [userProfiles, setUserProfiles] = useKV<Record<string, UserProfile>>('all-user-profiles', {})

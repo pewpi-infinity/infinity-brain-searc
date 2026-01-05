@@ -9,7 +9,6 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { toast } from 'sonner'
 
 export function SlideMemoryTimeline() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [slideCoins, setSlideCoins] = useState<SlideCoin[]>([])
   const [totalValue, setTotalValue] = useState(0)
   const [selectedCoin, setSelectedCoin] = useState<SlideCoin | null>(null)

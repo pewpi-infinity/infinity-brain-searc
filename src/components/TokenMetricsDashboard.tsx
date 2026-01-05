@@ -22,7 +22,6 @@ interface MetricsDashboardProps {
 }
 
 export function TokenMetricsDashboard({ tokenSymbol, showAllTokens = false }: MetricsDashboardProps) {
-  const { userProfile } = useAuth()
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})
   const [selectedToken, setSelectedToken] = useState(tokenSymbol || 'INF')
   const [metrics, setMetrics] = useState<TokenMetric[]>([])

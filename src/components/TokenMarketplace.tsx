@@ -51,7 +51,10 @@ interface OrderBookEntry {
 }
 
 export function TokenMarketplace() {
-  const { userProfile, isAuthenticated } = useAuth()
+  const staticUserId = 'guest-user'
+  const staticUsername = 'Guest'
+  const staticBusinessTokens: Record<string, number> = {}
+  
   const [marketOrders, setMarketOrders] = useKV<MarketOrder[]>('market-orders', [])
   const [allTransactions, setAllTransactions] = useKV<Transaction[]>('all-transactions', [])
   const [userProfiles, setUserProfiles] = useKV<Record<string, any>>('all-user-profiles', {})
@@ -65,26 +68,14 @@ export function TokenMarketplace() {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [selectedOrderView, setSelectedOrderView] = useState<string>('')
 
-  if (!isAuthenticated || !userProfile) {
-    return (
-      <Card className="p-8 text-center">
-        <Storefront size={64} weight="duotone" className="mx-auto mb-4 text-muted-foreground" />
-        <h3 className="text-2xl font-bold mb-2">Token Exchange Marketplace</h3>
-        <p className="text-muted-foreground mb-4">
-          Please log in to access the marketplace
-        </p>
-      </Card>
-    )
-  }
-
   const availableTokens = Object.keys(allTokens || {}).filter(symbol => symbol !== 'INF')
-  const userTokens = Object.keys(userProfile.businessTokens).filter(
-    symbol => userProfile.businessTokens[symbol] > 0
+  const userTokens = Object.keys(staticBusinessTokens).filter(
+    symbol => staticBusinessTokens[symbol] > 0
   )
 
   const openOrders = (marketOrders || []).filter(order => order.status === 'open')
   const userOrders = (marketOrders || []).filter(
-    order => order.creatorId === userProfile.userId
+    order => order.creatorId === staticUserId
   ).sort((a, b) => b.createdAt - a.createdAt)
 
   const handleCreateOrder = async () => {

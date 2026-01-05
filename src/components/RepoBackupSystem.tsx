@@ -29,7 +29,6 @@ interface BackupRecord {
 }
 
 export function RepoBackupSystem() {
-  const { userProfile, isAuthenticated, currentUser } = useAuth()
   const [backups, setBackups] = useKV<BackupRecord[]>('user-backups', [])
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [backupProgress, setBackupProgress] = useState(0)

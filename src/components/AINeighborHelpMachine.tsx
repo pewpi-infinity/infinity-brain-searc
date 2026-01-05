@@ -9,7 +9,6 @@ import { Robot, Sparkles, House, Hammer, Wheelchair, Heart } from '@phosphor-ico
 import { toast } from 'sonner'
 
 export function AINeighborHelpMachine() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [description, setDescription] = useState('')
   const [neighborName, setNeighborName] = useState('')
   const [urgency, setUrgency] = useState<'immediate' | 'soon' | 'planned'>('soon')

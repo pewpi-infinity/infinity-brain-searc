@@ -20,7 +20,6 @@ export interface Transaction {
 }
 
 export function TransactionHistory() {
-  const { userProfile } = useAuth()
   const [allTransactions] = useKV<Transaction[]>('all-transactions', [])
 
   if (!userProfile) {

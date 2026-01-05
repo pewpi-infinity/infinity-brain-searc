@@ -27,7 +27,6 @@ interface AuctionAutoPricing {
 }
 
 export function AutoPricedAuctionCreator() {
-  const { userProfile, isAuthenticated, login } = useAuth()
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [auctionPricings, setAuctionPricings] = useKV<AuctionAutoPricing[]>('auction-auto-pricings', [])
   const [businessTokens] = useKV<any[]>('business-tokens', [])

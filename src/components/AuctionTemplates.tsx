@@ -56,7 +56,6 @@ export interface ScheduledAuction {
 }
 
 export function AuctionTemplates() {
-  const { userProfile, isAuthenticated } = useAuth()
   const [templates, setTemplates] = useKV<AuctionTemplate[]>('auction-templates', [])
   const [auctions, setAuctions] = useKV<TokenAuction[]>('token-auctions', [])
   const [allTokens] = useKV<Record<string, any>>('business-tokens', {})

@@ -28,7 +28,6 @@ interface LiveAuctionViewerProps {
 }
 
 export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerProps) {
-  const { userProfile, isAuthenticated, login } = useAuth()
   const [auctions, setAuctions] = useKV<Auction[]>('token-auctions', [])
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({})
   const [bidCurrency, setBidCurrency] = useState<Record<string, 'INF' | 'USD'>>({})
@@ -55,11 +54,9 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
   }
 
   const handlePlaceBid = async (auction: Auction) => {
-    if (!isAuthenticated || !userProfile) {
-      toast.error('Please log in to place a bid')
-      await login()
-      return
-    }
+    const staticUserId = 'guest-user'
+    const staticUsername = 'Guest'
+    const staticAvatarUrl = ''
 
     const bid = parseFloat(bidAmount[auction.id] || '0')
     const currency = bidCurrency[auction.id] || 'INF'
@@ -75,18 +72,22 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
       return
     }
 
-    if (auction.creatorId === userProfile.userId) {
+    if (auction.creatorId === staticUserId) {
       toast.error('Cannot bid on your own auction')
       return
     }
 
     try {
+      const staticUserId = 'guest-user'
+      const staticUsername = 'Guest'
+      const staticAvatarUrl = ''
+
       const bidEntry: AuctionBid = {
         bidId: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         auctionId: auction.id,
-        bidderId: userProfile.userId,
-        bidderUsername: userProfile.username,
-        bidderAvatar: userProfile.avatarUrl,
+        bidderId: staticUserId,
+        bidderUsername: staticUsername,
+        bidderAvatar: staticAvatarUrl,
         amount: bid,
         currency,
         timestamp: Date.now()
@@ -104,11 +105,9 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
         )
       )
 
-      if (userProfile.userId) {
-        await trackTokenMetric(auction.tokenSymbol, 'bid', userProfile.userId, bid, {
-          auctionId: auction.id
-        })
-      }
+      await trackTokenMetric(auction.tokenSymbol, 'bid', staticUserId, bid, {
+        auctionId: auction.id
+      })
 
       toast.success(`Bid placed: $${bid.toFixed(2)} ${currency}`, {
         description: 'You will be notified if outbid'
@@ -122,11 +121,10 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
   }
 
   const handleViewAuction = async (auction: Auction) => {
-    if (userProfile?.userId) {
-      await trackTokenMetric(auction.tokenSymbol, 'view', userProfile.userId, 1, {
-        auctionId: auction.id
-      })
-    }
+    const staticUserId = 'guest-user'
+    await trackTokenMetric(auction.tokenSymbol, 'view', staticUserId, 1, {
+      auctionId: auction.id
+    })
     setExpandedAuction(expandedAuction === auction.id ? null : auction.id)
   }
 
@@ -292,69 +290,59 @@ export function LiveAuctionViewer({ showCreateForm = false }: LiveAuctionViewerP
                                   </div>
                                 )}
 
-                                {!isAuthenticated ? (
-                                  <Button onClick={login} size="lg" className="w-full">
-                                    Log In to Bid
-                                  </Button>
-                                ) : auction.creatorId !== userProfile?.userId ? (
-                                  <div className="space-y-3">
-                                    <div className="flex gap-2">
-                                      <div className="flex-1 space-y-2">
-                                        <Label htmlFor={`bid-${auction.id}`}>Your Bid</Label>
-                                        <Input
-                                          id={`bid-${auction.id}`}
-                                          type="number"
-                                          step="0.01"
-                                          min={auction.currentBid + 0.01}
-                                          placeholder={`Min: $${(auction.currentBid + 0.01).toFixed(2)}`}
-                                          value={bidAmount[auction.id] || ''}
-                                          onChange={(e) => setBidAmount(prev => ({ ...prev, [auction.id]: e.target.value }))}
-                                          onClick={(e) => e.stopPropagation()}
-                                        />
-                                      </div>
-                                      <div className="space-y-2">
-                                        <Label>Currency</Label>
-                                        <div className="flex gap-2">
-                                          <Button
-                                            variant={bidCurrency[auction.id] === 'INF' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              setBidCurrency(prev => ({ ...prev, [auction.id]: 'INF' }))
-                                            }}
-                                          >
-                                            INF
-                                          </Button>
-                                          <Button
-                                            variant={bidCurrency[auction.id] === 'USD' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              setBidCurrency(prev => ({ ...prev, [auction.id]: 'USD' }))
-                                            }}
-                                          >
-                                            <CurrencyDollar size={16} weight="bold" />
-                                          </Button>
-                                        </div>
+                                <div className="space-y-3">
+                                  <div className="flex gap-2">
+                                    <div className="flex-1 space-y-2">
+                                      <Label htmlFor={`bid-${auction.id}`}>Your Bid</Label>
+                                      <Input
+                                        id={`bid-${auction.id}`}
+                                        type="number"
+                                        step="0.01"
+                                        min={auction.currentBid + 0.01}
+                                        placeholder={`Min: $${(auction.currentBid + 0.01).toFixed(2)}`}
+                                        value={bidAmount[auction.id] || ''}
+                                        onChange={(e) => setBidAmount(prev => ({ ...prev, [auction.id]: e.target.value }))}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Currency</Label>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant={bidCurrency[auction.id] === 'INF' ? 'default' : 'outline'}
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            setBidCurrency(prev => ({ ...prev, [auction.id]: 'INF' }))
+                                          }}
+                                        >
+                                          INF
+                                        </Button>
+                                        <Button
+                                          variant={bidCurrency[auction.id] === 'USD' ? 'default' : 'outline'}
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            setBidCurrency(prev => ({ ...prev, [auction.id]: 'USD' }))
+                                          }}
+                                        >
+                                          <CurrencyDollar size={16} weight="bold" />
+                                        </Button>
                                       </div>
                                     </div>
-                                    <Button
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handlePlaceBid(auction)
-                                      }}
-                                      size="lg"
-                                      className="w-full bg-gradient-to-r from-accent to-primary"
-                                    >
-                                      <Gavel size={20} weight="duotone" className="mr-2" />
-                                      Place Bid
-                                    </Button>
                                   </div>
-                                ) : (
-                                  <Badge variant="secondary" className="w-full justify-center py-2">
-                                    Your Auction
-                                  </Badge>
-                                )}
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePlaceBid(auction)
+                                    }}
+                                    size="lg"
+                                    className="w-full bg-gradient-to-r from-accent to-primary"
+                                  >
+                                    <Gavel size={20} weight="duotone" className="mr-2" />
+                                    Place Bid
+                                  </Button>
+                                </div>
 
                                 {auction.bids.length > 0 && (
                                   <>
