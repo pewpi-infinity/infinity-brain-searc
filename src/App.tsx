@@ -50,6 +50,7 @@ import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
+import { OAuthCallback } from '@/components/OAuthCallback'
 import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -78,6 +79,18 @@ import { AIDebugger } from '@/components/AIDebugger'
 import { BismuthSignalReader } from '@/components/BismuthSignalReader'
 
 function App() {
+  // Check if we're on the OAuth callback route
+  const isCallbackRoute = window.location.pathname === '/infinity-brain-searc/callback'
+  
+  // If on callback route, render OAuthCallback component
+  if (isCallbackRoute) {
+    return <OAuthCallback />
+  }
+
+  return <MainApp />
+}
+
+function MainApp() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
