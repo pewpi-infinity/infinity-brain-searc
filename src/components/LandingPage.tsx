@@ -11,21 +11,18 @@ export const LandingPage = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [copied, setCopied] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
 
   const handleSignIn = async () => {
     setIsAuthenticating(true)
     setAuthError(null)
     try {
       await login()
-      setRetryCount(0)
     } catch (error) {
       console.error('Sign in failed:', error)
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Authentication failed. Please try again.'
       setAuthError(errorMessage)
-      setRetryCount(prev => prev + 1)
     } finally {
       setIsAuthenticating(false)
     }
@@ -76,11 +73,9 @@ export const LandingPage = () => {
                 <AlertTitle>Authentication Failed</AlertTitle>
                 <AlertDescription className="space-y-2">
                   <p>{authError}</p>
-                  {retryCount >= 3 && (
-                    <p className="text-sm font-semibold">
-                      After 3 failed attempts, you can continue as a guest and retry later.
-                    </p>
-                  )}
+                  <p className="text-sm">
+                    You can retry signing in or continue as a guest to browse the app.
+                  </p>
                 </AlertDescription>
               </Alert>
             )}
@@ -104,9 +99,7 @@ export const LandingPage = () => {
                 >
                   <GithubLogo className="mr-2 h-5 w-5" />
                   {isAuthenticating 
-                    ? retryCount > 0 
-                      ? `Retrying (${retryCount})...` 
-                      : 'Connecting...'
+                    ? 'Connecting...'
                     : authError 
                       ? 'Retry Sign In'
                       : 'Sign in with GitHub'

@@ -235,15 +235,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         toast.error('Authentication failed after 3 attempts', {
           description: 'Continuing in guest mode. You can retry later or browse as a guest.',
-          duration: 8000,
-          action: {
-            label: 'Continue as Guest',
-            onClick: () => continueAsGuest()
-          }
+          duration: 8000
         })
+        
+        // Don't throw error after graceful fallback to guest mode
+        return
       }
-      
-      throw error
     }
   }
 

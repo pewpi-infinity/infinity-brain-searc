@@ -49,7 +49,10 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
           
           <div className="space-y-3">
             <Button 
-              onClick={() => window.location.href = '/'} 
+              onClick={() => {
+                // Reset error and start in guest mode
+                resetErrorBoundary()
+              }} 
               className="w-full"
               size="lg"
             >
@@ -110,7 +113,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
           </Button>
           
           <Button 
-            onClick={() => window.location.href = '/'} 
+            onClick={resetErrorBoundary} 
             className="w-full"
             variant="outline"
             size="lg"
