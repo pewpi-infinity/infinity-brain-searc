@@ -1,5 +1,13 @@
 # Unified Authentication & Wallet System
 
+> **⚠️ IMPORTANT NOTE**
+> 
+> This is an **alternative authentication system**. The default Infinity Brain installation uses **GitHub OAuth through Spark** for authentication.
+> 
+> The unified auth system is available if you want to deploy to environments without Spark, but it is **not the default**.
+> 
+> To use this system, you must manually change `src/main.tsx` to use `AppWithUnifiedAuth` instead of `App`.
+
 ## 🎯 Overview
 
 The Unified Authentication & Wallet System provides a single sign-on experience and shared wallet across all Pewpi Infinity repositories. Users register once and can access all repositories with the same credentials, with their wallet balance synchronized in real-time.
