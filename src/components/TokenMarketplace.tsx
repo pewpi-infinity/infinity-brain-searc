@@ -93,14 +93,14 @@ export function TokenMarketplace() {
     }
 
     if (orderType === 'sell') {
-      const currentBalance = userProfile.businessTokens[selectedToken] || 0
+      const currentBalance = staticBusinessTokens[selectedToken] || 0
       if (amount > currentBalance) {
         toast.error(`Insufficient ${selectedToken} balance`)
         return
       }
     } else {
       const totalCost = amount * price
-      const infBalance = userProfile.businessTokens[tradePairToken] || 0
+      const infBalance = staticBusinessTokens[tradePairToken] || 0
       if (totalCost > infBalance) {
         toast.error(`Insufficient ${tradePairToken} balance`)
         return
@@ -120,8 +120,8 @@ export function TokenMarketplace() {
         pricePerToken: price,
         totalValue: amount * price,
         tradePairSymbol: tradePairToken,
-        creatorId: userProfile.userId,
-        creatorUsername: userProfile.username,
+        creatorId: staticUserId,
+        creatorUsername: staticUsername,
         status: 'open',
         filledAmount: 0,
         createdAt: Date.now()
@@ -144,22 +144,20 @@ export function TokenMarketplace() {
   }
 
   const handleFillOrder = async (order: MarketOrder) => {
-    if (!userProfile) return
-
-    if (order.creatorId === userProfile.userId) {
+    if (order.creatorId === staticUserId) {
       toast.error('Cannot fill your own order')
       return
     }
 
     if (order.orderType === 'sell') {
       const totalCost = order.amount * order.pricePerToken
-      const buyerBalance = userProfile.businessTokens[order.tradePairSymbol] || 0
+      const buyerBalance = staticBusinessTokens[order.tradePairSymbol] || 0
       if (totalCost > buyerBalance) {
         toast.error(`Insufficient ${order.tradePairSymbol} balance`)
         return
       }
     } else {
-      const sellerBalance = userProfile.businessTokens[order.tokenSymbol] || 0
+      const sellerBalance = staticBusinessTokens[order.tokenSymbol] || 0
       if (order.amount > sellerBalance) {
         toast.error(`Insufficient ${order.tokenSymbol} balance`)
         return
@@ -176,8 +174,8 @@ export function TokenMarketplace() {
       const transactionId = `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
       if (order.orderType === 'sell') {
-        const buyerInfBalance = userProfile.businessTokens[order.tradePairSymbol] || 0
-        const buyerTokenBalance = userProfile.businessTokens[order.tokenSymbol] || 0
+        const buyerInfBalance = staticBusinessTokens[order.tradePairSymbol] || 0
+        const buyerTokenBalance = staticBusinessTokens[order.tokenSymbol] || 0
         const sellerInfBalance = creator.businessTokens[order.tradePairSymbol] || 0
         const sellerTokenBalance = creator.businessTokens[order.tokenSymbol] || 0
 
@@ -185,10 +183,11 @@ export function TokenMarketplace() {
 
         setUserProfiles((currentProfiles) => ({
           ...(currentProfiles || {}),
-          [userProfile.userId]: {
-            ...userProfile,
+          [staticUserId]: {
+            userId: staticUserId,
+            username: staticUsername,
             businessTokens: {
-              ...userProfile.businessTokens,
+              ...staticBusinessTokens,
               [order.tradePairSymbol]: buyerInfBalance - totalCost,
               [order.tokenSymbol]: buyerTokenBalance + order.amount
             }
@@ -203,8 +202,8 @@ export function TokenMarketplace() {
           }
         }))
       } else {
-        const sellerInfBalance = userProfile.businessTokens[order.tradePairSymbol] || 0
-        const sellerTokenBalance = userProfile.businessTokens[order.tokenSymbol] || 0
+        const sellerInfBalance = staticBusinessTokens[order.tradePairSymbol] || 0
+        const sellerTokenBalance = staticBusinessTokens[order.tokenSymbol] || 0
         const buyerInfBalance = creator.businessTokens[order.tradePairSymbol] || 0
         const buyerTokenBalance = creator.businessTokens[order.tokenSymbol] || 0
 
@@ -212,10 +211,11 @@ export function TokenMarketplace() {
 
         setUserProfiles((currentProfiles) => ({
           ...(currentProfiles || {}),
-          [userProfile.userId]: {
-            ...userProfile,
+          [staticUserId]: {
+            userId: staticUserId,
+            username: staticUsername,
             businessTokens: {
-              ...userProfile.businessTokens,
+              ...staticBusinessTokens,
               [order.tradePairSymbol]: sellerInfBalance + totalCost,
               [order.tokenSymbol]: sellerTokenBalance - order.amount
             }
@@ -236,10 +236,10 @@ export function TokenMarketplace() {
         type: order.orderType === 'sell' ? 'receive' : 'send',
         tokenSymbol: order.tokenSymbol,
         amount: order.amount,
-        from: order.orderType === 'sell' ? order.creatorId : userProfile.userId,
-        fromUsername: order.orderType === 'sell' ? order.creatorUsername : userProfile.username,
-        to: order.orderType === 'sell' ? userProfile.userId : order.creatorId,
-        toUsername: order.orderType === 'sell' ? userProfile.username : order.creatorUsername,
+        from: order.orderType === 'sell' ? order.creatorId : staticUserId,
+        fromUsername: order.orderType === 'sell' ? order.creatorUsername : staticUsername,
+        to: order.orderType === 'sell' ? staticUserId : order.creatorId,
+        toUsername: order.orderType === 'sell' ? staticUsername : order.creatorUsername,
         timestamp: Date.now(),
         status: 'completed',
         note: `Marketplace trade: ${order.amount} ${order.tokenSymbol} @ ${order.pricePerToken} ${order.tradePairSymbol}`
@@ -259,7 +259,7 @@ export function TokenMarketplace() {
       )
 
       const totalCost = order.amount * order.pricePerToken
-      await trackTokenMetric(order.tokenSymbol, 'trade', userProfile.userId, totalCost, {
+      await trackTokenMetric(order.tokenSymbol, 'trade', staticUserId, totalCost, {
         tradeId: transactionId
       })
 
@@ -275,7 +275,7 @@ export function TokenMarketplace() {
   const handleCancelOrder = (orderId: string) => {
     setMarketOrders((currentOrders) =>
       (currentOrders || []).map(o =>
-        o.id === orderId && o.creatorId === userProfile.userId
+        o.id === orderId && o.creatorId === staticUserId
           ? { ...o, status: 'cancelled' as const }
           : o
       )
@@ -478,10 +478,10 @@ export function TokenMarketplace() {
                                 <DialogTrigger asChild>
                                   <Button
                                     size="sm"
-                                    variant={order.creatorId === userProfile.userId ? 'destructive' : 'default'}
-                                    disabled={order.creatorId === userProfile.userId}
+                                    variant={order.creatorId === staticUserId ? 'destructive' : 'default'}
+                                    disabled={order.creatorId === staticUserId}
                                   >
-                                    {order.creatorId === userProfile.userId ? (
+                                    {order.creatorId === staticUserId ? (
                                       <>
                                         <X size={16} className="mr-1" />
                                         Cancel
@@ -497,7 +497,7 @@ export function TokenMarketplace() {
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>
-                                      {order.creatorId === userProfile.userId ? 'Cancel Order' : 'Fill Order'}
+                                      {order.creatorId === staticUserId ? 'Cancel Order' : 'Fill Order'}
                                     </DialogTitle>
                                   </DialogHeader>
                                   <div className="space-y-4">
@@ -527,7 +527,7 @@ export function TokenMarketplace() {
                                         </span>
                                       </div>
                                     </div>
-                                    {order.creatorId === userProfile.userId ? (
+                                    {order.creatorId === staticUserId ? (
                                       <Button
                                         onClick={() => handleCancelOrder(order.id)}
                                         variant="destructive"
@@ -621,7 +621,7 @@ export function TokenMarketplace() {
                 />
                 {selectedToken && orderType === 'sell' && (
                   <p className="text-xs text-muted-foreground">
-                    Available: {(userProfile.businessTokens[selectedToken] || 0).toLocaleString()}
+                    Available: {(staticBusinessTokens[selectedToken] || 0).toLocaleString()}
                   </p>
                 )}
               </div>
