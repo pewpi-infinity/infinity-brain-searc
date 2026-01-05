@@ -115,13 +115,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = async () => {
+  const login = async (retryCount = 0) => {
+    const MAX_RETRIES = 3
+    const BASE_DELAY = 1000 // 1 second
+    
     try {
       setConnectionState('connecting')
       
-      toast.info('Starting GitHub authentication...', {
-        description: 'Requesting device code from GitHub'
-      })
+      if (retryCount === 0) {
+        toast.info('Starting GitHub authentication...', {
+          description: 'Requesting device code from GitHub'
+        })
+      } else {
+        toast.info(`Retry attempt ${retryCount}/${MAX_RETRIES}...`, {
+          description: 'Attempting to reconnect'
+        })
+      }
       
       // Step 1: Get device code
       const deviceFlowData = await initiateDeviceFlow()
@@ -201,15 +210,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.success('Welcome! You received 10 free INF tokens! 🎉')
       }
     } catch (error) {
-      setConnectionState('error')
       setDeviceCode(null)
       console.error('Login failed:', error)
       
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
-      toast.error('Authentication failed', {
-        description: errorMessage,
-        duration: 5000
-      })
+      
+      // Check if we should retry
+      if (retryCount < MAX_RETRIES) {
+        const delay = BASE_DELAY * Math.pow(2, retryCount) // Exponential backoff
+        
+        toast.warning(`Authentication failed - retrying in ${delay / 1000}s...`, {
+          description: errorMessage,
+          duration: delay
+        })
+        
+        // Wait and retry
+        await new Promise(resolve => setTimeout(resolve, delay))
+        return login(retryCount + 1)
+      } else {
+        // Max retries reached - fall back to guest mode
+        setConnectionState('guest')
+        setAuthMethod('guest')
+        setIsGuest(true)
+        
+        toast.error('Authentication failed after 3 attempts', {
+          description: 'Continuing in guest mode. You can retry later or browse as a guest.',
+          duration: 8000,
+          action: {
+            label: 'Continue as Guest',
+            onClick: () => continueAsGuest()
+          }
+        })
+      }
       
       throw error
     }

@@ -32,7 +32,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
   useEffect(() => {
     let mounted = true
     let checkCount = 0
-    const maxChecks = 100 // 10 seconds with 100ms interval
+    const maxChecks = 30 // 3 seconds with 100ms interval (reduced from 10s)
     
     const checkSpark = () => {
       if (!mounted) return
@@ -51,7 +51,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
 
       checkCount++
       
-      // Timeout after 10 seconds - assume no Spark environment
+      // Timeout after 3 seconds - assume no Spark environment (reduced from 10s)
       if (checkCount >= maxChecks) {
         setState('no-spark')
         return
@@ -143,7 +143,7 @@ export const SparkLoader = ({ children }: SparkLoaderProps) => {
           <AlertTitle>Failed to initialize Infinity Brain</AlertTitle>
           <AlertDescription className="space-y-2">
             <p>
-              Infinity Brain couldn't connect to GitHub within 10 seconds. This might be due to:
+              Infinity Brain couldn't connect to GitHub within 3 seconds. This might be due to:
             </p>
             <ul className="list-disc list-inside text-sm space-y-1 mt-2">
               <li>Network connectivity issues</li>
