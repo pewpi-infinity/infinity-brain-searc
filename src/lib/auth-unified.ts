@@ -168,8 +168,9 @@ export async function registerWithPAT(token: string): Promise<boolean> {
   const data = getAuthData();
   
   // Use token hash as username to make it unique
+  // Using first 20 characters of hash for better uniqueness while keeping it manageable
   const tokenHash = await hashPassword(token);
-  const username = `github_${tokenHash.substring(0, 12)}`;
+  const username = `github_${tokenHash.substring(0, 20)}`;
 
   // Check if user already exists with this token
   if (data.users[username]) {
@@ -250,7 +251,8 @@ export async function signInWithPAT(token: string): Promise<boolean> {
 
   const data = getAuthData();
   const tokenHash = await hashPassword(token);
-  const username = `github_${tokenHash.substring(0, 12)}`;
+  // Use same hash prefix length as registration (20 chars)
+  const username = `github_${tokenHash.substring(0, 20)}`;
 
   const user = data.users[username];
 

@@ -378,7 +378,7 @@ export function UnifiedLoginModal({ open, onClose, onSuccess }: UnifiedLoginModa
               placeholder={mode === 'login' ? 'Password or ghp_...' : 'Enter your password'}
               className="form-input"
               required
-              minLength={mode === 'login' ? 6 : 6}
+              minLength={6}
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
             {mode === 'login' && (
