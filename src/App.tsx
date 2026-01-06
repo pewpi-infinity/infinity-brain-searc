@@ -50,7 +50,9 @@ import { ResearchTokenMinter } from '@/components/ResearchTokenMinter'
 import { ResearchAuctionQuickLinks } from '@/components/ResearchAuctionQuickLinks'
 import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
-import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart } from '@phosphor-icons/react'
+import { QuantumJukebox } from '@/components/QuantumJukebox'
+import { QuantumEncryptionVault } from '@/components/QuantumEncryptionVault'
+import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart, MusicNotes, LockKey } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
@@ -228,7 +230,7 @@ function App() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 h-auto gap-2 bg-card/80 backdrop-blur p-2">
+              <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-4 md:grid-cols-8 h-auto gap-2 bg-card/80 backdrop-blur p-2">
                 <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-2">
                   <House size={20} weight="duotone" />
                   <span className="text-xs">Home</span>
@@ -248,6 +250,14 @@ function App() {
                 <TabsTrigger value="explore" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground flex flex-col items-center gap-1 py-2">
                   <Robot size={20} weight="duotone" />
                   <span className="text-xs">Explore</span>
+                </TabsTrigger>
+                <TabsTrigger value="quantum" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-1 py-2">
+                  <MusicNotes size={20} weight="duotone" />
+                  <span className="text-xs">Quantum</span>
+                </TabsTrigger>
+                <TabsTrigger value="vault" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground flex flex-col items-center gap-1 py-2">
+                  <LockKey size={20} weight="duotone" />
+                  <span className="text-xs">Vault</span>
                 </TabsTrigger>
                 <TabsTrigger value="play" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-1 py-2">
                   <GameController size={20} weight="duotone" />
@@ -320,6 +330,28 @@ function App() {
                     <div>
                       <div className="font-bold">AI Chat</div>
                       <div className="text-sm opacity-90">Talk with AI assistant</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('quantum')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600"
+                  >
+                    <MusicNotes size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Quantum Jukebox</div>
+                      <div className="text-sm opacity-90">Bismuth audio system</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab('vault')}
+                    className="h-32 text-lg flex-col gap-3 bg-gradient-to-br from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                  >
+                    <LockKey size={32} weight="duotone" />
+                    <div>
+                      <div className="font-bold">Encryption Vault</div>
+                      <div className="text-sm opacity-90">SHA + Bismuth encryption</div>
                     </div>
                   </Button>
 
@@ -466,6 +498,28 @@ function App() {
                       <ModuleBrowser />
                     </TabsContent>
                   </Tabs>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="quantum" className="space-y-6">
+                <div className="bg-card/80 backdrop-blur rounded-lg p-6">
+                  <h2 className="text-2xl font-bold mb-4">Quantum Audio System</h2>
+                  <p className="text-muted-foreground mb-6">
+                    Experience quantum frequencies generated with bismuth transmission signatures, 
+                    hydrogen frequency modulation, and magnetic retention algorithms.
+                  </p>
+                  <QuantumJukebox />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="vault" className="space-y-6">
+                <div className="bg-card/80 backdrop-blur rounded-lg p-6">
+                  <h2 className="text-2xl font-bold mb-4">Quantum Encryption Vault</h2>
+                  <p className="text-muted-foreground mb-6">
+                    Encrypt, compress, and store data using SHA-256 hashing with bismuth transmission frequencies 
+                    and hydrogen-magnetic retention protocols.
+                  </p>
+                  <QuantumEncryptionVault />
                 </div>
               </TabsContent>
 
