@@ -246,10 +246,17 @@ export function QuantumJukebox() {
     await playTrack(track)
   }, [tracks, currentTrackIndex, playTrack])
 
-  const handlePause = useCallback(() => {
+  const handlePause = useCallback(async () => {
     stopTrack()
+    await setPlaybackState(prev => ({
+      isPlaying: false,
+      currentTime: prev?.currentTime || 0,
+      duration: prev?.duration || 0,
+      volume: prev?.volume || 0.7,
+      currentTrack: prev?.currentTrack || null
+    }))
     toast.info('⏸️ Playback paused')
-  }, [stopTrack])
+  }, [stopTrack, setPlaybackState])
 
   const handleNext = useCallback(() => {
     if (!tracks || tracks.length === 0) return
