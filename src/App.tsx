@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
@@ -11,6 +11,7 @@ import { UserBehaviorHeatmap } from '@/components/UserBehaviorHeatmap'
 import { AIProjectCompletionAssistant } from '@/components/AIProjectCompletionAssistant'
 import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
 import { RepoCartSync } from '@/components/RepoCartSync'
+import { QuantumJukebox } from '@/components/QuantumJukebox'
 
 interface UserInfo {
   avatarUrl: string
@@ -80,49 +81,56 @@ function App() {
 
       <div className="container mx-auto px-4 sm:px-6 py-12 max-w-7xl">
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-white border border-border p-1 shadow-sm gap-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-10">
+          <TabsList className="inline-flex h-12 items-center justify-center rounded-xl bg-card/60 backdrop-blur border border-border/50 p-1.5 shadow-lg gap-2">
             <TabsTrigger 
               value="home" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <Brain size={16} weight="duotone" className="mr-1.5" />
+              <Brain size={18} weight="duotone" className="mr-2" />
               Home
             </TabsTrigger>
             <TabsTrigger 
               value="mongoose" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <Brain size={16} weight="duotone" className="mr-1.5" />
+              <Brain size={18} weight="duotone" className="mr-2" />
               Mongoose
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <ChatCircle size={16} weight="duotone" className="mr-1.5" />
+              <ChatCircle size={18} weight="duotone" className="mr-2" />
               Chat
             </TabsTrigger>
             <TabsTrigger 
               value="heatmap" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <ChartBar size={16} weight="duotone" className="mr-1.5" />
+              <ChartBar size={18} weight="duotone" className="mr-2" />
               Heatmap
             </TabsTrigger>
             <TabsTrigger 
               value="assistant" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <Robot size={16} weight="duotone" className="mr-1.5" />
+              <Robot size={18} weight="duotone" className="mr-2" />
               Assistant
             </TabsTrigger>
             <TabsTrigger 
               value="charts" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
             >
-              <ChartLine size={16} weight="duotone" className="mr-1.5" />
+              <ChartLine size={18} weight="duotone" className="mr-2" />
               Charts
+            </TabsTrigger>
+            <TabsTrigger 
+              value="quantum" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 h-10 text-sm font-medium transition-all"
+            >
+              <Atom size={18} weight="duotone" className="mr-2" />
+              Quantum
             </TabsTrigger>
           </TabsList>
 
@@ -259,6 +267,26 @@ function App() {
                   </button>
                 </CardContent>
               </Card>
+
+              <Card
+                onClick={() => setActiveTab('quantum')}
+                className="cursor-pointer border-2 border-primary/20 hover:border-primary hover:shadow-2xl transition-all duration-300 glow-card"
+              >
+                <CardContent className="p-8 flex flex-col gap-6">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 w-fit">
+                    <Atom size={40} weight="duotone" className="text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Quantum Jukebox</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Bismuth frequency music player with AI tracks
+                    </p>
+                  </div>
+                  <button className="lightning-btn w-full">
+                    Play
+                  </button>
+                </CardContent>
+              </Card>
             </div>
 
             <RepoCartSync />
@@ -283,6 +311,10 @@ function App() {
 
           <TabsContent value="charts" className="space-y-8">
             <InfinityTokenCharts />
+          </TabsContent>
+
+          <TabsContent value="quantum" className="space-y-8">
+            <QuantumJukebox />
           </TabsContent>
         </Tabs>
       </div>
