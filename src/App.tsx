@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, SignIn, SignOut } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
@@ -30,82 +29,32 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        if (typeof window !== 'undefined' && window.spark && typeof window.spark.user === 'function') {
-          console.log('✅ Infinity Brain initialized')
-          
-          const currentUser = await window.spark.user()
-          console.log('User data:', currentUser)
-          
-          if (currentUser && currentUser.login) {
-            setUser(currentUser)
-            toast.success(`Welcome back, ${currentUser.login}! 🧠`, {
-              description: `You have ${tokenBalance || 0} INF tokens`
-            })
-          } else {
-            console.warn('No user logged in')
-            toast.info('Sign in with GitHub to access all features', {
-              description: 'Click the Sign In button in the top right'
-            })
-          }
-        } else {
-          console.error('Spark SDK not available')
-          toast.error('Platform initialization issue', {
-            description: 'Spark SDK is not loaded properly'
+        const currentUser = await window.spark.user()
+        console.log('User data:', currentUser)
+        
+        if (currentUser && currentUser.login) {
+          setUser(currentUser)
+          toast.success(`Welcome back, ${currentUser.login}! 🧠`, {
+            description: `You have ${tokenBalance || 0} INF tokens`
           })
         }
       } catch (error) {
         console.error('Initialization error:', error)
-        toast.error('Failed to initialize user session', {
-          description: String(error)
-        })
       } finally {
         setIsLoading(false)
       }
     }
     
-    initializeApp().catch(err => console.error('Init error:', err))
-  }, [tokenBalance])
+    initializeApp()
+  }, [])
 
-  const handleSignIn = async () => {
-    try {
-      if (!window.spark || typeof window.spark.user !== 'function') {
-        toast.error('Cannot sign in', {
-          description: 'Spark SDK not available. Please refresh the page.'
-        })
-        return
-      }
 
-      const currentUser = await window.spark.user()
-      console.log('Sign in attempt, user:', currentUser)
-      
-      if (currentUser && currentUser.login) {
-        setUser(currentUser)
-        toast.success(`✅ Signed in as ${currentUser.login}`, {
-          description: 'All features are now available'
-        })
-      } else {
-        toast.error('Sign in failed', {
-          description: 'No GitHub user found. You may need to authorize this app in your GitHub settings.'
-        })
-      }
-    } catch (error) {
-      console.error('Sign in error:', error)
-      toast.error('Sign in failed', {
-        description: String(error)
-      })
-    }
-  }
-
-  const handleSignOut = () => {
-    setUser(null)
-    toast.success('Signed out successfully')
-  }
 
   return (
-    <div className="min-h-screen paypal-background">
+    <div className="min-h-screen cosmic-background">
       <Toaster position="top-right" />
       
-      <nav className="border-b border-border bg-white/80 backdrop-blur sticky top-0 z-50 shadow-sm">
+      <nav className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -115,25 +64,14 @@ function App() {
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              {user ? (
-                <>
-                  <div className="flex items-center gap-2">
-                    <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full border-2 border-primary/20" />
-                    <span className="text-sm font-medium">{user.login}</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {tokenBalance || 0} INF
-                    </Badge>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleSignOut} className="h-9">
-                    <SignOut size={16} className="mr-1.5" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Button size="sm" className="bg-gradient-to-r from-primary to-secondary h-9" onClick={handleSignIn}>
-                  <SignIn size={16} className="mr-1.5" />
-                  Sign In with GitHub
-                </Button>
+              {user && (
+                <div className="flex items-center gap-2">
+                  <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full border-2 border-primary/40" />
+                  <span className="text-sm font-medium">{user.login}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {tokenBalance || 0} INF
+                  </Badge>
+                </div>
               )}
             </div>
           </div>
@@ -189,7 +127,7 @@ function App() {
           </TabsList>
 
           <TabsContent value="home" className="space-y-8">
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-white to-blue-50/30">
+            <Card className="border-2 border-primary/30 bg-gradient-to-br from-card to-card/50">
               <CardContent className="p-12">
                 <div className="text-center space-y-4">
                   <h2 className="text-4xl font-bold text-foreground">Welcome to Infinity Brain</h2>
@@ -201,124 +139,124 @@ function App() {
               </CardContent>
             </Card>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <Card
                 onClick={() => setActiveTab('mongoose')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-primary/20 hover:border-primary hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 w-fit">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 w-fit">
                     <Brain size={40} weight="duotone" className="text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">Mongoose.os</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Mongoose.os</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       AI intelligence system with data cart processing
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-primary to-secondary h-9 text-sm">
+                  <button className="mushroom-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
 
               <Card
                 onClick={() => setActiveTab('chat')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-accent/20 hover:border-accent hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 w-fit">
-                    <ChatCircle size={40} weight="duotone" className="text-blue-500" />
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/10 w-fit">
+                    <ChatCircle size={40} weight="duotone" className="text-accent" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">Neural Slot Chat</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Neural Slot Chat</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       AI-powered chat with Mongoose.os intelligence
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 h-9 text-sm">
+                  <button className="lightning-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
 
               <Card
                 onClick={() => setActiveTab('heatmap')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-secondary/10 w-fit">
-                    <ChartBar size={40} weight="duotone" className="text-accent" />
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-secondary/20 to-primary/10 w-fit">
+                    <ChartBar size={40} weight="duotone" className="text-secondary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">Behavior Heatmap</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Behavior Heatmap</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Track most used features and activity trends
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-accent to-secondary h-9 text-sm">
+                  <button className="star-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
 
               <Card
                 onClick={() => setActiveTab('assistant')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-primary/20 hover:border-primary hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 w-fit">
-                    <Robot size={40} weight="duotone" className="text-purple-500" />
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/10 w-fit">
+                    <Robot size={40} weight="duotone" className="text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">AI Project Assistant</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">AI Project Assistant</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Intelligent project completion suggestions
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 h-9 text-sm">
+                  <button className="crown-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
 
               <Card
                 onClick={() => setActiveTab('charts')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-accent/20 hover:border-accent hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 w-fit">
-                    <ChartLine size={40} weight="duotone" className="text-green-500" />
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-secondary/10 w-fit">
+                    <ChartLine size={40} weight="duotone" className="text-accent" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">Infinity Charts</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Infinity Charts</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Token charts with plateau growth algorithm
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 h-9 text-sm">
+                  <button className="brick-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
 
               <Card
                 onClick={() => setActiveTab('mongoose')}
-                className="cursor-pointer border-2 hover:border-primary hover:shadow-xl transition-all duration-300"
+                className="cursor-pointer border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl transition-all duration-300 glow-card"
               >
                 <CardContent className="p-8 flex flex-col gap-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 w-fit">
-                    <GitBranch size={40} weight="duotone" className="text-cyan-500" />
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/10 w-fit">
+                    <GitBranch size={40} weight="duotone" className="text-secondary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-xl mb-2">Repo Cart Sync</h3>
+                    <h3 className="font-bold text-xl mb-2 text-foreground">Repo Cart Sync</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Auto-sync files between all repos
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 h-9 text-sm">
+                  <button className="square-btn w-full">
                     Open
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
             </div>

@@ -396,20 +396,20 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 
 ## Design Direction
 
-The design should feel clean, professional, and trustworthy - inspired by PayPal's business structure with a focus on clarity, simplicity, and confidence. Minimalist aesthetic with generous white space, subtle gradients, and cool blues that evoke trust and reliability. Every element should feel purposeful and uncluttered, with slim glowing buttons that provide clear visual hierarchy without overwhelming the user. The interface should feel like a professional business platform that intelligently gets out of your way.
+The design should feel cosmic, playful, and energetic - inspired by video games and cosmic aesthetics with bold creative button shapes (mushrooms 🍄, lightning bolts ⚡, stars ⭐, crowns 👑, bricks 🧱, and squares 🟦). Dark space-themed background with radial gradients and geometric patterns. Buttons should have personality and tactile feedback with 3D effects, shadows, and animations. The interface should feel fun, engaging, and memorable while maintaining professional functionality.
 
 ## Color Selection
 
-A refined, cool color palette that emphasizes trust, professionalism, and clarity - PayPal-inspired with subtle glows and clean whites.
+A vibrant cosmic palette that emphasizes creativity, energy, and playfulness - space-themed with bold accent colors and dark backgrounds.
 
-- **Primary Color**: Cool Blue `oklch(0.48 0.18 225)` - Professional and trustworthy, represents intelligence and reliability
-- **Secondary Colors**: Lighter Blue `oklch(0.62 0.12 200)` for secondary actions, Muted Gray `oklch(0.96 0.005 240)` for backgrounds
-- **Accent Color**: Teal `oklch(0.72 0.16 180)` - Fresh accent for interactive elements and focus states
+- **Primary Color**: Vibrant Purple `oklch(0.65 0.25 300)` - Energetic and creative, represents innovation and imagination
+- **Secondary Colors**: Bright Gold `oklch(0.70 0.22 45)` for actions, Dark Space Gray `oklch(0.25 0.02 280)` for backgrounds
+- **Accent Color**: Electric Green `oklch(0.75 0.24 150)` - High energy accent for interactive elements and highlights
 - **Foreground/Background Pairings**: 
-  - Primary Blue: White text (#FFFFFF) - Ratio 9.5:1 ✓
-  - Secondary Blue: White text (#FFFFFF) - Ratio 5.2:1 ✓
-  - Accent Teal: Dark text `oklch(0.15 0.01 240)` - Ratio 10.1:1 ✓
-  - Background: Clean white `oklch(0.98 0.002 240)` with subtle radial gradients for depth
+  - Primary Purple: Light text `oklch(0.98 0.01 280)` - Ratio 7.2:1 ✓
+  - Secondary Gold: Dark text `oklch(0.15 0.02 280)` - Ratio 11.5:1 ✓
+  - Accent Green: Dark text `oklch(0.15 0.02 280)` - Ratio 12.8:1 ✓
+  - Background: Deep space `oklch(0.15 0.02 280)` with cosmic radial gradients and geometric patterns
 
 ## Font Selection
 
@@ -425,42 +425,47 @@ Typography should balance modern tech aesthetics with readability, using a geome
 
 ## Animations
 
-Animations should be subtle and purposeful, reinforcing trust through smoothness. Button interactions should feature gentle glows that expand on hover (0.2s ease), cards should lift with soft shadows (0.25s ease), and transitions should be quick but not instant (200-300ms). Focus on clarity over flair - animations guide attention without demanding it.
+Animations should be playful and energetic, creating moments of delight and surprise. Button interactions feature creative 3D effects - mushrooms squish when pressed (0.3s ease), lightning bolts pulse with electric energy (1.5s infinite), stars rotate with cosmic motion (3s linear), crowns float regally (2.5s ease-in-out), bricks show solid compression (0.2s ease), and squares glow with neon intensity (0.2s ease). Focus on personality and tactile feedback - animations should be felt physically, creating memorable interactions.
 
 ## Component Selection
 
 - **Components**: 
-  - Card with minimal borders for feature sections
-  - Tabs with clean underline style for navigation
-  - Dialog for detailed views (minimal overlay, white background)
-  - Button with slim profile (36px height) and primary/secondary variants
-  - Badge for status indicators (subtle, not loud)
-  - Input with subtle borders and clean focus states
+  - Card with glowing borders and hover effects for feature sections
+  - Tabs with underline style for navigation (updated for dark theme)
+  - Dialog for detailed views (dark overlay, card background)
+  - Custom shaped buttons with 3D effects and emoji icons (mushroom, lightning, star, crown, brick, square)
+  - Badge for status indicators with vibrant colors
+  - Input with glowing borders and cosmic focus states
   
 - **Customizations**:
-  - Slim buttons (height: 36px, padding: 0 20px) with glow effect on hover
-  - PayPal-style section cards with white background and subtle shadows
-  - Navbar with white background and backdrop blur
-  - Minimal gradient accents (no loud gradients)
+  - Mushroom buttons (rounded organic shape with cap shadow, 🍄 icon, float animation)
+  - Lightning buttons (zigzag clip-path polygon, ⚡ icon, pulse glow effect)
+  - Star buttons (10-point star clip-path, ⭐ icon, rotation animation)
+  - Crown buttons (serrated top edge clip-path, 👑 icon, float animation)
+  - Brick buttons (repeating brick texture pattern, 🧱 icon, solid press effect)
+  - Square buttons (geometric with neon glow, 🟦 icon, scale animation)
+  - Cosmic background with radial gradients and diagonal stripe patterns
+  - Glow cards with luminous borders and shadow lift effects
 
 - **States**:
-  - Buttons: Rest (gradient background), Hover (glow shadow + slight lift), Active (pressed), Focus (teal ring)
-  - Inputs: Default (gray border), Focus (teal ring), Filled (subtle background)
-  - Cards: Default (white with border), Hover (elevated shadow, border color shift)
+  - Buttons: Rest (gradient with shadow), Hover (lift with increased shadow), Active (pressed with decreased shadow), Focus (glowing ring)
+  - Inputs: Default (border), Focus (glowing ring with color shift), Filled (subtle glow)
+  - Cards: Default (dark with border), Hover (elevated with glowing shadow, transform up 2px)
 
 - **Icon Selection**: 
-  - All icons from Phosphor at size 18-32px with duotone weight
-  - Brain, ChatCircle, ChartBar, ChartLine, Robot, GitBranch for main features
+  - All icons from Phosphor at size 24-40px with duotone weight
+  - Brain, ChatCircle, ChartBar, ChartLine, Robot, GitBranch, Infinity for main features
+  - Emoji icons embedded in button styles (🍄⚡⭐👑🧱🟦)
 
 - **Spacing**: 
-  - Page padding: p-4 sm:p-6
-  - Section gaps: gap-4 to gap-6
-  - Card padding: p-6
-  - Button padding: px-20 py-0 (slim profile)
+  - Page padding: p-6 sm:p-8
+  - Section gaps: gap-6 to gap-8
+  - Card padding: p-8 to p-10
+  - Button padding: varies by shape (mushroom/lightning/star use custom padding)
   - Navbar height: h-16
 
 - **Mobile**: 
-  - Responsive tab navigation that collapses icons + text
-  - Cards stack vertically on mobile
-  - Touch-friendly buttons (min 36px height)
-  - Sticky navigation bar at top
+  - Responsive tab navigation with icon + text on mobile
+  - Cards stack vertically with increased spacing on mobile
+  - Touch-friendly buttons (min 48px tap targets for shaped buttons)
+  - Sticky navigation bar at top with backdrop blur
