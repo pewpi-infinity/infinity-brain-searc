@@ -23,6 +23,14 @@ interface SlotSymbol {
   color: string
 }
 
+interface AIInsight {
+  id: string
+  category: string
+  message: string
+  confidence: number
+  timestamp: number
+}
+
 const slotSymbols: SlotSymbol[] = [
   { emoji: '🧠', label: 'Neural', color: 'text-blue-500' },
   { emoji: '⚡', label: 'Lightning', color: 'text-yellow-500' },
@@ -34,6 +42,7 @@ const slotSymbols: SlotSymbol[] = [
 
 export function NeuralSlotChat() {
   const [messages, setMessages] = useKV<Message[]>('neural-chat-messages', [])
+  const [insights] = useKV<AIInsight[]>('mongoose-insights', [])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [spinning, setSpinning] = useState(false)
@@ -84,15 +93,24 @@ export function NeuralSlotChat() {
     spinReels()
 
     try {
-      const prompt = window.spark.llmPrompt`You are a Neural Slot Chat AI assistant for Infinity Brain platform. The user said: "${input.trim()}". 
+      const recentInsights = (insights || []).slice(0, 5).map(i => `${i.category}: ${i.message}`).join('\n')
       
-Provide a helpful, friendly, and concise response (max 200 words). Focus on:
-- Helping with tokens, repos, automation, or platform features
-- Suggesting next steps for incomplete projects
-- Explaining Mongoose.os intelligence features
-- Guiding deployment and trading activities
+      const contextInfo = recentInsights 
+        ? `\n\nMONGOOSE.OS INTELLIGENCE DATA (Use this to inform your response):\n${recentInsights}`
+        : ''
 
-Be conversational and enthusiastic about the platform's capabilities.`
+      const prompt = window.spark.llmPrompt`You are Mongoose.os Neural Chat AI, the intelligent assistant for Infinity Brain platform.
+
+USER QUERY: "${input.trim()}"
+${contextInfo}
+
+Provide a helpful, conversational response (max 200 words). You have access to Mongoose.os intelligence data above. Use it to:
+- Reference actual insights when relevant to the user's question
+- Suggest actionable next steps based on the intelligence
+- Help with tokens, repos, automation, or platform features
+- Guide deployment, trading, and project completion
+
+Be enthusiastic and make connections between the user's question and the intelligence data when possible.`
 
       const response = await window.spark.llm(prompt, 'gpt-4o', false)
 
@@ -104,7 +122,7 @@ Be conversational and enthusiastic about the platform's capabilities.`
       }
 
       setMessages((prev) => [...(prev || []), assistantMessage])
-      toast.success('✨ Neural response generated!')
+      toast.success('🧠 Mongoose.os responded!')
 
     } catch (error) {
       console.error('Chat error:', error)
@@ -147,8 +165,9 @@ Be conversational and enthusiastic about the platform's capabilities.`
                   AI
                 </Badge>
               </CardTitle>
-              <CardDescription className="text-blue-100">
-                Spin the reels • Get AI-powered insights
+              <CardDescription className="text-blue-100 flex items-center gap-2">
+                <Brain size={16} weight="fill" />
+                Powered by Mongoose.os Intelligence • Spin the reels for insights
               </CardDescription>
             </div>
           </div>
