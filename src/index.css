@@ -13,26 +13,26 @@
 }
 
 :root {
-  --background: oklch(0.99 0.005 240);
-  --foreground: oklch(0.25 0.02 240);
+  --background: oklch(0.98 0.002 240);
+  --foreground: oklch(0.20 0.01 240);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.02 240);
+  --card-foreground: oklch(0.20 0.01 240);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.02 240);
-  --primary: oklch(0.55 0.22 240);
+  --popover-foreground: oklch(0.20 0.01 240);
+  --primary: oklch(0.48 0.18 225);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.70 0.15 210);
+  --secondary: oklch(0.62 0.12 200);
   --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.97 0.01 240);
-  --muted-foreground: oklch(0.55 0.02 240);
-  --accent: oklch(0.65 0.20 250);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.58 0.22 20);
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.50 0.01 240);
+  --accent: oklch(0.72 0.16 180);
+  --accent-foreground: oklch(0.15 0.01 240);
+  --destructive: oklch(0.55 0.20 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.93 0.01 240);
-  --input: oklch(0.93 0.01 240);
-  --ring: oklch(0.65 0.20 250);
-  --radius: 0.75rem;
+  --border: oklch(0.90 0.005 240);
+  --input: oklch(0.90 0.005 240);
+  --ring: oklch(0.72 0.16 180);
+  --radius: 0.5rem;
 }
 
 @theme {
@@ -64,46 +64,44 @@
   --radius-full: 9999px;
 }
 
-.mesh-background {
+.paypal-background {
   background:
-    radial-gradient(circle at 20% 20%, oklch(0.85 0.15 240 / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, oklch(0.80 0.18 210 / 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, oklch(0.75 0.20 250 / 0.05) 0%, transparent 60%),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 40px,
-      oklch(0.90 0.05 240 / 0.03) 40px,
-      oklch(0.90 0.05 240 / 0.03) 41px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 40px,
-      oklch(0.90 0.05 240 / 0.03) 40px,
-      oklch(0.90 0.05 240 / 0.03) 41px
-    ),
-    linear-gradient(135deg, oklch(0.99 0.01 240) 0%, oklch(0.97 0.02 250) 100%);
-  transition: background 0.5s ease-in-out;
+    radial-gradient(circle at 15% 20%, oklch(0.70 0.14 200 / 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, oklch(0.75 0.16 180 / 0.04) 0%, transparent 40%),
+    linear-gradient(135deg, oklch(0.98 0.002 240) 0%, oklch(0.99 0.001 200) 100%);
+  transition: background 0.3s ease;
 }
 
-.gradient-border {
-  position: relative;
-  background: var(--card);
-  border-radius: var(--radius-lg);
+.slim-button {
+  height: 36px;
+  padding: 0 20px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-lg);
-  padding: 2px;
-  background: linear-gradient(135deg, oklch(0.70 0.18 200), oklch(0.55 0.20 250), oklch(0.45 0.15 300));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+.slim-button-primary {
+  background: linear-gradient(135deg, oklch(0.48 0.18 225), oklch(0.52 0.16 210));
+  color: white;
+  box-shadow: 0 1px 3px oklch(0.48 0.18 225 / 0.2);
+}
+
+.slim-button-primary:hover {
+  box-shadow: 0 2px 8px oklch(0.48 0.18 225 / 0.3), 0 0 20px oklch(0.48 0.18 225 / 0.2);
+  transform: translateY(-1px);
+}
+
+.slim-button-secondary {
+  background: white;
+  color: oklch(0.48 0.18 225);
+  border: 1px solid oklch(0.90 0.005 240);
+}
+
+.slim-button-secondary:hover {
+  border-color: oklch(0.48 0.18 225);
+  box-shadow: 0 2px 6px oklch(0.48 0.18 225 / 0.15);
 }
 
 .slot-reel {
@@ -124,32 +122,22 @@
   50% { opacity: 1; }
 }
 
-.solid-background {
-  background: var(--background);
+.glow-card {
+  background: white;
+  border: 1px solid oklch(0.90 0.005 240);
+  border-radius: var(--radius);
+  transition: all 0.25s ease;
 }
 
-.dots-background {
-  background-color: var(--background);
-  background-image: radial-gradient(circle, oklch(0.70 0.18 200 / 0.15) 1px, transparent 1px);
-  background-size: 20px 20px;
+.glow-card:hover {
+  box-shadow: 0 4px 16px oklch(0.48 0.18 225 / 0.08);
+  border-color: oklch(0.85 0.005 240);
 }
 
-.waves-background {
-  background-color: var(--background);
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 35px,
-      oklch(0.70 0.18 200 / 0.05) 35px,
-      oklch(0.70 0.18 200 / 0.05) 70px
-    );
-}
-
-.grid-background {
-  background-color: var(--background);
-  background-image: 
-    linear-gradient(oklch(0.88 0.03 280 / 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.88 0.03 280 / 0.1) 1px, transparent 1px);
-  background-size: 30px 30px;
+.paypal-section {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  border: 1px solid oklch(0.92 0.005 240);
+  box-shadow: 0 1px 3px oklch(0.20 0.01 240 / 0.05);
 }

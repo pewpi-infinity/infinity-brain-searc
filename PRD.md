@@ -396,20 +396,20 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 
 ## Design Direction
 
-The design should feel modern, sophisticated, and trustworthy - combining the energy of a startup with the reliability of financial infrastructure. Moving completely away from terminal green to embrace a vibrant, gradient-rich aesthetic that feels like a next-generation economic platform. Users should feel confident using it as the foundation for world currency, with every interaction providing clear visual feedback and delightful micro-animations that reinforce security and permanence.
+The design should feel clean, professional, and trustworthy - inspired by PayPal's business structure with a focus on clarity, simplicity, and confidence. Minimalist aesthetic with generous white space, subtle gradients, and cool blues that evoke trust and reliability. Every element should feel purposeful and uncluttered, with slim glowing buttons that provide clear visual hierarchy without overwhelming the user. The interface should feel like a professional business platform that intelligently gets out of your way.
 
 ## Color Selection
 
-A bold, vibrant color scheme that combines deep purples and electric blues with energetic accent colors - professional yet exciting.
+A refined, cool color palette that emphasizes trust, professionalism, and clarity - PayPal-inspired with subtle glows and clean whites.
 
-- **Primary Color**: Deep Purple `oklch(0.45 0.15 300)` - Sophisticated and modern, represents intelligence and creativity
-- **Secondary Colors**: Electric Blue `oklch(0.55 0.20 250)` for interactive elements, Soft Lavender `oklch(0.75 0.08 290)` for cards/sections
-- **Accent Color**: Vibrant Cyan `oklch(0.70 0.18 200)` - High-energy color for CTAs, buttons, and important highlights
+- **Primary Color**: Cool Blue `oklch(0.48 0.18 225)` - Professional and trustworthy, represents intelligence and reliability
+- **Secondary Colors**: Lighter Blue `oklch(0.62 0.12 200)` for secondary actions, Muted Gray `oklch(0.96 0.005 240)` for backgrounds
+- **Accent Color**: Teal `oklch(0.72 0.16 180)` - Fresh accent for interactive elements and focus states
 - **Foreground/Background Pairings**: 
-  - Primary Purple: White text (#FFFFFF) - Ratio 8.2:1 ✓
-  - Electric Blue: White text (#FFFFFF) - Ratio 5.8:1 ✓
-  - Vibrant Cyan: Deep Navy `oklch(0.20 0.05 270)` - Ratio 9.1:1 ✓
-  - Background: Soft gradient from `oklch(0.95 0.01 280)` to `oklch(0.98 0.01 250)` with subtle mesh pattern
+  - Primary Blue: White text (#FFFFFF) - Ratio 9.5:1 ✓
+  - Secondary Blue: White text (#FFFFFF) - Ratio 5.2:1 ✓
+  - Accent Teal: Dark text `oklch(0.15 0.01 240)` - Ratio 10.1:1 ✓
+  - Background: Clean white `oklch(0.98 0.002 240)` with subtle radial gradients for depth
 
 ## Font Selection
 
@@ -425,55 +425,42 @@ Typography should balance modern tech aesthetics with readability, using a geome
 
 ## Animations
 
-Animations should create a sense of fluid intelligence - smooth transitions that feel responsive without delay, with special attention to data visualization animations that show information flowing and connecting. Use spring physics for interactive elements (buttons, cards) and smooth easing for transitions. Graph nodes should gently pulse, search results should cascade in with stagger, and the slot machine should have satisfying mechanical momentum.
+Animations should be subtle and purposeful, reinforcing trust through smoothness. Button interactions should feature gentle glows that expand on hover (0.2s ease), cards should lift with soft shadows (0.25s ease), and transitions should be quick but not instant (200-300ms). Focus on clarity over flair - animations guide attention without demanding it.
 
 ## Component Selection
 
 - **Components**: 
-  - Card for feature sections and result displays
-  - Tabs for switching between search modes (web, images, AI)
-  - Dialog for detailed result views and settings
-  - Sheet for slide-out legend/help system
-  - Input with search icon for query entry
-  - Button with variants for different action levels
-  - Badge for result tags and categories
-  - Progress for search loading states
-  - Tooltip for inline help hints
-  - Accordion for collapsible sections in legend
-
+  - Card with minimal borders for feature sections
+  - Tabs with clean underline style for navigation
+  - Dialog for detailed views (minimal overlay, white background)
+  - Button with slim profile (36px height) and primary/secondary variants
+  - Badge for status indicators (subtle, not loud)
+  - Input with subtle borders and clean focus states
+  
 - **Customizations**:
-  - Custom graph visualization component using D3 for search result connections
-  - Custom slot machine component with CSS animations for reel spinning
-  - Custom chat bubble component with typing indicators and formatted message display
-  - Gradient borders on cards using pseudo-elements
-  - Animated background mesh pattern using SVG
+  - Slim buttons (height: 36px, padding: 0 20px) with glow effect on hover
+  - PayPal-style section cards with white background and subtle shadows
+  - Navbar with white background and backdrop blur
+  - Minimal gradient accents (no loud gradients)
 
 - **States**:
-  - Buttons: Rest (gradient background), Hover (lift with shadow), Active (press down), Loading (pulse animation)
-  - Inputs: Default (subtle border), Focus (glowing cyan ring), Filled (slight background tint), Error (red accent)
-  - Cards: Default (soft shadow), Hover (elevated shadow, subtle scale), Selected (colored border)
+  - Buttons: Rest (gradient background), Hover (glow shadow + slight lift), Active (pressed), Focus (teal ring)
+  - Inputs: Default (gray border), Focus (teal ring), Filled (subtle background)
+  - Cards: Default (white with border), Hover (elevated shadow, border color shift)
 
 - **Icon Selection**: 
-  - Search: MagnifyingGlass (Phosphor)
-  - AI Chat: ChatsCircle
-  - Graph/Visualization: ChartNetwork
-  - Slot Machine: Coin
-  - Help/Legend: Question
-  - Navigation: List
-  - Settings: Gear
-  - Refresh: ArrowsClockwise
+  - All icons from Phosphor at size 18-32px with duotone weight
+  - Brain, ChatCircle, ChartBar, ChartLine, Robot, GitBranch for main features
 
 - **Spacing**: 
-  - Page padding: p-6 md:p-8
-  - Section gaps: gap-8
+  - Page padding: p-4 sm:p-6
+  - Section gaps: gap-4 to gap-6
   - Card padding: p-6
-  - Inline elements: gap-2
-  - Button padding: px-6 py-3
+  - Button padding: px-20 py-0 (slim profile)
+  - Navbar height: h-16
 
 - **Mobile**: 
-  - Stack sections vertically on mobile
-  - Slide-out sheet navigation for mobile menu
-  - Touch-friendly button sizes (min 44px)
-  - Collapsible sections for legend/help
-  - Full-screen chat on mobile
-  - Simplified graph visualization for small screens
+  - Responsive tab navigation that collapses icons + text
+  - Cards stack vertically on mobile
+  - Touch-friendly buttons (min 36px height)
+  - Sticky navigation bar at top
