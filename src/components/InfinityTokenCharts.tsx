@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useKV } from '@github/spark/hooks'
-import { TrendUp, ChartLine, Infinity, CurrencyDollar } from '@phosphor-icons/react'
+import { TrendUp, ChartLine, Infinity, CurrencyDollar, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -17,6 +17,8 @@ interface TokenData {
   dataPoints: { time: string; value: number; volume: number }[]
   growthRate: number
   intelligence: number
+  isRealData: boolean
+  dataSource?: string
 }
 
 export function InfinityTokenCharts() {
@@ -47,7 +49,9 @@ export function InfinityTokenCharts() {
         currentValue: 100,
         dataPoints: generatePlateauData(100, 30),
         growthRate: 0.02,
-        intelligence: 0.95
+        intelligence: 0.95,
+        isRealData: false,
+        dataSource: 'Simulated - Connect blockchain API for real data'
       },
       {
         symbol: 'MONGOOSE',
@@ -56,7 +60,9 @@ export function InfinityTokenCharts() {
         currentValue: 50,
         dataPoints: generatePlateauData(50, 30),
         growthRate: 0.025,
-        intelligence: 0.92
+        intelligence: 0.92,
+        isRealData: false,
+        dataSource: 'Simulated - Connect blockchain API for real data'
       },
       {
         symbol: 'QUANTUM',
@@ -65,7 +71,9 @@ export function InfinityTokenCharts() {
         currentValue: 75,
         dataPoints: generatePlateauData(75, 30),
         growthRate: 0.018,
-        intelligence: 0.88
+        intelligence: 0.88,
+        isRealData: false,
+        dataSource: 'Simulated - Connect blockchain API for real data'
       },
       {
         symbol: 'NEURAL',
@@ -74,13 +82,15 @@ export function InfinityTokenCharts() {
         currentValue: 120,
         dataPoints: generatePlateauData(120, 30),
         growthRate: 0.022,
-        intelligence: 0.94
+        intelligence: 0.94,
+        isRealData: false,
+        dataSource: 'Simulated - Connect blockchain API for real data'
       }
     ]
 
     await setTokens(initialTokens)
     setSelectedToken(initialTokens[0])
-    toast.success('📈 Infinity token charts initialized')
+    toast.info('📈 Token charts initialized - Using simulated data (blockchain API connection needed for real values)')
   }
 
   const generatePlateauData = (baseValue: number, points: number) => {
@@ -165,6 +175,25 @@ export function InfinityTokenCharts() {
       </CardHeader>
 
       <CardContent className="p-6 space-y-6">
+        {selectedToken && !selectedToken.isRealData && (
+          <Card className="border-2 border-yellow-500 bg-yellow-50">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Warning size={24} weight="fill" className="text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-yellow-900 mb-1">Simulated Data Warning</h3>
+                  <p className="text-sm text-yellow-800">
+                    {selectedToken.dataSource || 'This token is using simulated data. To display real blockchain values, connect your blockchain API or exchange credentials in Settings.'}
+                  </p>
+                  <p className="text-xs text-yellow-700 mt-2">
+                    Real blockchain integration requires API keys which are not included in this demo.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         <div className="grid md:grid-cols-4 gap-4">
           {(tokens || []).map((token) => (
             <motion.div

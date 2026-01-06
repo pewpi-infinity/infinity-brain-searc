@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, SignIn, SignOut } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
+import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
 import { NeuralSlotChat } from '@/components/NeuralSlotChat'
 import { UserBehaviorHeatmap } from '@/components/UserBehaviorHeatmap'
@@ -11,23 +12,63 @@ import { AIProjectCompletionAssistant } from '@/components/AIProjectCompletionAs
 import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
 import { RepoCartSync } from '@/components/RepoCartSync'
 
+interface UserInfo {
+  avatarUrl: string
+  email: string
+  id: string
+  isOwner: boolean
+  login: string
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('home')
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [tokenBalance, setTokenBalance] = useKV<number>('user-token-balance', 0)
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         if (typeof window !== 'undefined' && window.spark) {
           console.log('✅ Infinity Brain initialized')
-          toast.success('Welcome to Infinity Brain 🧠')
+          
+          const currentUser = await window.spark.user()
+          if (currentUser && currentUser.login) {
+            setUser(currentUser)
+            toast.success(`Welcome back, ${currentUser.login}! 🧠`)
+          } else {
+            toast.info('Please sign in to access all features')
+          }
         }
       } catch (error) {
         console.warn('Initialization:', error)
+        toast.error('Failed to initialize user session')
+      } finally {
+        setIsLoading(false)
       }
     }
     
     initializeApp().catch(err => console.warn('Init:', err))
   }, [])
+
+  const handleSignIn = async () => {
+    try {
+      const currentUser = await window.spark.user()
+      if (currentUser && currentUser.login) {
+        setUser(currentUser)
+        toast.success(`Signed in as ${currentUser.login}`)
+      } else {
+        toast.error('Unable to sign in. Please ensure you are logged into GitHub.')
+      }
+    } catch (error) {
+      toast.error('Sign in failed')
+    }
+  }
+
+  const handleSignOut = () => {
+    setUser(null)
+    toast.success('Signed out successfully')
+  }
 
   return (
     <div className="min-h-screen paypal-background">
@@ -43,12 +84,31 @@ function App() {
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="default">
-                Sign In
-              </Button>
-              <Button size="default" className="bg-gradient-to-r from-primary to-secondary">
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full" />
+                    <span className="text-sm font-medium">{user.login}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {tokenBalance || 0} INF
+                    </span>
+                  </div>
+                  <Button variant="outline" size="default" onClick={handleSignOut}>
+                    <SignOut size={18} className="mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="default" onClick={handleSignIn}>
+                    <SignIn size={18} className="mr-2" />
+                    Sign In with GitHub
+                  </Button>
+                  <Button size="default" className="bg-gradient-to-r from-primary to-secondary" onClick={handleSignIn}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
