@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, GitBranch, GameController, MusicNotes, LockKey } from '@phosphor-icons/react'
+import { House, Robot, Sparkle, CurrencyDollar, Storefront, GitBranch, GameController, MusicNotes, LockKey } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
+import { TokenMinter } from '@/components/TokenMinter'
+import { TokenMarketplace } from '@/components/TokenMarketplace'
+import { TokenAuction } from '@/components/TokenAuction'
+import { RepoManagementHub } from '@/components/RepoManagementHub'
+import { AIChat } from '@/components/AIChat'
+import { QuantumJukebox } from '@/components/QuantumJukebox'
+import { QuantumEncryptionVault } from '@/components/QuantumEncryptionVault'
+import { SlotMachine } from '@/components/SlotMachine'
+import { EmojiCatcherGame } from '@/components/EmojiCatcherGame'
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
@@ -184,57 +193,36 @@ function App() {
           </TabsContent>
 
           <TabsContent value="create" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">Create Tokens</h2>
-              <p className="text-muted-foreground">Token minting features coming soon...</p>
-            </div>
+            <TokenMinter />
           </TabsContent>
 
           <TabsContent value="trade" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">Trade & Markets</h2>
-              <p className="text-muted-foreground">Trading features coming soon...</p>
+            <div className="space-y-6">
+              <TokenMarketplace />
+              <TokenAuction />
             </div>
           </TabsContent>
 
           <TabsContent value="build" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">Build & Deploy</h2>
-              <p className="text-muted-foreground">Build features coming soon...</p>
-            </div>
+            <RepoManagementHub />
           </TabsContent>
 
           <TabsContent value="explore" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">AI Chat</h2>
-              <p className="text-muted-foreground">AI features coming soon...</p>
-            </div>
+            <AIChat />
           </TabsContent>
 
           <TabsContent value="quantum" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">Quantum Audio System</h2>
-              <p className="text-muted-foreground mb-6">
-                Experience quantum frequencies generated with bismuth transmission signatures, 
-                hydrogen frequency modulation, and magnetic retention algorithms.
-              </p>
-            </div>
+            <QuantumJukebox />
           </TabsContent>
 
           <TabsContent value="vault" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">Quantum Encryption Vault</h2>
-              <p className="text-muted-foreground mb-6">
-                Encrypt, compress, and store data using SHA-256 hashing with bismuth transmission frequencies 
-                and hydrogen-magnetic retention protocols.
-              </p>
-            </div>
+            <QuantumEncryptionVault />
           </TabsContent>
 
           <TabsContent value="play" className="space-y-6">
-            <div className="bg-card/80 backdrop-blur rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-6">Play & Earn</h2>
-              <p className="text-muted-foreground">Gaming features coming soon...</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <SlotMachine />
+              <EmojiCatcherGame />
             </div>
           </TabsContent>
         </Tabs>

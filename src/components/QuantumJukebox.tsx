@@ -52,7 +52,7 @@ export function QuantumJukebox() {
   const animationFrameRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (tracks.length === 0) {
+    if (!tracks || tracks.length === 0) {
       generateDefaultTracks()
     }
   }, [])
@@ -143,10 +143,10 @@ export function QuantumJukebox() {
     
     setVisualizerData(Array.from(dataArray))
     
-    if (playbackState.isPlaying) {
+    if (playbackState && playbackState.isPlaying) {
       animationFrameRef.current = requestAnimationFrame(updateVisualizer)
     }
-  }, [playbackState.isPlaying])
+  }, [playbackState?.isPlaying])
 
   const playTrack = useCallback(async (track: QuantumTrack) => {
     try {
@@ -228,9 +228,11 @@ export function QuantumJukebox() {
     }
     
     setPlaybackState(prev => ({
-      ...prev,
       isPlaying: false,
-      currentTime: 0
+      currentTime: 0,
+      duration: prev?.duration || 0,
+      volume: prev?.volume || 0.7,
+      currentTrack: prev?.currentTrack || null
     }))
   }, [])
 
@@ -347,14 +349,14 @@ export function QuantumJukebox() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-full ${playbackState.isPlaying ? 'bg-gradient-to-br from-purple-500 to-cyan-500 animate-pulse' : 'bg-muted'}`}>
-                <Disc size={32} weight="duotone" className={playbackState.isPlaying ? 'text-white animate-spin' : 'text-foreground'} style={{ animationDuration: '3s' }} />
+              <div className={`p-3 rounded-full ${playbackState?.isPlaying ? 'bg-gradient-to-br from-purple-500 to-cyan-500 animate-pulse' : 'bg-muted'}`}>
+                <Disc size={32} weight="duotone" className={playbackState?.isPlaying ? 'text-white animate-spin' : 'text-foreground'} style={{ animationDuration: '3s' }} />
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Atom size={24} weight="duotone" className="text-cyan-500" />
                   Quantum Jukebox
-                  {playbackState.isPlaying && (
+                  {playbackState?.isPlaying && (
                     <Badge variant="default" className="animate-pulse bg-gradient-to-r from-purple-500 to-cyan-500">
                       🔊 LIVE
                     </Badge>
@@ -464,7 +466,7 @@ export function QuantumJukebox() {
                       <SkipBack size={24} weight="fill" />
                     </Button>
                     
-                    {playbackState.isPlaying ? (
+                    {playbackState?.isPlaying ? (
                       <Button
                         size="lg"
                         onClick={handlePause}
@@ -547,7 +549,7 @@ export function QuantumJukebox() {
                       >
                         <Card
                           className={`cursor-pointer transition-all hover:shadow-md ${
-                            currentTrack?.id === track.id && playbackState.isPlaying
+                            currentTrack?.id === track.id && playbackState?.isPlaying
                               ? 'ring-2 ring-cyan-500 bg-cyan-500/10'
                               : ''
                           }`}
@@ -557,7 +559,7 @@ export function QuantumJukebox() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-2">
-                                  {currentTrack?.id === track.id && playbackState.isPlaying && (
+                                  {currentTrack?.id === track.id && playbackState?.isPlaying && (
                                     <div className="flex items-center gap-1">
                                       <div className="h-3 w-1 bg-cyan-500 animate-pulse" style={{ animationDelay: '0ms' }} />
                                       <div className="h-3 w-1 bg-cyan-500 animate-pulse" style={{ animationDelay: '150ms' }} />
@@ -622,7 +624,7 @@ export function QuantumJukebox() {
                 <p className="text-sm text-muted-foreground">
                   Real-time quantum frequency visualization
                 </p>
-                {playbackState.isPlaying ? (
+                {playbackState?.isPlaying ? (
                   <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-cyan-500">
                     <Waveform size={14} weight="fill" className="mr-1" />
                     Active Signal
