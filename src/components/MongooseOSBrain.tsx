@@ -92,6 +92,10 @@ export function MongooseOSBrain() {
     setSystemStatus('processing')
     
     try {
+      if (!window.spark || !window.spark.llm) {
+        throw new Error('Spark LLM not available')
+      }
+
       const prompt = window.spark.llmPrompt`You are Mongoose.os, an AI intelligence system analyzing user data carts. 
       
 Cart: ${cart.name}

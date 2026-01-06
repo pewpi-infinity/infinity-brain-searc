@@ -93,18 +93,22 @@ export function NeuralSlotChat() {
     spinReels()
 
     try {
+      if (!window.spark || !window.spark.llm) {
+        throw new Error('Spark LLM not available')
+      }
+
       const recentInsights = (insights || []).slice(0, 5).map(i => `${i.category}: ${i.message}`).join('\n')
       
       const contextInfo = recentInsights 
         ? `\n\nMONGOOSE.OS INTELLIGENCE DATA (Use this to inform your response):\n${recentInsights}`
-        : ''
+        : '\n\n(No Mongoose.os intelligence data available yet. Process data carts in the Mongoose tab to generate insights.)'
 
       const prompt = window.spark.llmPrompt`You are Mongoose.os Neural Chat AI, the intelligent assistant for Infinity Brain platform.
 
 USER QUERY: "${input.trim()}"
 ${contextInfo}
 
-Provide a helpful, conversational response (max 200 words). You have access to Mongoose.os intelligence data above. Use it to:
+Provide a helpful, conversational response (max 200 words). ${recentInsights ? 'You have access to Mongoose.os intelligence data above. Use it to:' : 'Note: No intelligence data is available yet. Suggest the user process data carts first, then:'}
 - Reference actual insights when relevant to the user's question
 - Suggest actionable next steps based on the intelligence
 - Help with tokens, repos, automation, or platform features
@@ -171,6 +175,17 @@ Be enthusiastic and make connections between the user's question and the intelli
               </CardDescription>
             </div>
           </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge 
+              variant="secondary" 
+              className={`${(insights && insights.length > 0) ? 'bg-green-500' : 'bg-yellow-500'} text-white border-0`}
+            >
+              {(insights && insights.length > 0) ? `✅ ${insights.length} Insights` : '⚠️ No Data'}
+            </Badge>
+            <span className="text-xs text-blue-100">
+              {(insights && insights.length > 0) ? 'Intelligence Active' : 'Process carts to enable'}
+            </span>
+          </div>
         </div>
       </CardHeader>
 
@@ -205,6 +220,13 @@ Be enthusiastic and make connections between the user's question and the intelli
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
                     Ask me anything about your tokens, repos, automation, or get AI-powered project assistance.
                   </p>
+                  {(!insights || insights.length === 0) && (
+                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-md mx-auto">
+                      <p className="text-sm text-yellow-800">
+                        💡 <strong>Tip:</strong> For smarter responses, go to the <strong>Mongoose</strong> tab and process data carts first. This gives me intelligence to work with!
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
