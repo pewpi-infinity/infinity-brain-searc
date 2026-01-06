@@ -18,10 +18,6 @@ const isAuthError = (error: Error): boolean => {
 };
 
 export const ErrorFallback = ({ error, resetErrorBoundary }) => {
-  // When encountering an error in the development mode, rethrow it and don't display the boundary.
-  // The parent UI will take care of showing a more helpful dialog.
-  if (import.meta.env.DEV) throw error;
-
   const isAuth = isAuthError(error);
   
   // For guest mode, we'll reset the error boundary and let the app handle the state

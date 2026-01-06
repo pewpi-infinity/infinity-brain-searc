@@ -49,10 +49,14 @@ export function Navigation({ onNavigate, currentTab }: NavigationProps) {
   }, [])
 
   const loadRepos = async () => {
-    const repos = await fetchPewpiInfinityRepos()
-    const categorized = categorizeRepos(repos)
-    setBrainRepos(categorized.brain)
-    setWebsiteRepos(categorized.websites)
+    try {
+      const repos = await fetchPewpiInfinityRepos()
+      const categorized = categorizeRepos(repos)
+      setBrainRepos(categorized.brain)
+      setWebsiteRepos(categorized.websites)
+    } catch (error) {
+      console.warn('Failed to load repos for navigation:', error)
+    }
   }
 
   const handleItemClick = (action: string) => {

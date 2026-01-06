@@ -55,7 +55,6 @@ import { QuantumEncryptionVault } from '@/components/QuantumEncryptionVault'
 import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart, MusicNotes, LockKey } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
-import { restoreAdminAuctions, protectAdminAuctions } from '@/lib/adminProtection'
 import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService.tsx'
 import { AutoAuctionSystem } from '@/components/AutoAuctionSystem'
 import { BatchRepoAnalyzer } from '@/components/BatchRepoAnalyzer'
@@ -97,40 +96,18 @@ function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Check if Spark is available before trying to use it
-      if (!window.spark) {
-        console.log('Spark not available - skipping auction protection initialization')
-        return
-      }
-      
-      // Add delay to let Spark fully initialize
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
       try {
-        await restoreAdminAuctions()
-        await protectAdminAuctions()
-        console.log('✅ Auction protection initialized successfully')
+        if (typeof window === 'undefined' || !window.spark) {
+          console.log('Spark not available - app will work in limited mode')
+          return
+        }
+        console.log('✅ Infinity Brain initialized')
       } catch (error) {
-        console.error('Failed to restore/protect auctions:', error)
+        console.warn('Initialization skipped:', error)
       }
     }
     
-    initializeApp()
-    
-    // Only set up protection interval if Spark is available
-    if (!window.spark) {
-      return
-    }
-    
-    const protectionInterval = setInterval(async () => {
-      try {
-        await protectAdminAuctions()
-      } catch (error) {
-        console.error('Protection check failed:', error)
-      }
-    }, 60000)
-    
-    return () => clearInterval(protectionInterval)
+    initializeApp().catch(err => console.warn('Init error:', err))
   }, [])
 
   const handleSearch = async (query: string, mode: 'web' | 'ai') => {
@@ -138,9 +115,8 @@ function App() {
     setIsSearching(true)
     setShowGraph(false)
 
-    // Check if Spark is available
-    if (!window.spark || !window.spark.llm) {
-      toast.error('Search requires GitHub Spark environment')
+    if (!window.spark?.llm) {
+      toast.error('Search requires Spark environment')
       setIsSearching(false)
       return
     }
@@ -152,31 +128,19 @@ function App() {
     }
 
     try {
-      const promptText = `Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
-      const response = await window.spark.llm(promptText, 'gpt-4o-mini', true)
+      const promptText = spark.llmPrompt`Generate 5 realistic web search results for the query: "${query}". Return as JSON with a "results" array containing objects with id, title, snippet, url, and source fields.`
+      const response = await spark.llm(promptText, 'gpt-4o-mini', true)
       
-      // Validate response before parsing
       if (!response || typeof response !== 'string') {
         throw new Error('Invalid response from API')
       }
       
-      let data
-      try {
-        data = JSON.parse(response)
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError)
-        throw new Error('Failed to parse API response')
-      }
+      const data = JSON.parse(response)
       
-      // Validate data structure
-      if (!data || typeof data !== 'object') {
-        throw new Error('Invalid data structure received')
-      }
-      
-      if (data.results && Array.isArray(data.results)) {
+      if (data?.results && Array.isArray(data.results)) {
         setSearchResults(data.results)
         setActiveTab('explore')
-        toast.success(`Found ${data.results.length} results for "${query}"`)
+        toast.success(`Found ${data.results.length} results`)
       } else {
         throw new Error('Invalid results format')
       }
