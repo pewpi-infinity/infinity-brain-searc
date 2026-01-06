@@ -29,39 +29,69 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        if (typeof window !== 'undefined' && window.spark) {
+        if (typeof window !== 'undefined' && window.spark && typeof window.spark.user === 'function') {
           console.log('✅ Infinity Brain initialized')
           
           const currentUser = await window.spark.user()
+          console.log('User data:', currentUser)
+          
           if (currentUser && currentUser.login) {
             setUser(currentUser)
-            toast.success(`Welcome back, ${currentUser.login}! 🧠`)
+            toast.success(`Welcome back, ${currentUser.login}! 🧠`, {
+              description: `You have ${tokenBalance || 0} INF tokens`
+            })
           } else {
-            toast.info('Please sign in to access all features')
+            console.warn('No user logged in')
+            toast.info('Sign in with GitHub to access all features', {
+              description: 'Click the Sign In button in the top right'
+            })
           }
+        } else {
+          console.error('Spark SDK not available')
+          toast.error('Platform initialization issue', {
+            description: 'Spark SDK is not loaded properly'
+          })
         }
       } catch (error) {
-        console.warn('Initialization:', error)
-        toast.error('Failed to initialize user session')
+        console.error('Initialization error:', error)
+        toast.error('Failed to initialize user session', {
+          description: String(error)
+        })
       } finally {
         setIsLoading(false)
       }
     }
     
-    initializeApp().catch(err => console.warn('Init:', err))
-  }, [])
+    initializeApp().catch(err => console.error('Init error:', err))
+  }, [tokenBalance])
 
   const handleSignIn = async () => {
     try {
+      if (!window.spark || typeof window.spark.user !== 'function') {
+        toast.error('Cannot sign in', {
+          description: 'Spark SDK not available. Please refresh the page.'
+        })
+        return
+      }
+
       const currentUser = await window.spark.user()
+      console.log('Sign in attempt, user:', currentUser)
+      
       if (currentUser && currentUser.login) {
         setUser(currentUser)
-        toast.success(`Signed in as ${currentUser.login}`)
+        toast.success(`✅ Signed in as ${currentUser.login}`, {
+          description: 'All features are now available'
+        })
       } else {
-        toast.error('Unable to sign in. Please ensure you are logged into GitHub.')
+        toast.error('Sign in failed', {
+          description: 'No GitHub user found. You may need to authorize this app in your GitHub settings.'
+        })
       }
     } catch (error) {
-      toast.error('Sign in failed')
+      console.error('Sign in error:', error)
+      toast.error('Sign in failed', {
+        description: String(error)
+      })
     }
   }
 
@@ -117,47 +147,47 @@ function App() {
       <div className="container mx-auto px-4 sm:px-6 py-12 max-w-7xl">
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="inline-flex h-12 items-center justify-center rounded-xl bg-white border border-border p-1 shadow-sm">
+          <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-white border border-border p-1 shadow-sm gap-1">
             <TabsTrigger 
               value="home" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <Brain size={18} weight="duotone" className="mr-2" />
+              <Brain size={16} weight="duotone" className="mr-1.5" />
               Home
             </TabsTrigger>
             <TabsTrigger 
               value="mongoose" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <Brain size={18} weight="duotone" className="mr-2" />
+              <Brain size={16} weight="duotone" className="mr-1.5" />
               Mongoose
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <ChatCircle size={18} weight="duotone" className="mr-2" />
+              <ChatCircle size={16} weight="duotone" className="mr-1.5" />
               Chat
             </TabsTrigger>
             <TabsTrigger 
               value="heatmap" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <ChartBar size={18} weight="duotone" className="mr-2" />
+              <ChartBar size={16} weight="duotone" className="mr-1.5" />
               Heatmap
             </TabsTrigger>
             <TabsTrigger 
               value="assistant" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <Robot size={18} weight="duotone" className="mr-2" />
+              <Robot size={16} weight="duotone" className="mr-1.5" />
               Assistant
             </TabsTrigger>
             <TabsTrigger 
               value="charts" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-4 h-10"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg px-3 h-9 text-sm"
             >
-              <ChartLine size={18} weight="duotone" className="mr-2" />
+              <ChartLine size={16} weight="duotone" className="mr-1.5" />
               Charts
             </TabsTrigger>
           </TabsList>
@@ -190,7 +220,7 @@ function App() {
                       AI intelligence system with data cart processing
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-primary to-secondary h-11">
+                  <Button className="w-full bg-gradient-to-r from-primary to-secondary h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
@@ -210,7 +240,7 @@ function App() {
                       AI-powered chat with Mongoose.os intelligence
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 h-11">
+                  <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
@@ -230,7 +260,7 @@ function App() {
                       Track most used features and activity trends
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-accent to-secondary h-11">
+                  <Button className="w-full bg-gradient-to-r from-accent to-secondary h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
@@ -250,7 +280,7 @@ function App() {
                       Intelligent project completion suggestions
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 h-11">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
@@ -270,7 +300,7 @@ function App() {
                       Token charts with plateau growth algorithm
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 h-11">
+                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
@@ -290,7 +320,7 @@ function App() {
                       Auto-sync files between all repos
                     </p>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 h-11">
+                  <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 h-9 text-sm">
                     Open
                   </Button>
                 </CardContent>
