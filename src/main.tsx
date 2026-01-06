@@ -8,12 +8,6 @@ import App from './App.tsx'
 
 import "./main.css"
 
-// 🔐 SPARK ANCHOR — runs immediately on load
-// (Spark runtime auto-binds window.spark)
-
-// 🚧 C13B0 TEMP: force Guest Mode so broken auth can't block the app
-if (typeof window !== "undefined") window.__C13B0_GUEST_MODE__ = true;
-
 const root = document.getElementById('root')
 
 if (!root) {
