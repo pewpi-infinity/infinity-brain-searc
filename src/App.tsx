@@ -10,13 +10,9 @@ import { SearchResults, SearchResult } from '@/components/SearchResults'
 import { SearchGraph } from '@/components/SearchGraph'
 import { PageHub } from '@/components/PageHub'
 import { ModuleBrowser } from '@/components/ModuleBrowser'
-import { SafetyPromise } from '@/components/SafetyPromise'
-import { SafeModeToggle } from '@/components/SafeModeToggle'
 import { AutoPilotControl } from '@/components/AutoPilotControl'
 import { ComprehensiveAuctionAnalytics } from '@/components/ComprehensiveAuctionAnalytics'
-import { SafetyFooter } from '@/components/SafetyFooter'
 import { IntentBasedHelper } from '@/components/IntentBasedHelper'
-import { AIGuardian } from '@/components/AIGuardian'
 import { TokenMinter } from '@/components/TokenMinter'
 import { TokenMarketplace } from '@/components/TokenMarketplace'
 import { TokenAuction } from '@/components/TokenAuction'
@@ -52,7 +48,7 @@ import { RepoQualityScorer } from '@/components/RepoQualityScorer'
 import { MarioScene } from '@/components/MarioScene'
 import { QuantumJukebox } from '@/components/QuantumJukebox'
 import { QuantumEncryptionVault } from '@/components/QuantumEncryptionVault'
-import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, ShieldCheck, HandHeart, MusicNotes, LockKey } from '@phosphor-icons/react'
+import { House, Robot, Coin, Sparkle, CurrencyDollar, Storefront, ChartLine, GitBranch, ShareNetwork, GameController, List, HandHeart, MusicNotes, LockKey } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 import { TokenRedistributionServiceProvider } from '@/lib/tokenRedistributionService.tsx'
@@ -170,23 +166,6 @@ function App() {
                 </div>
                 
                 <div className="w-10" />
-              </div>
-              
-              <div className="max-w-3xl mx-auto space-y-3">
-                <div className="bg-card/80 backdrop-blur border-2 border-accent/30 rounded-lg p-4 shadow-lg">
-                  <h2 className="text-base font-semibold text-accent mb-2 flex items-center justify-center gap-2">
-                    <ShieldCheck size={20} weight="duotone" />
-                    Infinity Brain Promise
-                  </h2>
-                  <p className="text-sm text-foreground/90 text-center">
-                    You will never be asked for secret keys, terminal commands, or code.
-                    If something can be done safely for you, it will be.
-                  </p>
-                </div>
-                
-                <div className="max-w-md mx-auto">
-                  <SafeModeToggle />
-                </div>
               </div>
             </header>
 
@@ -549,7 +528,6 @@ function App() {
           <IntentBasedHelper onNavigate={setActiveTab} />
           {typeof window !== 'undefined' && window.spark && <BackgroundChanger />}
           {typeof window !== 'undefined' && window.spark && <WelcomeFlow onNavigate={setActiveTab} />}
-          <SafetyFooter />
           <AIDebugger />
           <BismuthSignalReader />
           <BrainStatus />

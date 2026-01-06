@@ -3,12 +3,12 @@
 A comprehensive tokenized business ecosystem platform that provides zero-cost infrastructure for creating, managing, and trading business tokens - designed to scale into a global economy where every business has its own currency backed by the Infinity framework. Features USD-to-INF token sales, live blockchain integration with real exchanges, automated repository management with one-click deploy, AI-powered page repair with image upload capabilities, continuous page health monitoring that auto-fixes design issues, real-time value tracking based on user engagement metrics, earning opportunities, racing game-style auto-pilot controls, comprehensive auction analytics with AI-powered market forecasting, batch automation system, live website manager that links directly to deployed pages (not GitHub repos), and safety-first UX that protects non-technical users while empowering advanced users. No API keys required - everything runs through authenticated user sessions.
 
 **Experience Qualities**:
-1. **Safe & Protective** - Users are shielded from technical complexity with explicit safety promises, safe mode toggle, background AI guardian notifications, plain-language interfaces, welcome flow, and "help me choose" dialogs - never asked for secret keys, API tokens, terminal commands, or confusing code
-2. **Empowering & Autonomous** - Racing game-style auto-pilot system with granular batch automation lets users shift between manual control and automation for auctions, trading, pricing, analytics, and more - like shifting gears in a race car, users can automate entire workflows or take control for specific tasks. Live blockchain trading with real price feeds and exchange connectivity.
-3. **Comprehensive & Transparent** - Complete analytics dashboards with AI market forecasting, real-time metrics, predictive recommendations, intent-based navigation, continuous page health monitoring that auto-fixes design issues, and human-friendly labels ("Create" not "Mint", "Publish" not "Deploy") make complex operations accessible to everyone
+1. **Empowering & Autonomous** - Racing game-style auto-pilot system with granular batch automation lets users shift between manual control and automation for auctions, trading, pricing, analytics, and more - like shifting gears in a race car, users can automate entire workflows or take control for specific tasks. Live blockchain trading with real price feeds and exchange connectivity.
+2. **Comprehensive & Transparent** - Complete analytics dashboards with AI market forecasting, real-time metrics, predictive recommendations, intent-based navigation, continuous page health monitoring that auto-fixes design issues, and human-friendly labels make complex operations accessible to everyone
+3. **Modern & Professional** - Clean interface with vibrant gradients, smooth animations, and intuitive navigation that feels like a next-generation economic platform
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a multi-feature ecosystem platform integrating user authentication, token minting, real-time value tracking, USD token sales, comprehensive module registry, AI capabilities with predictive analytics, search, visualization, persistent session management, racing-style automation controls with batch processing, comprehensive auction analytics with market forecasting, welcome flow personalization, and safety-first UX that translates complex systems into human cognition.
+This is a multi-feature ecosystem platform integrating user authentication, token minting, real-time value tracking, USD token sales, comprehensive module registry, AI capabilities with predictive analytics, search, visualization, persistent session management, racing-style automation controls with batch processing, comprehensive auction analytics with market forecasting, welcome flow personalization, and intuitive navigation.
 
 ## Essential Features
 
@@ -18,20 +18,6 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Trigger: Always visible in main tab navigation and hamburger menu
 - Progression: User scans main 7 tabs → Selects primary section (e.g., Trade) → Views 4 sub-category tabs with icons (Marketplace, Auctions, Market Data, Analytics) → Clicks sub-category → Accesses focused feature set → Or opens hamburger menu → Sees 8 major categories with emoji headers → Expands category to see sub-groups with indented items → Navigates directly to specific tool
 - Success criteria: Main navigation shows 7 primary tabs with clear icons, each primary tab contains 2-4 sub-category tabs with icons and concise labels, hamburger menu organizes all advanced features into 8 categories, sub-groups within categories use visual indentation (pl-6) and smaller icons (size 18), category headers use emoji for quick visual scanning, no more than 5 items per sub-group to prevent overwhelm, smooth animations between navigation levels, mobile-responsive layout collapses gracefully, users report improved feature discoverability in testing
-
-**Safety Promise & Trust Building**
-- Functionality: Prominent safety promise displayed at the top of every page stating users will never be asked for secret keys, terminal commands, or code - if something can be done safely, it will be done for them
-- Purpose: Immediately lower anxiety for non-technical users, establish trust before any interaction, and differentiate from technical platforms that expect users to adapt to software complexity
-- Trigger: Automatically visible on page load in header area
-- Progression: User lands on page → Sees green shield icon with safety promise card → Reads explicit guarantee about no technical requirements → Feels safe to explore → AI Guardian notification appears confirming protection → Footer reinforces "no action can break computer or cost money" → User confidently navigates knowing system protects them
-- Success criteria: Safety promise visible above fold, uses friendly green color scheme with shield icon, text is plain-language without jargon, promise persists across sessions, users report feeling safer in feedback, bounce rate decreases for non-technical users
-
-**Safe Mode Toggle**
-- Functionality: Prominent toggle switch that enables/disables safe mode - when ON, hides advanced options, prevents irreversible actions, and disables anything involving money, deployment, or publishing until user explicitly disables safe mode
-- Purpose: Protect parents, kids, tired users, and stressed users from making mistakes by creating a protective buffer layer - tells users "the system is protecting me" and allows confident exploration without fear
-- Trigger: Toggle visible in header area below safety promise, defaults to ON for new users
-- Progression: User sees "🔒 Safe Mode (On)" toggle → Advanced tabs like Deploy, Admin, Buy INF are hidden or preview-only → Destructive actions show explanations instead of executing → User gains confidence → When ready, user disables safe mode → Toast notification warns about increased access → All features become available → User can re-enable anytime
-- Success criteria: Toggle persists across sessions using useKV, safe mode ON hides minimum 6 advanced features, shows clear "What happens next" previews for hidden actions, toast notifications confirm state changes, mobile-responsive design, color-coded states (green=safe, yellow=unlocked), users report feeling protected
 
 **Racing Game Auto-Pilot Control System**
 - Functionality: Sega-style racing game interface for automation control with 6 sections (Auctions, Trading, Pricing, Redistribution, Analytics, Quality Scoring) - each can be toggled between auto-pilot (AI controlled) and manual mode with 1-8 hour "shift" timers for temporary manual control
@@ -73,29 +59,6 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Trigger: Floating button in bottom-right, always visible
 - Progression: User clicks "Help me choose" → Dialog opens with 4 intent cards → User selects intent (e.g., "Trade & Earn") → Shows 3 destination options relevant to that intent with clear labels → User clicks destination → Navigates to correct tab → Dialog closes → User lands in right place without guessing
 - Success criteria: Button visible on all pages, dialog mobile-friendly, 4 intent categories with 3 destinations each, smooth navigation, prevents users from feeling lost, reduces incorrect tab clicks, animated transitions
-
-**AI Guardian Notification**
-- Functionality: Fixed notification card in top-right showing AI is watching for mistakes and will stop to explain if something looks unsafe or confusing
-- Purpose: Frame AI as guardian, translator, and buffer between human and system - not a black box but a protective presence that prevents errors
-- Trigger: Appears automatically on page load, persists while browsing
-- Progression: User lands on page → AI Guardian card fades in → Shows robot icon with pulse animation → Message explains AI protection → User feels reassured → Card stays visible but unobtrusive → If user attempts risky action, AI can show warning
-- Success criteria: Card positioned top-right without blocking content, uses friendly blue/purple gradient, robot icon pulses subtly, dismissible but reappears on next session, mobile-responsive positioning, text is reassuring not threatening
-
-**Safety Footer**
-- Functionality: Footer bar at bottom of every page stating "No action here can break your computer, steal your account, or cost money without clear confirmation"
-- Purpose: Final reassurance that reinforces trust and safety - addresses common fears that prevent non-technical users from exploring
-- Trigger: Always visible at bottom of page
-- Progression: User scrolls to bottom → Sees shield icon and safety statement → Feels final layer of confidence → Can explore features without fear
-- Success criteria: Always at page bottom, uses shield icon, bold text for key message, persists across all tabs, mobile-responsive
-
-**Human-Friendly Tab Labels**
-- Functionality: Tab labels redesigned to use plain language that expresses intent rather than technical jargon - "Create" instead of "Builder", "Do Many" instead of "Batch", "Take With Me" instead of "Export", "Publish" instead of "Deploy", "My Controls" instead of "Admin", "Add Abilities" instead of "Modules", "Create Value" instead of "Mint", "Recognize" instead of "Scanner"
-- Purpose: Reduce cognitive load by using language non-technical users understand - enables users to point and say "that makes sense" without asking for help
-- Trigger: Visible in all tab navigation
-- Progression: User scans tab bar → Sees familiar, intent-based words → Understands what each tab does without hovering or clicking → Confidently navigates to desired location → Reduces analysis paralysis
-- Success criteria: All 36+ tabs use human-friendly labels, maintains consistency in phrasing, preserves iconography for visual learners, no technical acronyms or jargon, user testing shows improved comprehension
-
-## Essential Features
 
 **Token Redistribution Notification System**
 - Functionality: Proactive alert system that monitors token holder activity and sends escalating warnings before inactive tokens are automatically redistributed to active traders
@@ -152,13 +115,6 @@ This is a multi-feature ecosystem platform integrating user authentication, toke
 - Trigger: Navigate to "Live Blockchain" tab to access trading interface
 - Progression: User opens Blockchain tab → Sees "Live Prices" tab with 5 tokens (INF, ETH, BTC, SOL, MATIC) showing current price, 24h change percentage with trend arrow, 24h volume, and Buy/Sell buttons → Prices update automatically every 5 seconds with realistic random fluctuations ±2% → User clicks "Buy 1" or "Sell 1" → Trade executes immediately with pending status → After 2 seconds, trade completes and appears in History tab → User navigates to "Wallets" tab → Clicks "Connect Ethereum/Polygon/Binance/Solana" buttons → Simulated wallet connection generates mock address and shows in connected list with network badge → User can disconnect wallets anytime → User navigates to "Trade" tab → Selects exchange (Simulated, Uniswap, PancakeSwap, Raydium) → If simulated, yellow banner explains demo mode → Grid shows quick-trade buttons for each token → User navigates to "History" tab → Scrollable list shows all trades with type badge (BUY/SELL), token amount, price, timestamp, and status badge (pending/completed/failed) → Auto-trade toggle in header enables AI trading → When enabled, toast confirms "AI will monitor prices and execute trades automatically" → All operations work without API keys or real funds → Clear indication when using simulated vs real mode
 - Success criteria: 5 tokens displayed with live prices, prices update every 5 seconds, realistic ±2% price fluctuations, 24h change shows positive/negative with colored trend arrows, volume displayed in millions format, Buy/Sell buttons execute trades instantly, pending trades show for 2 seconds before completing, 4 blockchain networks supported for wallet connection, wallet addresses shown in truncated format (0x...1234), connected wallets display with colored network badges, 4 exchange options in dropdown, simulated mode shows warning banner, trade grid shows 4 tokens with quick-trade buttons, trade history persists using useKV, history shows all trade details with status badges, auto-trade toggle works and shows confirmation toast, all trades recorded with timestamp and full details, supports filtering trade history by token/type, mobile-responsive layout with touch-friendly buttons, smooth animations for price updates and trade executions, no real API connections required until user explicitly chooses real exchange
-
-**Background AI Guardian with Triggered Alerts**
-- Functionality: Subtle, dismissible AI presence that appears briefly on first visit then stays hidden in the background, monitoring user actions and only appearing as a small notification when it detects something potentially unsafe or confusing that warrants intervention
-- Purpose: Provide protective AI oversight without constant visual noise - let users explore freely while knowing AI is watching for mistakes, only interrupting when truly necessary to prevent errors or explain complex actions
-- Trigger: Automatically appears on first visit for 5 seconds, can be manually dismissed, reappears when triggered by risky actions
-- Progression: User lands on page for first time → After 2 seconds, small card fades in top-right corner → Shows minimal text "Infinity AI is watching for mistakes" with robot icon → Auto-dismisses after 5 seconds → User can click X button to dismiss manually → Dismissal saves to useKV so card doesn't reappear → AI monitors in background for risky patterns (large financial transactions, irreversible deployments, data deletions) → When risky action detected, card reappears with specific alert message → User reads warning and can proceed or cancel → Card dismisses after alert acknowledged → Background monitoring continues throughout session → Subtle, semi-transparent design doesn't block content → Mobile-responsive positioning
-- Success criteria: Card appears 2 seconds after first page load, displays for 5 seconds then fades out, dismiss button saves preference to useKV, dismissed state persists across sessions, card has semi-transparent background with backdrop blur, positioned top-right without blocking primary content, robot icon with reduced opacity for subtlety, alert messages specific to detected risk, reappears only when triggered not on timer, mobile positioning adjusts to avoid nav/header overlap, smooth fade in/out animations, text concise (under 15 words), uses calming blue/purple colors, no intrusive animations or flashing
 
 **Real-Time Token Metrics & Value System**
 - Functionality: Comprehensive engagement tracking system that measures every user interaction with tokens (clicks, views, transfers, bids, trades) and automatically calculates real-time token values based on actual usage metrics
