@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { House, Robot, Sparkle, CurrencyDollar, Storefront, GitBranch, GameController, MusicNotes, LockKey, Brain } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
-import { TokenMinter } from '@/components/TokenMinter'
-import { TokenMarketplace } from '@/components/TokenMarketplace'
-import { TokenAuction } from '@/components/TokenAuction'
-import { RepoManagementHub } from '@/components/RepoManagementHub'
-import { AIChat } from '@/components/AIChat'
-import { QuantumJukebox } from '@/components/QuantumJukebox'
-import { QuantumEncryptionVault } from '@/components/QuantumEncryptionVault'
-import { SlotMachine } from '@/components/SlotMachine'
-import { EmojiCatcherGame } from '@/components/EmojiCatcherGame'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
+import { NeuralSlotChat } from '@/components/NeuralSlotChat'
+import { UserBehaviorHeatmap } from '@/components/UserBehaviorHeatmap'
+import { AIProjectCompletionAssistant } from '@/components/AIProjectCompletionAssistant'
+import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
+import { RepoCartSync } from '@/components/RepoCartSync'
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
@@ -35,218 +30,166 @@ function App() {
   return (
     <div className="min-h-screen mesh-background">
       <Toaster position="top-right" />
-      <div className="container mx-auto px-6 py-10 max-w-7xl">
-        <header className="mb-12 space-y-6">
+      <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
+        <header className="mb-10 space-y-4">
           <div className="flex items-center justify-center gap-4">
-            <Sparkle size={48} weight="duotone" className="text-accent animate-pulse" />
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <Infinity size={56} weight="duotone" className="text-blue-500 animate-pulse" />
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent">
               Infinity Brain
             </h1>
           </div>
-          <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto">
-            Your AI-powered productivity hub with Mongoose.os intelligence
+          <p className="text-center text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            AI-Powered Intelligence System • Clean Blue & White Design
           </p>
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full max-w-6xl mx-auto grid-cols-3 md:grid-cols-9 h-auto gap-3 bg-card/80 backdrop-blur p-3 rounded-2xl">
-            <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <House size={24} weight="duotone" />
-              <span className="text-xs font-medium">Home</span>
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 gap-2 bg-white/80 backdrop-blur p-2 rounded-xl border-2 border-blue-200">
+            <TabsTrigger 
+              value="home" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <Brain size={20} weight="duotone" />
+              <span className="hidden sm:inline">Home</span>
             </TabsTrigger>
-            <TabsTrigger value="brain" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <Brain size={24} weight="duotone" />
-              <span className="text-xs font-medium">Mongoose</span>
+            <TabsTrigger 
+              value="mongoose" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <Brain size={20} weight="duotone" />
+              <span className="hidden sm:inline">Mongoose</span>
             </TabsTrigger>
-            <TabsTrigger value="create" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <CurrencyDollar size={24} weight="duotone" />
-              <span className="text-xs font-medium">Create</span>
+            <TabsTrigger 
+              value="chat" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <ChatCircle size={20} weight="duotone" />
+              <span className="hidden sm:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="trade" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <Storefront size={24} weight="duotone" />
-              <span className="text-xs font-medium">Trade</span>
+            <TabsTrigger 
+              value="heatmap" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <ChartBar size={20} weight="duotone" />
+              <span className="hidden sm:inline">Heatmap</span>
             </TabsTrigger>
-            <TabsTrigger value="build" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <GitBranch size={24} weight="duotone" />
-              <span className="text-xs font-medium">Build</span>
+            <TabsTrigger 
+              value="assistant" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <Robot size={20} weight="duotone" />
+              <span className="hidden sm:inline">Assistant</span>
             </TabsTrigger>
-            <TabsTrigger value="explore" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <Robot size={24} weight="duotone" />
-              <span className="text-xs font-medium">Explore</span>
-            </TabsTrigger>
-            <TabsTrigger value="quantum" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <MusicNotes size={24} weight="duotone" />
-              <span className="text-xs font-medium">Quantum</span>
-            </TabsTrigger>
-            <TabsTrigger value="vault" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <LockKey size={24} weight="duotone" />
-              <span className="text-xs font-medium">Vault</span>
-            </TabsTrigger>
-            <TabsTrigger value="play" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground flex flex-col items-center gap-2 py-3 rounded-xl">
-              <GameController size={24} weight="duotone" />
-              <span className="text-xs font-medium">Play</span>
+            <TabsTrigger 
+              value="charts" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white flex items-center gap-2 py-3 rounded-lg"
+            >
+              <ChartLine size={20} weight="duotone" />
+              <span className="hidden sm:inline">Charts</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="home" className="space-y-10">
-            <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/90 backdrop-blur rounded-3xl p-10 border-2 border-accent/20 shadow-xl">
-              <div className="text-center space-y-6">
-                <h2 className="text-4xl font-bold">Welcome to Infinity Brain</h2>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Your personal AI-powered productivity hub for creating tokens, trading, building websites, and managing your digital economy with Mongoose.os intelligence.
+          <TabsContent value="home" className="space-y-8">
+            <div className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-2xl p-8 md:p-12 border-2 border-blue-300 shadow-xl">
+              <div className="text-center space-y-4">
+                <h2 className="text-3xl md:text-4xl font-bold">Welcome to Infinity Brain</h2>
+                <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+                  Your AI-powered intelligence system with Mongoose.os, Neural Chat, Behavior Analytics, 
+                  Project Completion Assistant, Infinity Token Charts with Plateau Growth, and Auto Repo Cart Sync.
                 </p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Button
-                onClick={() => setActiveTab('brain')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('mongoose')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <Brain size={40} weight="duotone" />
+                <Brain size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">Mongoose.os</div>
-                  <div className="text-sm opacity-90">AI intelligence system</div>
+                  <div className="font-bold text-2xl">Mongoose.os</div>
+                  <div className="text-sm text-blue-100 mt-2">AI intelligence system with data cart processing</div>
                 </div>
-              </Button>
+              </div>
 
-              <Button
-                onClick={() => setActiveTab('create')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('chat')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <CurrencyDollar size={40} weight="duotone" />
+                <ChatCircle size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">Create Tokens</div>
-                  <div className="text-sm opacity-90">Mint & manage tokens</div>
+                  <div className="font-bold text-2xl">Neural Slot Chat</div>
+                  <div className="text-sm text-blue-100 mt-2">AI-powered chat with spinning slot reels</div>
                 </div>
-              </Button>
+              </div>
 
-              <Button
-                onClick={() => setActiveTab('trade')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('heatmap')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <Storefront size={40} weight="duotone" />
+                <ChartBar size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">Trade & Markets</div>
-                  <div className="text-sm opacity-90">Buy, sell, and auction</div>
+                  <div className="font-bold text-2xl">Behavior Heatmap</div>
+                  <div className="text-sm text-cyan-100 mt-2">Track most used features and activity trends</div>
                 </div>
-              </Button>
+              </div>
 
-              <Button
-                onClick={() => setActiveTab('build')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('assistant')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <GitBranch size={40} weight="duotone" />
+                <Robot size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">Build & Deploy</div>
-                  <div className="text-sm opacity-90">Create websites</div>
+                  <div className="font-bold text-2xl">AI Project Assistant</div>
+                  <div className="text-sm text-blue-100 mt-2">Intelligent project completion suggestions</div>
                 </div>
-              </Button>
+              </div>
 
-              <Button
-                onClick={() => setActiveTab('explore')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('charts')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <Robot size={40} weight="duotone" />
+                <ChartLine size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">AI Chat</div>
-                  <div className="text-sm opacity-90">Talk with AI assistant</div>
+                  <div className="font-bold text-2xl">Infinity Charts</div>
+                  <div className="text-sm text-cyan-100 mt-2">Token charts with plateau growth algorithm</div>
                 </div>
-              </Button>
+              </div>
 
-              <Button
-                onClick={() => setActiveTab('quantum')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all rounded-2xl"
+              <div
+                onClick={() => setActiveTab('mongoose')}
+                className="cursor-pointer group h-48 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
               >
-                <MusicNotes size={40} weight="duotone" />
+                <GitBranch size={48} weight="duotone" className="mb-4" />
                 <div>
-                  <div className="font-bold text-xl">Quantum Jukebox</div>
-                  <div className="text-sm opacity-90">Bismuth audio system</div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => setActiveTab('vault')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all rounded-2xl"
-              >
-                <LockKey size={40} weight="duotone" />
-                <div>
-                  <div className="font-bold text-xl">Encryption Vault</div>
-                  <div className="text-sm opacity-90">SHA + Bismuth encryption</div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => setActiveTab('play')}
-                className="h-40 text-lg flex-col gap-4 bg-gradient-to-br from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 shadow-lg hover:shadow-xl transition-all rounded-2xl"
-              >
-                <GameController size={40} weight="duotone" />
-                <div>
-                  <div className="font-bold text-xl">Play & Earn</div>
-                  <div className="text-sm opacity-90">Games and rewards</div>
-                </div>
-              </Button>
-            </div>
-
-            <div className="bg-card/90 backdrop-blur rounded-3xl p-8 border border-border shadow-lg">
-              <h3 className="text-2xl font-semibold mb-6">Quick Stats</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center p-6 bg-gradient-to-br from-muted/70 to-muted/50 rounded-2xl">
-                  <div className="text-3xl font-bold text-primary">∞</div>
-                  <div className="text-sm text-muted-foreground mt-2">Tokens Created</div>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-muted/70 to-muted/50 rounded-2xl">
-                  <div className="text-3xl font-bold text-secondary">∞</div>
-                  <div className="text-sm text-muted-foreground mt-2">Active Auctions</div>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-muted/70 to-muted/50 rounded-2xl">
-                  <div className="text-3xl font-bold text-accent">∞</div>
-                  <div className="text-sm text-muted-foreground mt-2">Websites Built</div>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-muted/70 to-muted/50 rounded-2xl">
-                  <div className="text-3xl font-bold text-primary">∞</div>
-                  <div className="text-sm text-muted-foreground mt-2">Community Members</div>
+                  <div className="font-bold text-2xl">Repo Cart Sync</div>
+                  <div className="text-sm text-blue-100 mt-2">Auto-sync files between all repos</div>
                 </div>
               </div>
             </div>
+
+            <RepoCartSync />
           </TabsContent>
 
-          <TabsContent value="brain" className="space-y-8">
+          <TabsContent value="mongoose" className="space-y-8">
             <MongooseOSBrain />
+            <RepoCartSync />
           </TabsContent>
 
-          <TabsContent value="create" className="space-y-8">
-            <TokenMinter />
+          <TabsContent value="chat" className="space-y-8">
+            <NeuralSlotChat />
           </TabsContent>
 
-          <TabsContent value="trade" className="space-y-8">
-            <div className="space-y-8">
-              <TokenMarketplace />
-              <TokenAuction />
-            </div>
+          <TabsContent value="heatmap" className="space-y-8">
+            <UserBehaviorHeatmap />
           </TabsContent>
 
-          <TabsContent value="build" className="space-y-8">
-            <RepoManagementHub />
+          <TabsContent value="assistant" className="space-y-8">
+            <AIProjectCompletionAssistant />
           </TabsContent>
 
-          <TabsContent value="explore" className="space-y-8">
-            <AIChat />
-          </TabsContent>
-
-          <TabsContent value="quantum" className="space-y-8">
-            <QuantumJukebox />
-          </TabsContent>
-
-          <TabsContent value="vault" className="space-y-8">
-            <QuantumEncryptionVault />
-          </TabsContent>
-
-          <TabsContent value="play" className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              <SlotMachine />
-              <EmojiCatcherGame />
-            </div>
+          <TabsContent value="charts" className="space-y-8">
+            <InfinityTokenCharts />
           </TabsContent>
         </Tabs>
       </div>
