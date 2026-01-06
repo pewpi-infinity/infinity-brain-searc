@@ -1,3 +1,7 @@
 /// <reference types="vite/client" />
 declare const GITHUB_RUNTIME_PERMANENT_NAME: string
 declare const BASE_KV_SERVICE_URL: string
+
+interface Window {
+  __C13B0_GUEST_MODE__?: boolean;
+}
