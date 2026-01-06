@@ -97,13 +97,6 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Check for guest mode override (C13B0 bypass)
-        const guestMode = typeof window !== 'undefined' && window.__C13B0_GUEST_MODE__;
-        
-        if (guestMode) {
-          console.log('🚀 Guest Mode enabled - full access without auth')
-        }
-        
         if (typeof window === 'undefined' || !window.spark) {
           console.log('⚡ Spark not available - running in standalone mode')
           return
@@ -115,7 +108,6 @@ function App() {
       }
     }
     
-    // Don't block - initialize asynchronously
     initializeApp().catch(err => console.warn('Init note:', err))
   }, [])
 

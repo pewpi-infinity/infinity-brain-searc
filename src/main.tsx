@@ -8,24 +8,6 @@ import App from './App.tsx'
 
 import "./main.css"
 
-// 🔐 SPARK ANCHOR — runs immediately on load
-function assertSparkBound() {
-  if (typeof window !== 'undefined') {
-    // Force Guest Mode - Spark will work without authentication
-    window.__C13B0_GUEST_MODE__ = true;
-    
-    // Spark identity binding - allow app to run without waiting for auth
-    if (!window.spark) {
-      console.log('⚡ Spark environment not detected - running in guest mode')
-    } else {
-      console.log('✅ Spark environment detected')
-    }
-  }
-}
-
-// Execute Spark binding BEFORE React renders
-assertSparkBound();
-
 const root = document.getElementById('root')
 
 if (!root) {
