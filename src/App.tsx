@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, SignIn, SignOut } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
@@ -117,27 +118,22 @@ function App() {
               {user ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full" />
+                    <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full border-2 border-primary/20" />
                     <span className="text-sm font-medium">{user.login}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <Badge variant="secondary" className="text-xs">
                       {tokenBalance || 0} INF
-                    </span>
+                    </Badge>
                   </div>
-                  <Button variant="outline" size="default" onClick={handleSignOut}>
-                    <SignOut size={18} className="mr-2" />
+                  <Button variant="outline" size="sm" onClick={handleSignOut} className="h-9">
+                    <SignOut size={16} className="mr-1.5" />
                     Sign Out
                   </Button>
                 </>
               ) : (
-                <>
-                  <Button variant="outline" size="default" onClick={handleSignIn}>
-                    <SignIn size={18} className="mr-2" />
-                    Sign In with GitHub
-                  </Button>
-                  <Button size="default" className="bg-gradient-to-r from-primary to-secondary" onClick={handleSignIn}>
-                    Get Started
-                  </Button>
-                </>
+                <Button size="sm" className="bg-gradient-to-r from-primary to-secondary h-9" onClick={handleSignIn}>
+                  <SignIn size={16} className="mr-1.5" />
+                  Sign In with GitHub
+                </Button>
               )}
             </div>
           </div>
