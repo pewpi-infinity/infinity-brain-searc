@@ -232,7 +232,11 @@ export class ClientModel<T extends Document = Document> {
   // Private helper methods
 
   private generateId(): string {
-    return `${this.modelName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto.getRandomValues for secure ID generation
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    const hex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return `${this.modelName}_${Date.now()}_${hex.substring(0, 16)}`;
   }
 
   private async getAll(): Promise<T[]> {

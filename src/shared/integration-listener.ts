@@ -221,5 +221,8 @@ export async function simpleIntegration() {
 // Export all for convenience
 export {
   tokenService,
-  authService,
 } from './services/token-service';
+
+export {
+  authService,
+} from './services/auth-service';

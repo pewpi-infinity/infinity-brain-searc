@@ -244,7 +244,11 @@ class TokenService {
   // Private helper methods
 
   private generateId(): string {
-    return `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto.getRandomValues for secure ID generation
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    const hex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return `token_${Date.now()}_${hex.substring(0, 16)}`;
   }
 
   private emitEvent(event: TokenEvent): void {
