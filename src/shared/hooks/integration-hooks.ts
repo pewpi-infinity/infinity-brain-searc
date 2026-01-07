@@ -108,7 +108,7 @@ export async function getIntegrationState() {
  * 
  * Use this to notify other repos of state changes
  */
-export function emitIntegrationEvent(eventName: string, data: any) {
+export function emitIntegrationEvent(eventName: string, data: Token | { user: AuthUser | null; action: string } | any) {
   window.dispatchEvent(new CustomEvent(`pewpi.${eventName}`, { detail: data }));
 }
 

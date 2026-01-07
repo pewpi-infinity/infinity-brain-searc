@@ -71,7 +71,7 @@ export class ClientModel<T extends ModelSchema> {
   async create(data: Partial<T>): Promise<ModelDocument & T> {
     const now = new Date();
     const doc: ModelDocument & T = {
-      _id: `${this.collectionName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      _id: `${this.collectionName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       createdAt: now,
       updatedAt: now,
       ...data as T

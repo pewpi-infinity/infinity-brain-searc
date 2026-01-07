@@ -54,7 +54,7 @@ class TokenService {
   private fallbackStorage: Map<string, Token>;
   private useIndexedDB: boolean;
   private autoTrackingEnabled: boolean;
-  private eventListeners: Map<string, Set<Function>>;
+  private eventListeners: Map<string, Set<(data: any) => void>>;
 
   constructor() {
     this.db = new TokenDatabase();
@@ -104,7 +104,7 @@ class TokenService {
     }
   }
 
-  private emit(eventName: string, data: any): void {
+  private emit(eventName: string, data: Token | TokenTransaction | { tokens?: Token[]; id?: string }): void {
     // Emit custom window event for cross-repo integration
     window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
     
@@ -121,7 +121,7 @@ class TokenService {
     }
   }
 
-  public on(eventName: string, listener: Function): () => void {
+  public on(eventName: string, listener: (data: any) => void): () => void {
     if (!this.eventListeners.has(eventName)) {
       this.eventListeners.set(eventName, new Set());
     }
@@ -142,7 +142,7 @@ class TokenService {
   async createToken(token: Omit<Token, 'id' | 'metadata'> & { metadata?: Partial<Token['metadata']> }): Promise<Token> {
     const now = new Date().toISOString();
     const newToken: Token = {
-      id: `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `token_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       name: token.name,
       symbol: token.symbol,
       balance: token.balance,
@@ -321,7 +321,7 @@ class TokenService {
    */
   async recordTransaction(transaction: Omit<TokenTransaction, 'id' | 'timestamp'>): Promise<TokenTransaction> {
     const newTransaction: TokenTransaction = {
-      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `tx_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       timestamp: new Date().toISOString(),
       ...transaction
     };
