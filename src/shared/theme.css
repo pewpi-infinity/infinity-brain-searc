@@ -1,0 +1,338 @@
+/**
+ * Pewpi Shared Theme - CSS Variables and Component Styles
+ * Consistent styling across all Pewpi repositories
+ */
+
+:root {
+  /* Primary Colors */
+  --pewpi-primary: #8b5cf6;
+  --pewpi-primary-dark: #7c3aed;
+  --pewpi-primary-light: #a78bfa;
+  
+  /* Currency Colors */
+  --pewpi-infinity: #8b5cf6;
+  --pewpi-research: #3b82f6;
+  --pewpi-art: #ec4899;
+  --pewpi-music: #10b981;
+  
+  /* Background */
+  --pewpi-bg: #ffffff;
+  --pewpi-bg-secondary: #f9fafb;
+  --pewpi-bg-tertiary: #f3f4f6;
+  
+  /* Text */
+  --pewpi-text: #111827;
+  --pewpi-text-secondary: #6b7280;
+  --pewpi-text-muted: #9ca3af;
+  
+  /* Border */
+  --pewpi-border: #e5e7eb;
+  --pewpi-border-hover: #d1d5db;
+  
+  /* Success/Error/Warning */
+  --pewpi-success: #10b981;
+  --pewpi-error: #ef4444;
+  --pewpi-warning: #f59e0b;
+  --pewpi-info: #3b82f6;
+  
+  /* Shadows */
+  --pewpi-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --pewpi-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --pewpi-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --pewpi-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Border Radius */
+  --pewpi-radius-sm: 0.25rem;
+  --pewpi-radius: 0.5rem;
+  --pewpi-radius-md: 0.75rem;
+  --pewpi-radius-lg: 1rem;
+  --pewpi-radius-xl: 1.5rem;
+  --pewpi-radius-full: 9999px;
+  
+  /* Spacing */
+  --pewpi-spacing-xs: 0.25rem;
+  --pewpi-spacing-sm: 0.5rem;
+  --pewpi-spacing: 1rem;
+  --pewpi-spacing-md: 1.5rem;
+  --pewpi-spacing-lg: 2rem;
+  --pewpi-spacing-xl: 3rem;
+  
+  /* Font Family */
+  --pewpi-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --pewpi-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  
+  /* Font Size */
+  --pewpi-text-xs: 0.75rem;
+  --pewpi-text-sm: 0.875rem;
+  --pewpi-text-base: 1rem;
+  --pewpi-text-lg: 1.125rem;
+  --pewpi-text-xl: 1.25rem;
+  --pewpi-text-2xl: 1.5rem;
+  --pewpi-text-3xl: 1.875rem;
+  --pewpi-text-4xl: 2.25rem;
+  
+  /* Transitions */
+  --pewpi-transition: all 0.2s ease-in-out;
+  --pewpi-transition-fast: all 0.15s ease-in-out;
+  --pewpi-transition-slow: all 0.3s ease-in-out;
+}
+
+/* Dark Mode */
+.dark {
+  --pewpi-bg: #111827;
+  --pewpi-bg-secondary: #1f2937;
+  --pewpi-bg-tertiary: #374151;
+  
+  --pewpi-text: #f9fafb;
+  --pewpi-text-secondary: #d1d5db;
+  --pewpi-text-muted: #9ca3af;
+  
+  --pewpi-border: #374151;
+  --pewpi-border-hover: #4b5563;
+  
+  --pewpi-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --pewpi-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+  --pewpi-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --pewpi-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+}
+
+/* Login Component Styles */
+.pewpi-login-container {
+  background: var(--pewpi-bg);
+  border: 1px solid var(--pewpi-border);
+  border-radius: var(--pewpi-radius-md);
+  box-shadow: var(--pewpi-shadow-lg);
+  padding: var(--pewpi-spacing-lg);
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.pewpi-login-title {
+  color: var(--pewpi-text);
+  font-size: var(--pewpi-text-2xl);
+  font-weight: 700;
+  margin-bottom: var(--pewpi-spacing);
+}
+
+.pewpi-login-description {
+  color: var(--pewpi-text-secondary);
+  font-size: var(--pewpi-text-sm);
+  margin-bottom: var(--pewpi-spacing-lg);
+}
+
+.pewpi-login-input {
+  width: 100%;
+  padding: var(--pewpi-spacing-sm) var(--pewpi-spacing);
+  border: 1px solid var(--pewpi-border);
+  border-radius: var(--pewpi-radius);
+  background: var(--pewpi-bg);
+  color: var(--pewpi-text);
+  font-size: var(--pewpi-text-base);
+  transition: var(--pewpi-transition);
+}
+
+.pewpi-login-input:focus {
+  outline: none;
+  border-color: var(--pewpi-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.pewpi-login-button {
+  width: 100%;
+  padding: var(--pewpi-spacing-sm) var(--pewpi-spacing);
+  background: var(--pewpi-primary);
+  color: white;
+  border: none;
+  border-radius: var(--pewpi-radius);
+  font-size: var(--pewpi-text-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--pewpi-transition);
+}
+
+.pewpi-login-button:hover {
+  background: var(--pewpi-primary-dark);
+}
+
+.pewpi-login-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pewpi-login-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--pewpi-spacing);
+  margin: var(--pewpi-spacing-lg) 0;
+  color: var(--pewpi-text-muted);
+  font-size: var(--pewpi-text-xs);
+  text-transform: uppercase;
+}
+
+.pewpi-login-divider::before,
+.pewpi-login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--pewpi-border);
+}
+
+/* Wallet Component Styles */
+.pewpi-wallet-container {
+  background: var(--pewpi-bg);
+  border: 1px solid var(--pewpi-border);
+  border-radius: var(--pewpi-radius-md);
+  box-shadow: var(--pewpi-shadow-lg);
+  padding: var(--pewpi-spacing-lg);
+}
+
+.pewpi-wallet-balance {
+  font-size: var(--pewpi-text-4xl);
+  font-weight: 700;
+  color: var(--pewpi-text);
+  margin-bottom: var(--pewpi-spacing-lg);
+}
+
+.pewpi-wallet-token-card {
+  background: var(--pewpi-bg-secondary);
+  border: 1px solid var(--pewpi-border);
+  border-radius: var(--pewpi-radius);
+  padding: var(--pewpi-spacing);
+  margin-bottom: var(--pewpi-spacing-sm);
+  cursor: pointer;
+  transition: var(--pewpi-transition);
+}
+
+.pewpi-wallet-token-card:hover {
+  background: var(--pewpi-bg-tertiary);
+  border-color: var(--pewpi-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--pewpi-shadow-md);
+}
+
+.pewpi-wallet-token-name {
+  font-size: var(--pewpi-text-lg);
+  font-weight: 600;
+  color: var(--pewpi-text);
+}
+
+.pewpi-wallet-token-amount {
+  font-size: var(--pewpi-text-sm);
+  color: var(--pewpi-text-secondary);
+}
+
+.pewpi-wallet-token-value {
+  font-size: var(--pewpi-text-xl);
+  font-weight: 700;
+  color: var(--pewpi-text);
+}
+
+/* Currency Badges */
+.pewpi-badge-infinity {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--pewpi-infinity);
+  padding: var(--pewpi-spacing-xs) var(--pewpi-spacing-sm);
+  border-radius: var(--pewpi-radius-full);
+  font-size: var(--pewpi-text-xs);
+  font-weight: 600;
+}
+
+.pewpi-badge-research {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--pewpi-research);
+  padding: var(--pewpi-spacing-xs) var(--pewpi-spacing-sm);
+  border-radius: var(--pewpi-radius-full);
+  font-size: var(--pewpi-text-xs);
+  font-weight: 600;
+}
+
+.pewpi-badge-art {
+  background: rgba(236, 72, 153, 0.2);
+  color: var(--pewpi-art);
+  padding: var(--pewpi-spacing-xs) var(--pewpi-spacing-sm);
+  border-radius: var(--pewpi-radius-full);
+  font-size: var(--pewpi-text-xs);
+  font-weight: 600;
+}
+
+.pewpi-badge-music {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--pewpi-music);
+  padding: var(--pewpi-spacing-xs) var(--pewpi-spacing-sm);
+  border-radius: var(--pewpi-radius-full);
+  font-size: var(--pewpi-text-xs);
+  font-weight: 600;
+}
+
+/* Feed Component Styles */
+.pewpi-feed-container {
+  background: var(--pewpi-bg-secondary);
+  border-radius: var(--pewpi-radius);
+  padding: var(--pewpi-spacing);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pewpi-feed-item {
+  background: var(--pewpi-bg);
+  border: 1px solid var(--pewpi-border);
+  border-radius: var(--pewpi-radius-sm);
+  padding: var(--pewpi-spacing-sm);
+  margin-bottom: var(--pewpi-spacing-sm);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pewpi-feed-message {
+  color: var(--pewpi-text);
+  font-size: var(--pewpi-text-sm);
+}
+
+.pewpi-feed-timestamp {
+  color: var(--pewpi-text-muted);
+  font-size: var(--pewpi-text-xs);
+  margin-top: var(--pewpi-spacing-xs);
+}
+
+/* Utility Classes */
+.pewpi-text-primary {
+  color: var(--pewpi-primary);
+}
+
+.pewpi-text-success {
+  color: var(--pewpi-success);
+}
+
+.pewpi-text-error {
+  color: var(--pewpi-error);
+}
+
+.pewpi-text-warning {
+  color: var(--pewpi-warning);
+}
+
+.pewpi-text-info {
+  color: var(--pewpi-info);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .pewpi-login-container,
+  .pewpi-wallet-container {
+    padding: var(--pewpi-spacing);
+  }
+  
+  .pewpi-wallet-balance {
+    font-size: var(--pewpi-text-3xl);
+  }
+}
