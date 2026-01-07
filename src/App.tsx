@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
@@ -12,6 +12,7 @@ import { AIProjectCompletionAssistant } from '@/components/AIProjectCompletionAs
 import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
 import { RepoCartSync } from '@/components/RepoCartSync'
 import { QuantumJukebox } from '@/components/QuantumJukebox'
+import { DemoIntegration } from '@/components/DemoIntegration'
 
 interface UserInfo {
   avatarUrl: string
@@ -132,6 +133,13 @@ function App() {
               <Atom size={16} weight="duotone" className="mr-2" />
               Quantum
             </TabsTrigger>
+            <TabsTrigger 
+              value="wallet" 
+              className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md px-3 py-2 h-9 text-sm font-medium transition-all"
+            >
+              <Wallet size={16} weight="duotone" className="mr-2" />
+              Wallet
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-10">
@@ -244,6 +252,25 @@ function App() {
               </Card>
 
               <Card
+                className="cursor-pointer border border-border hover:border-primary hover:shadow-md transition-all duration-300 glow-card"
+              >
+                <CardContent className="p-6 flex flex-col gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 w-fit">
+                    <Wallet size={32} weight="duotone" className="text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg mb-2 text-foreground">Wallet & Tokens</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                      Production login and token management system
+                    </p>
+                  </div>
+                  <button onClick={() => setActiveTab('wallet')} className="mushroom-btn">
+                    Open
+                  </button>
+                </CardContent>
+              </Card>
+
+              <Card
                 className="cursor-pointer border border-border hover:border-secondary hover:shadow-md transition-all duration-300 glow-card"
               >
                 <CardContent className="p-6 flex flex-col gap-4">
@@ -308,6 +335,10 @@ function App() {
 
           <TabsContent value="quantum" className="space-y-8">
             <QuantumJukebox />
+          </TabsContent>
+
+          <TabsContent value="wallet" className="space-y-8">
+            <DemoIntegration />
           </TabsContent>
         </Tabs>
       </div>
