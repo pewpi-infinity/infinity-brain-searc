@@ -343,12 +343,12 @@ class AuthServiceClass {
   /**
    * Create a new session
    */
-  private async createSession(user: User): Promise<Session> {
+  private async createSession(user: any): Promise<Session> {
     const token = this.generateToken();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
 
     const session = await SessionModel.create({
-      userId: user.id,
+      userId: user._id || user.id, // Support both _id and id
       token,
       expiresAt,
       lastActive: new Date().toISOString(),
