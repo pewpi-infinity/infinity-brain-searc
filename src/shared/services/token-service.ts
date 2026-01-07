@@ -214,9 +214,24 @@ class TokenService {
       const tokens = JSON.parse(jsonData) as Token[];
       let imported = 0;
       
-      for (const token of tokens) {
-        await this.db.tokens.put(token);
-        imported++;
+      try {
+        for (const token of tokens) {
+          await this.db.tokens.put(token);
+          imported++;
+        }
+      } catch (dbError) {
+        // Fallback to localStorage
+        console.log('TokenService: Using localStorage for import');
+        const existingTokens = this.getLocalStorageTokens();
+        for (const token of tokens) {
+          // Avoid duplicates
+          const exists = existingTokens.find(t => t.id === token.id);
+          if (!exists) {
+            existingTokens.push(token);
+            imported++;
+          }
+        }
+        this.setLocalStorageTokens(existingTokens);
       }
       
       return imported;
