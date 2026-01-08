@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet as WalletIcon, SignOut } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet as WalletIcon, LogIn } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
@@ -14,6 +15,12 @@ import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
 import { RepoCartSync } from '@/components/RepoCartSync'
 import { QuantumJukebox } from '@/components/QuantumJukebox'
 import { Wallet, Login, useAuth, initializePewpiShared } from '@/shared'
+import { LoginComponent } from '@/shared/auth/login-component'
+import { WalletUI } from '@/shared/wallet/wallet-ui'
+import { TokenService } from '@/shared/token-service'
+import { AuthService } from '@/shared/auth/auth-service'
+import { createInfinityBrainIntegration } from '@/shared/integration/listener'
+import '@/shared/theme.css'
 
 interface UserInfo {
   avatarUrl: string
@@ -31,6 +38,9 @@ function App() {
   
   // Use the shared auth system
   const { user: sharedUser, isAuthenticated, logout: sharedLogout } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
+  const [showWallet, setShowWallet] = useState(false)
+  const [tokenCount, setTokenCount] = useState(0)
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -39,6 +49,21 @@ function App() {
         await initializePewpiShared()
         
         // Try Spark authentication first
+        // Initialize integration listener
+        const integration = createInfinityBrainIntegration()
+        
+        // Initialize token tracking
+        TokenService.initAutoTracking()
+
+        // Listen for token events
+        const unsubscribe = TokenService.on('created', (event) => {
+          updateTokenCount()
+          toast.success(`Token created: ${event.token.name}`, {
+            description: `${event.token.amount} ${event.token.symbol}`
+          })
+        })
+
+        // Try Spark auth first
         const currentUser = await window.spark.user()
         console.log('Spark user data:', currentUser)
         
@@ -47,6 +72,20 @@ function App() {
           toast.success(`Welcome back, ${currentUser.login}! 🧠`, {
             description: `You have ${tokenBalance || 0} INF tokens`
           })
+        } else {
+          // Check for our auth system
+          const authUser = AuthService.getCurrentUser()
+          if (authUser) {
+            toast.success(`Welcome back, ${authUser.username}! 🧠`)
+          }
+        }
+
+        // Load initial token count
+        updateTokenCount()
+
+        return () => {
+          unsubscribe()
+          integration.cleanup()
         }
       } catch (error) {
         console.error('Initialization error:', error)
@@ -73,6 +112,17 @@ function App() {
   // Show login screen if no authentication
   if (!isLoading && !hasAuth) {
     return <Login />
+  const updateTokenCount = async () => {
+    const tokens = await TokenService.getAll()
+    setTokenCount(tokens.length)
+  }
+
+  const handleLoginSuccess = () => {
+    const authUser = AuthService.getCurrentUser()
+    if (authUser) {
+      toast.success(`Welcome, ${authUser.username}!`)
+    }
+    setShowLogin(false)
   }
 
   return (
@@ -94,14 +144,23 @@ function App() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              {displayUser && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowWallet(true)}
+                className="flex items-center gap-2"
+              >
+                <WalletIcon size={16} />
+                <span className="hidden sm:inline">Wallet</span>
+                <Badge variant="secondary" className="text-xs">
+                  {tokenCount}
+                </Badge>
+              </Button>
+              
+              {user ? (
                 <div className="flex items-center gap-2">
-                  {sparkUser && sparkUser.avatarUrl && (
-                    <img src={sparkUser.avatarUrl} alt={sparkUser.login} className="w-8 h-8 rounded-full border-2 border-border" />
-                  )}
-                  <span className="text-sm font-medium text-foreground">
-                    {sparkUser?.login || sharedUser?.email || sharedUser?.githubLogin}
-                  </span>
+                  <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full border-2 border-border" />
+                  <span className="text-sm font-medium text-foreground hidden sm:inline">{user.login}</span>
                   <Badge variant="secondary" className="text-xs">
                     {tokenBalance || 0} INF
                   </Badge>
@@ -116,6 +175,15 @@ function App() {
                     </Button>
                   )}
                 </div>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center gap-2"
+                >
+                  <LogIn size={16} />
+                  <span className="hidden sm:inline">Login</span>
+                </Button>
               )}
             </div>
           </div>
@@ -372,6 +440,19 @@ function App() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Login Modal */}
+      <LoginComponent
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSuccess={handleLoginSuccess}
+      />
+
+      {/* Wallet Modal */}
+      <WalletUI
+        open={showWallet}
+        onClose={() => setShowWallet(false)}
+      />
     </div>
   )
 }
