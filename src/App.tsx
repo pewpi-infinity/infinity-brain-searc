@@ -3,6 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet as WalletIcon, SignOut } from '@phosphor-icons/react'
+import { Brain, ChatCircle, ChartBar, ChartLine, GitBranch, Robot, Infinity, Atom, MusicNotes, Wallet as WalletIcon, LogIn } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { MongooseOSBrain } from '@/components/MongooseOSBrain'
@@ -13,6 +16,13 @@ import { InfinityTokenCharts } from '@/components/InfinityTokenCharts'
 import { RepoCartSync } from '@/components/RepoCartSync'
 import { QuantumJukebox } from '@/components/QuantumJukebox'
 import { DemoIntegration } from '@/components/DemoIntegration'
+import { Wallet, Login, useAuth, initializePewpiShared } from '@/shared'
+import { LoginComponent } from '@/shared/auth/login-component'
+import { WalletUI } from '@/shared/wallet/wallet-ui'
+import { TokenService } from '@/shared/token-service'
+import { AuthService } from '@/shared/auth/auth-service'
+import { createInfinityBrainIntegration } from '@/shared/integration/listener'
+import '@/shared/theme.css'
 
 interface UserInfo {
   avatarUrl: string
@@ -24,24 +34,64 @@ interface UserInfo {
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
-  const [user, setUser] = useState<UserInfo | null>(null)
+  const [sparkUser, setSparkUser] = useState<UserInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [tokenBalance, setTokenBalance] = useKV<number>('user-token-balance', 0)
+  
+  // Use the shared auth system
+  const { user: sharedUser, isAuthenticated, logout: sharedLogout } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
+  const [showWallet, setShowWallet] = useState(false)
+  const [tokenCount, setTokenCount] = useState(0)
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // Initialize shared system
+        await initializePewpiShared()
+        
+        // Try Spark authentication first
+        // Initialize integration listener
+        const integration = createInfinityBrainIntegration()
+        
+        // Initialize token tracking
+        TokenService.initAutoTracking()
+
+        // Listen for token events
+        const unsubscribe = TokenService.on('created', (event) => {
+          updateTokenCount()
+          toast.success(`Token created: ${event.token.name}`, {
+            description: `${event.token.amount} ${event.token.symbol}`
+          })
+        })
+
+        // Try Spark auth first
         const currentUser = await window.spark.user()
-        console.log('User data:', currentUser)
+        console.log('Spark user data:', currentUser)
         
         if (currentUser && currentUser.login) {
-          setUser(currentUser)
+          setSparkUser(currentUser)
           toast.success(`Welcome back, ${currentUser.login}! 🧠`, {
             description: `You have ${tokenBalance || 0} INF tokens`
           })
+        } else {
+          // Check for our auth system
+          const authUser = AuthService.getCurrentUser()
+          if (authUser) {
+            toast.success(`Welcome back, ${authUser.username}! 🧠`)
+          }
+        }
+
+        // Load initial token count
+        updateTokenCount()
+
+        return () => {
+          unsubscribe()
+          integration.cleanup()
         }
       } catch (error) {
         console.error('Initialization error:', error)
+        console.log('Spark not available, using shared auth system')
       } finally {
         setIsLoading(false)
       }
@@ -50,7 +100,32 @@ function App() {
     initializeApp()
   }, [])
 
+  // Determine which user to display
+  const displayUser = sparkUser || sharedUser
+  const hasAuth = sparkUser !== null || isAuthenticated
 
+  const handleLogout = async () => {
+    if (sharedLogout) {
+      await sharedLogout()
+      toast.success('Logged out successfully')
+    }
+  }
+
+  // Show login screen if no authentication
+  if (!isLoading && !hasAuth) {
+    return <Login />
+  const updateTokenCount = async () => {
+    const tokens = await TokenService.getAll()
+    setTokenCount(tokens.length)
+  }
+
+  const handleLoginSuccess = () => {
+    const authUser = AuthService.getCurrentUser()
+    if (authUser) {
+      toast.success(`Welcome, ${authUser.username}!`)
+    }
+    setShowLogin(false)
+  }
 
   return (
     <div className="min-h-screen cosmic-background">
@@ -64,16 +139,53 @@ function App() {
               <h1 className="text-xl font-bold text-foreground">
                 Infinity Brain
               </h1>
+              {isAuthenticated && !sparkUser && (
+                <Badge variant="outline" className="text-xs">
+                  Shared Auth
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-3">
-              {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowWallet(true)}
+                className="flex items-center gap-2"
+              >
+                <WalletIcon size={16} />
+                <span className="hidden sm:inline">Wallet</span>
+                <Badge variant="secondary" className="text-xs">
+                  {tokenCount}
+                </Badge>
+              </Button>
+              
+              {user ? (
                 <div className="flex items-center gap-2">
                   <img src={user.avatarUrl} alt={user.login} className="w-8 h-8 rounded-full border-2 border-border" />
-                  <span className="text-sm font-medium text-foreground">{user.login}</span>
+                  <span className="text-sm font-medium text-foreground hidden sm:inline">{user.login}</span>
                   <Badge variant="secondary" className="text-xs">
                     {tokenBalance || 0} INF
                   </Badge>
+                  {isAuthenticated && !sparkUser && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleLogout}
+                      className="ml-2"
+                    >
+                      <SignOut size={16} weight="duotone" />
+                    </Button>
+                  )}
                 </div>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center gap-2"
+                >
+                  <LogIn size={16} />
+                  <span className="hidden sm:inline">Login</span>
+                </Button>
               )}
             </div>
           </div>
@@ -90,6 +202,13 @@ function App() {
             >
               <Brain size={16} weight="duotone" className="mr-2" />
               Home
+            </TabsTrigger>
+            <TabsTrigger 
+              value="wallet" 
+              className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md px-3 py-2 h-9 text-sm font-medium transition-all"
+            >
+              <WalletIcon size={16} weight="duotone" className="mr-2" />
+              Wallet
             </TabsTrigger>
             <TabsTrigger 
               value="mongoose" 
@@ -148,9 +267,16 @@ function App() {
                 <div className="text-center space-y-4">
                   <h2 className="text-3xl font-bold text-foreground">Welcome to Infinity Brain</h2>
                   <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                    AI-powered intelligence system with Mongoose.os, Neural Chat, Behavior Analytics, 
-                    Project Completion Assistant, Infinity Token Charts with Plateau Growth, and Auto Repo Cart Sync.
+                    AI-powered intelligence system with production-grade login, wallet, token synchronization,
+                    Mongoose.os, Neural Chat, Behavior Analytics, Project Completion Assistant, 
+                    Infinity Token Charts with Plateau Growth, and Auto Repo Cart Sync.
                   </p>
+                  <div className="flex justify-center gap-4 mt-6">
+                    <Button onClick={() => setActiveTab('wallet')}>
+                      <WalletIcon size={18} weight="duotone" className="mr-2" />
+                      Open Wallet
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -312,6 +438,10 @@ function App() {
             <RepoCartSync />
           </TabsContent>
 
+          <TabsContent value="wallet" className="space-y-8">
+            <Wallet />
+          </TabsContent>
+
           <TabsContent value="mongoose" className="space-y-8">
             <MongooseOSBrain />
             <RepoCartSync />
@@ -342,6 +472,19 @@ function App() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Login Modal */}
+      <LoginComponent
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSuccess={handleLoginSuccess}
+      />
+
+      {/* Wallet Modal */}
+      <WalletUI
+        open={showWallet}
+        onClose={() => setShowWallet(false)}
+      />
     </div>
   )
 }
