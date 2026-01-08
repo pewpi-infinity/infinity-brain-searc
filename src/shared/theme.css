@@ -1,4 +1,59 @@
 /**
+ * Pewpi Shared Theme - Standardized CSS variables for login/wallet components
+ * Ensures consistent styling across all repos (banksy, v, infinity-brain-searc, repo-dashboard-hub)
+ */
+
+:root {
+  /* Primary branding colors */
+  --pewpi-primary: #6366f1;
+  --pewpi-primary-hover: #4f46e5;
+  --pewpi-primary-active: #4338ca;
+  
+  /* Accent colors */
+  --pewpi-accent: #8b5cf6;
+  --pewpi-accent-hover: #7c3aed;
+  
+  /* Success/error states */
+  --pewpi-success: #10b981;
+  --pewpi-success-light: #d1fae5;
+  --pewpi-error: #ef4444;
+  --pewpi-error-light: #fee2e2;
+  --pewpi-warning: #f59e0b;
+  --pewpi-warning-light: #fef3c7;
+  
+  /* Authentication UI colors */
+  --pewpi-auth-bg: #ffffff;
+  --pewpi-auth-card-bg: #f9fafb;
+  --pewpi-auth-border: #e5e7eb;
+  --pewpi-auth-text: #111827;
+  --pewpi-auth-text-muted: #6b7280;
+  
+  /* Wallet UI colors */
+  --pewpi-wallet-balance-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --pewpi-wallet-card-bg: #ffffff;
+  --pewpi-wallet-border: #e5e7eb;
+  --pewpi-wallet-hover: #f3f4f6;
+  
+  /* Token colors */
+  --pewpi-token-bg: #ffffff;
+  --pewpi-token-border: #d1d5db;
+  --pewpi-token-selected: #ede9fe;
+  --pewpi-token-selected-border: #8b5cf6;
+  
+  /* Button styles */
+  --pewpi-button-primary-bg: var(--pewpi-primary);
+  --pewpi-button-primary-hover: var(--pewpi-primary-hover);
+  --pewpi-button-primary-text: #ffffff;
+  --pewpi-button-secondary-bg: #f3f4f6;
+  --pewpi-button-secondary-hover: #e5e7eb;
+  --pewpi-button-secondary-text: #374151;
+  
+  /* Input styles */
+  --pewpi-input-bg: #ffffff;
+  --pewpi-input-border: #d1d5db;
+  --pewpi-input-focus-border: var(--pewpi-primary);
+  --pewpi-input-text: #111827;
+  --pewpi-input-placeholder: #9ca3af;
  * Pewpi Shared Theme - CSS Variables and Component Styles
  * Consistent styling across all Pewpi repositories
  */
@@ -52,6 +107,79 @@
   /* Spacing */
   --pewpi-spacing-xs: 0.25rem;
   --pewpi-spacing-sm: 0.5rem;
+  --pewpi-spacing-md: 1rem;
+  --pewpi-spacing-lg: 1.5rem;
+  --pewpi-spacing-xl: 2rem;
+  
+  /* Border radius */
+  --pewpi-radius-sm: 0.375rem;
+  --pewpi-radius-md: 0.5rem;
+  --pewpi-radius-lg: 0.75rem;
+  --pewpi-radius-full: 9999px;
+  
+  /* Shadows */
+  --pewpi-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pewpi-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --pewpi-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --pewpi-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Typography */
+  --pewpi-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --pewpi-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  /* Transitions */
+  --pewpi-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --pewpi-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --pewpi-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode overrides */
+[data-theme="dark"], .dark {
+  --pewpi-auth-bg: #111827;
+  --pewpi-auth-card-bg: #1f2937;
+  --pewpi-auth-border: #374151;
+  --pewpi-auth-text: #f9fafb;
+  --pewpi-auth-text-muted: #9ca3af;
+  
+  --pewpi-wallet-card-bg: #1f2937;
+  --pewpi-wallet-border: #374151;
+  --pewpi-wallet-hover: #374151;
+  
+  --pewpi-token-bg: #1f2937;
+  --pewpi-token-border: #4b5563;
+  --pewpi-token-selected: #312e81;
+  --pewpi-token-selected-border: #8b5cf6;
+  
+  --pewpi-button-secondary-bg: #374151;
+  --pewpi-button-secondary-hover: #4b5563;
+  --pewpi-button-secondary-text: #f9fafb;
+  
+  --pewpi-input-bg: #1f2937;
+  --pewpi-input-border: #4b5563;
+  --pewpi-input-text: #f9fafb;
+  --pewpi-input-placeholder: #6b7280;
+}
+
+/* Component-specific styles */
+
+/* Login component */
+.pewpi-login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pewpi-spacing-lg);
+  background: var(--pewpi-auth-bg);
+}
+
+.pewpi-login-card {
+  background: var(--pewpi-auth-card-bg);
+  border: 1px solid var(--pewpi-auth-border);
+  border-radius: var(--pewpi-radius-lg);
+  padding: var(--pewpi-spacing-xl);
+  box-shadow: var(--pewpi-shadow-lg);
+  max-width: 28rem;
+  width: 100%;
   --pewpi-spacing: 1rem;
   --pewpi-spacing-md: 1.5rem;
   --pewpi-spacing-lg: 2rem;
@@ -122,6 +250,13 @@
 
 .pewpi-login-input {
   width: 100%;
+  padding: var(--pewpi-spacing-md);
+  border: 1px solid var(--pewpi-input-border);
+  border-radius: var(--pewpi-radius-md);
+  background: var(--pewpi-input-bg);
+  color: var(--pewpi-input-text);
+  font-size: 0.875rem;
+  transition: border-color var(--pewpi-transition-fast);
   padding: var(--pewpi-spacing-sm) var(--pewpi-spacing);
   border: 1px solid var(--pewpi-border);
   border-radius: var(--pewpi-radius);
@@ -133,12 +268,64 @@
 
 .pewpi-login-input:focus {
   outline: none;
+  border-color: var(--pewpi-input-focus-border);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   border-color: var(--pewpi-primary);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 .pewpi-login-button {
   width: 100%;
+  padding: var(--pewpi-spacing-md);
+  background: var(--pewpi-button-primary-bg);
+  color: var(--pewpi-button-primary-text);
+  border: none;
+  border-radius: var(--pewpi-radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--pewpi-transition-fast);
+}
+
+.pewpi-login-button:hover {
+  background: var(--pewpi-button-primary-hover);
+}
+
+.pewpi-login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Wallet component */
+.pewpi-wallet-container {
+  padding: var(--pewpi-spacing-lg);
+}
+
+.pewpi-wallet-balance-card {
+  background: var(--pewpi-wallet-balance-bg);
+  color: white;
+  padding: var(--pewpi-spacing-xl);
+  border-radius: var(--pewpi-radius-lg);
+  box-shadow: var(--pewpi-shadow-lg);
+}
+
+.pewpi-wallet-balance {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pewpi-token-card {
+  background: var(--pewpi-token-bg);
+  border: 1px solid var(--pewpi-token-border);
+  border-radius: var(--pewpi-radius-md);
+  padding: var(--pewpi-spacing-md);
+  transition: all var(--pewpi-transition-base);
+  cursor: pointer;
+}
+
+.pewpi-token-card:hover {
+  border-color: var(--pewpi-primary);
+  background: var(--pewpi-wallet-hover);
   padding: var(--pewpi-spacing-sm) var(--pewpi-spacing);
   background: var(--pewpi-primary);
   color: white;
@@ -210,6 +397,24 @@
   box-shadow: var(--pewpi-shadow-md);
 }
 
+.pewpi-token-card.selected {
+  background: var(--pewpi-token-selected);
+  border-color: var(--pewpi-token-selected-border);
+}
+
+.pewpi-token-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--pewpi-spacing-xs) var(--pewpi-spacing-sm);
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--pewpi-accent);
+  border-radius: var(--pewpi-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Feed animation */
+@keyframes pewpi-feed-entry {
 .pewpi-wallet-token-name {
   font-size: var(--pewpi-text-lg);
   font-weight: 600;
@@ -293,6 +498,60 @@
   }
 }
 
+.pewpi-feed-item {
+  animation: pewpi-feed-entry var(--pewpi-transition-base);
+}
+
+/* Status indicators */
+.pewpi-status-online {
+  width: 8px;
+  height: 8px;
+  background: var(--pewpi-success);
+  border-radius: var(--pewpi-radius-full);
+  display: inline-block;
+  animation: pewpi-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pewpi-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Utility classes */
+.pewpi-text-muted {
+  color: var(--pewpi-auth-text-muted);
+}
+
+.pewpi-divider {
+  height: 1px;
+  background: var(--pewpi-auth-border);
+  margin: var(--pewpi-spacing-lg) 0;
+}
+
+.pewpi-scrollable {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.pewpi-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pewpi-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pewpi-scrollable::-webkit-scrollbar-thumb {
+  background: var(--pewpi-auth-border);
+  border-radius: var(--pewpi-radius-full);
+}
+
+.pewpi-scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--pewpi-auth-text-muted);
 .pewpi-feed-message {
   color: var(--pewpi-text);
   font-size: var(--pewpi-text-sm);
