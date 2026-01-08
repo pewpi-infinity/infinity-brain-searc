@@ -35,6 +35,40 @@ This repository now includes a production-grade authentication, wallet, and toke
 - **Session Management** - 30-day sessions with automatic expiration
 - **No Backend Required** - Fully client-side with IndexedDB
 
+## 📦 Pewpi-Shared Library
+
+This repository now includes the **unified pewpi-shared library** - a standardized authentication, wallet, and token management system synthesized from best practices across the pewpi-infinity organization.
+
+### What's in pewpi-shared?
+
+Located in `src/pewpi-shared/`, this library provides:
+- **Token Service**: Dexie-backed IndexedDB with localStorage fallback
+- **Auth Service**: Magic-link and GitHub OAuth authentication
+- **Wallet Helpers**: Token earning, spending, and balance tracking
+- **Integration Listener**: Cross-repo event synchronization
+- **UI Components**: Login modal and wallet display (opt-in)
+
+### How to Enable
+
+The library is **additive and non-destructive** - it works alongside existing code. To use it:
+
+1. Import services in your components:
+   ```typescript
+   import { tokenService } from '@/pewpi-shared/token-service';
+   import { authService } from '@/pewpi-shared/auth-service';
+   ```
+
+2. Services are automatically initialized in `src/main.tsx` (defensive, won't break builds)
+
+3. See `src/pewpi-shared/docs/INTEGRATION.md` for complete documentation
+
+### Feature Flag
+
+To enable/disable pewpi-shared features, set environment variable:
+```bash
+VITE_ENABLE_PEWPI_SHARED=true
+```
+
 ## Features
 
 - **Token Creation & Management** - Create and manage tokens with real-time synchronization

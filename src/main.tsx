@@ -8,6 +8,26 @@ import App from './App.tsx'
 
 import "./main.css"
 
+// Defensive initialization of pewpi-shared services
+// This is opt-in and non-destructive to existing code
+try {
+  const { tokenService } = await import('./pewpi-shared/token-service');
+  const { authService } = await import('./pewpi-shared/auth-service');
+  
+  // Initialize auth service and restore session if available
+  await authService.init().catch((error) => {
+    console.warn('pewpi-shared: Auth initialization failed (non-critical)', error);
+  });
+  
+  // Initialize token auto-tracking for cross-tab sync
+  tokenService.initAutoTracking();
+  
+  console.log('pewpi-shared: Services initialized successfully');
+} catch (error) {
+  // Silently fail if pewpi-shared is not available
+  console.warn('pewpi-shared: Initialization skipped', error);
+}
+
 const root = document.getElementById('root')
 
 if (!root) {
