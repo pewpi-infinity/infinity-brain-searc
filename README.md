@@ -76,6 +76,44 @@ npm run test:run  # Run tests once
 npm run test:ui   # Open test UI
 ```
 
+## 📦 Pewpi-Shared Library
+
+This repository now includes the **canonical pewpi-shared library** from GPT-Vector-Design, located in `src/pewpi-shared/`. This is the source-of-truth implementation for authentication, wallet, and token services that can be integrated across all Pewpi repositories.
+
+### What's Included
+
+The `src/pewpi-shared/` directory contains:
+
+- **token-service.js** - Production token management with IndexedDB + localStorage fallback
+- **auth/login-component.js** - Passwordless magic-link authentication + optional GitHub OAuth
+- **wallet/wallet-component.js** - Full-featured wallet UI with balance and token feed
+- **models/client-model.js** - Mongoose-like client-side model emulator
+- **sync/p2p-sync.js** - Optional WebRTC P2P synchronization
+- **integration-listener.js** - Event-based cross-repo integration
+- **theme.css** - Shared Pewpi theme styles
+- **INTEGRATION.md** - Complete integration guide
+
+### Initialization
+
+The shared services are automatically initialized in `src/main.tsx`:
+
+1. **Token Service** - Auto-tracking enabled for cross-tab sync
+2. **Auth Service** - Session automatically restored from localStorage
+3. **Integration Events** - Listeners setup for `pewpi.token.created`, `pewpi.token.updated`, `pewpi.login.changed`
+
+All initialization is wrapped in try/catch blocks to maintain backward compatibility and prevent breaking existing builds.
+
+### Dual Library Support
+
+This repository maintains **both** the canonical shared library and the existing TypeScript implementation:
+
+- `src/pewpi-shared/` - Canonical JavaScript library from GPT-Vector-Design (source of truth)
+- `src/shared/` - Existing TypeScript implementation (repository-specific)
+
+This allows for gradual migration and testing. Future versions may fully consolidate to the pewpi-shared library.
+
+For complete integration instructions and API documentation, see **[src/pewpi-shared/INTEGRATION.md](src/pewpi-shared/INTEGRATION.md)**.
+
 ## 🔐 Authentication
 
 This application supports **passwordless authentication** using magic links:
